@@ -1,0 +1,22 @@
+/**app.wxss**/
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 200rpx 0;
+  box-sizing: border-box;
+} 
+
+page {
+  --theme-color: #1296db;
+  --text-color-primary: #333333;
+  --text-color-secondary: #8a8a8a;
+  --bg-color: #f7f7f7;
+  --border-color: #e8e8e8;
+
+  background-color: var(--bg-color);
+  color: var(--text-color-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+} 

@@ -1,0 +1,20 @@
+{
+  "name": "lcai-miniapp",
+  "version": "1.0.0",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "miniprogram-api-typings": "^4.0.7",
+    "sharp": "^0.34.2"
+  },
+  "dependencies": {
+    "@element-plus/icons-svg": "^2.3.1"
+  }
+}

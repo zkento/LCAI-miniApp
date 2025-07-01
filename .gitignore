@@ -1,0 +1,14 @@
+# WXSS compiled files
+*.wxss.map
+*.wxss.br
+
+# Node modules
+node_modules/
+
+# Private config
+project.private.config.json
+
+# User-specific files
+.DS_Store
+.idea/
+*.log 

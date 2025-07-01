@@ -1,0 +1,15 @@
+<view class="container">
+  <view class="header">
+    <image class="logo" src="/assets/images/logo.png" mode="aspectFit"></image>
+    <text class="title">良策AI分析平台</text>
+    <text class="subtitle">您的智能财务与置业顾问</text>
+  </view>
+  
+  <view class="content">
+    <text class="welcome-text">欢迎使用良策AI，我们致力于为您提供专业、智能的财务分析与决策支持。</text>
+  </view>
+  
+  <view class="footer">
+    <button class="action-btn" type="primary" bindtap="goToAnalyse">开启智能分析</button>
+  </view>
+</view>

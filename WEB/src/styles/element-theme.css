@@ -1,0 +1,58 @@
+:root {
+  --el-color-primary: #1b68de !important;
+  --el-color-primary-light-3: #4785e5 !important;
+  --el-color-primary-light-5: #7da8eb !important;
+  --el-color-primary-light-7: #b3cbf2 !important;
+  --el-color-primary-light-8: #cbdbf6 !important;
+  --el-color-primary-light-9: #e5edfa !important;
+  --el-color-primary-dark-2: #1857be !important;
+}
+
+/* 覆盖按钮相关样式 */
+.el-button--primary {
+  --el-button-bg-color: #1b68de !important;
+  --el-button-border-color: #1b68de !important;
+  --el-button-hover-bg-color: #4785e5 !important;
+  --el-button-hover-border-color: #4785e5 !important;
+  --el-button-active-bg-color: #1857be !important;
+  --el-button-active-border-color: #1857be !important;
+}
+
+
+/* 覆盖Radio相关样式 */
+.el-radio__input.is-checked .el-radio__inner {
+  background-color: #1b68de !important;
+  border-color: #1b68de !important;
+}
+
+.el-radio-button__orig-radio:checked + .el-radio-button__inner {
+  background-color: #1b68de !important;
+  border-color: #1b68de !important;
+  box-shadow: -1px 0 0 0 #1b68de !important;
+}
+
+/* 覆盖表格相关样式 */
+.el-table th.el-table__cell {
+  background-color: #f5f7fa !important;
+}
+
+.el-table .el-table__header-wrapper {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 999 !important;
+}
+
+.el-table__header {
+  border-collapse: separate !important;
+}
+
+.el-table__body {
+  border-collapse: separate !important;
+}
+
+/* 覆盖表单相关样式 */
+.el-input__wrapper.is-focus, 
+.el-textarea__wrapper.is-focus,
+.el-input-number.is-focus .el-input__wrapper {
+  box-shadow: 0 0 0 1px #1b68de inset !important;
+} 

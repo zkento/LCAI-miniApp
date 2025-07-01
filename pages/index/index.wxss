@@ -1,0 +1,70 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 80rpx 40rpx;
+  box-sizing: border-box;
+  height: 100vh;
+  background-color: #f7f8fa;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 80rpx;
+}
+
+.logo {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50%;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.subtitle {
+  font-size: 32rpx;
+  color: #666;
+  margin-top: 10rpx;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+
+.welcome-text {
+  font-size: 30rpx;
+  color: #555;
+  line-height: 1.8;
+}
+
+.footer {
+  width: 100%;
+}
+
+.action-btn {
+  width: 100%;
+  background-color: #1a1a1a;
+  color: white;
+  border-radius: 50rpx;
+  font-size: 34rpx;
+  padding: 24rpx 0;
+  box-shadow: 0 8rpx 16rpx rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.action-btn:active {
+  background-color: #333;
+  transform: translateY(2rpx);
+}
