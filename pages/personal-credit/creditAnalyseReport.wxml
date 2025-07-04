@@ -48,16 +48,18 @@
             </view>
           </view>
           <view class="panel-content">
-            <view wx:if="{{extractedText}}" class="text-content">
-              {{extractedText}}
-            </view>
-            <view wx:else class="text-placeholder">
-              <text>正在提取文字，请稍候...</text>
-            </view>
+            <scroll-view scroll-y="true" style="height: 100%;">
+              <view wx:if="{{extractedText}}" class="text-content">
+                {{extractedText}}
+              </view>
+              <view wx:else class="text-placeholder">
+                <text>正在提取文字，请稍候...</text>
+              </view>
+            </scroll-view>
           </view>
         </view>
 
-        <!-- 下方显示原文件 -->
+        <!-- 下方显示原始文件 -->
         <view class="original-file">
           <view class="panel-header">
             <view class="header-title">
@@ -85,7 +87,7 @@
         </view>
       </view>
       
-      <!-- 匹配产品的蒙层，当AI未开始返回思考过程的内容前显示 -->
+      <!-- AI处理中的提示，添加安全区域间距 -->
       <view wx:if="{{workingStatus === 'working'}}" class="working-overlay">          
         <view class="ai-tip">
           <view class="loading-spinner"></view>
