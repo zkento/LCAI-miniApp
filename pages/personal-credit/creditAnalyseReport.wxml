@@ -1,0 +1,173 @@
+<navigation-bar id="nav-bar" title="征信分析报告" background="#f8f9fa" bind:back="onBack"></navigation-bar>
+<view class="credit-analyse-report">
+  <!-- 处理步骤区域 - 只在第一步之后显示 -->
+  <view class="steps-header" wx:if="{{activeStep > 1}}">
+    <view class="steps">
+      <view class="step {{activeStep >= 1 ? 'active' : ''}} {{activeStep > 1 ? 'completed' : ''}}">
+        <view class="step-icon">1</view>
+        <view class="step-title">上传文件</view>
+      </view>
+      <view class="step-line {{activeStep >= 2 ? 'active' : ''}}"></view>
+      <view class="step {{activeStep >= 2 ? 'active' : ''}} {{activeStep > 2 ? 'completed' : ''}}">
+        <view class="step-icon">2</view>
+        <view class="step-title">提取内容</view>
+      </view>
+      <view class="step-line {{activeStep >= 3 ? 'active' : ''}}"></view>
+      <view class="step {{activeStep >= 3 ? 'active' : ''}} {{activeStep > 3 ? 'completed' : ''}}">
+        <view class="step-icon">3</view>
+        <view class="step-title">AI思考</view>
+      </view>
+      <view class="step-line {{activeStep >= 4 ? 'active' : ''}}"></view>
+      <view class="step {{activeStep >= 4 ? 'active' : ''}}">
+        <view class="step-icon">4</view>
+        <view class="step-title">分析结果</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 各步骤对应的内容区域 -->
+  <view class="step-content">
+    <!-- 步骤1: 表单提交 -->
+    <block wx:if="{{activeStep === 1}}">
+      <include src="./creditAnalyseForm.wxml" />
+    </block>
+    
+    <!-- 步骤2: 提取文本内容 -->
+    <view wx:if="{{activeStep === 2}}" class="step-container">
+      <view class="extraction-layout">
+        <!-- 上方显示提取的文字 -->
+        <view class="extracted-text">
+          <view class="panel-header">
+            <view class="header-title">
+              <image class="header-icon" src="/assets/images/file_icon.png"></image>
+              <text>提取内容</text>
+            </view>
+            <view class="progress-container">
+              <!-- <progress percent="{{extractionProgress}}" stroke-width="4" activeColor="#1b68de" backgroundColor="#e9ecef" /> -->
+              <text>提取进度：{{extractionProgress}}%</text>
+            </view>
+          </view>
+          <view class="panel-content">
+            <view wx:if="{{extractedText}}" class="text-content">
+              {{extractedText}}
+            </view>
+            <view wx:else class="text-placeholder">
+              <text>正在提取文字，请稍候...</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 下方显示原文件 -->
+        <view class="original-file">
+          <view class="panel-header">
+            <view class="header-title">
+              <image class="header-icon" src="/assets/images/file_icon.png"></image>
+              <text>原始文件</text>
+            </view>
+            <!-- <text class="file-name">
+              {{fileList.length ? (fileList[0].name + (fileList.length > 1 ? '等' + fileList.length + '个文件' : '')) : '未知文件'}}
+            </text> -->
+          </view>
+          <view class="panel-content">
+            <view wx:if="{{filePreviewUrl}}" class="file-preview">
+              <image wx:if="{{isImageFile}}" src="{{filePreviewUrl}}" mode="aspectFit" class="preview-image-content"/>
+              <view wx:else class="pdf-preview-placeholder">
+                <image class="pdf-icon" src="/assets/images/file_icon.png" />
+                <text class="pdf-name">{{fileList[0].name}}</text>
+                <button class="view-pdf-button" bindtap="openDocument">点击查看PDF</button>
+              </view>
+            </view>
+            <view wx:else class="file-placeholder">
+              <image class="placeholder-icon" src="/assets/images/file_icon.png"></image>
+              <text>文件加载中...</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 匹配产品的蒙层，当AI未开始返回思考过程的内容前显示 -->
+      <view wx:if="{{workingStatus === 'working'}}" class="working-overlay">          
+        <view class="ai-tip">
+          <view class="loading-spinner"></view>
+          <text>AI正在处理征信内容...已耗时 {{workingTimer}} 秒</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 步骤3: AI思考分析 -->
+    <view wx:if="{{activeStep === 3}}" class="step-container">
+      <view class="Ai-thinking-container">          
+        <!-- AI思考过程内容容器，当思考模式开始后显示 -->
+        <view wx:if="{{workingStatus === 'thinking' || workingStatus === 'generating'}}" class="thinking-container">
+          <view class="panel-header">
+            <view class="header-title">
+              <image class="header-icon" src="/assets/images/file_icon.png"></image>
+              <text wx:if="{{isThinking}}" class="thinking-status">AI正在深度思考中...</text>
+              <text wx:elif="{{workingStatus === 'generating'}}" class="thinking-completed">AI思考已完成。</text>
+            </view>
+          </view>
+          <view class="panel-content">
+            <!-- 报告生成过渡提示，不遮挡思考内容，而是以悬浮提示形式展示 -->
+            <view wx:if="{{workingStatus === 'generating'}}" class="generating-overlay">
+              <view class="generating-content">
+                <view class="loading-spinner"></view>
+                <view class="generating-message">即将生成征信分析报告...</view>
+              </view>
+            </view>
+                
+            <view class="thinking-display {{workingStatus === 'generating' ? 'dimmed' : ''}}">
+              <text>{{displayedThinkingProcess}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 步骤4: 生成分析报告 -->
+    <view wx:if="{{activeStep === 4}}" class="step-container">
+      <view class="report-container">
+        <view class="panel-header">
+          <view class="header-title">
+            <image class="header-icon" src="/assets/images/file_icon.png"></image>
+            <text>征信分析报告</text>
+            <text wx:if="{{reportGenerationDuration > 0}}" class="report-duration">耗时{{reportGenerationDuration}}秒</text>
+          </view>
+          <view class="header-actions">
+            <button 
+              wx:if="{{reportContent}}" 
+              type="primary" 
+              size="mini"
+              bindtap="viewCreditFile"
+              class="action-button"
+            >
+              <image class="button-icon" src="/assets/images/file_icon_white.png"></image>查看征信文件
+            </button>
+            <button 
+              wx:if="{{reportContent}}" 
+              type="primary" 
+              size="mini"
+              bindtap="downloadReport"
+              class="action-button"
+            >
+              <image class="button-icon" src="/assets/images/download.png"></image>下载报告
+            </button>
+            <button 
+              wx:if="{{reportContent}}" 
+              type="warn" 
+              size="mini"
+              bindtap="restartAdvisor"
+              class="action-button"
+            >
+              <image class="button-icon" src="/assets/images/home.png"></image>新的任务
+            </button>
+          </view>
+        </view>
+        <view class="panel-content">
+          <scroll-view scroll-y="true" class="report-content">
+            <rich-text nodes="{{reportContentHtml}}"></rich-text>
+          </scroll-view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view> 

@@ -456,12 +456,12 @@
 
 .action-button {
   width: 100%; /* 撑满 wrapper */
-  height: 90rpx;
+  height: 85rpx;
   background-color: #1b68de;
   color: #ffffff;
   border: none;
   border-radius: 8rpx;
-  font-size: 32rpx;
+  font-size: 30rpx;
   font-weight: bold;
   display: flex;
   align-items: center;

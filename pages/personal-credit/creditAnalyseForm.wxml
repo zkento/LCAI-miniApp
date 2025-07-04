@@ -50,7 +50,7 @@
             <image class="upload-icon" src="/assets/images/upload.png"/>
             <view class="upload-text">
               <block wx:if="{{fileList.length === 0}}">
-                <text class="em-text">{{ fileUploadType === 'pdf' ? '点击上传PDF文件' : '拍照或上传图片文件' }}</text>
+                <text class="em-text">{{ fileUploadType === 'pdf' ? '从微信聊天中选择PDF' : '拍照或上传图片文件' }}</text>
               </block>
               <block wx:else>
                 <text>已上传: </text>

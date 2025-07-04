@@ -205,12 +205,54 @@ Page({
     }
 
     wx.showActionSheet({
-      itemList: ['拍照', '从手机相册选择'],
+      itemList: ['拍照', '从手机相册选择', '从微信聊天中选择'],
       success: (res) => {
         if (res.cancel) {
           return;
         }
 
+        if (res.tapIndex === 2) { // 从微信聊天中选择
+          wx.chooseMessageFile({
+            count: remainingCount,
+            type: 'image',
+            success: (chooseRes) => {
+              const tempFiles = chooseRes.tempFiles;
+              const invalidFiles = [];
+              const validFiles = [];
+
+              tempFiles.forEach(file => {
+                const maxSize = 10 * 1024 * 1024;
+                if (file.size > maxSize) {
+                  invalidFiles.push(file.path);
+                } else {
+                  // chooseMessageFile 直接返回 name 和 path
+                  file.x = 0;
+                  file.y = 0;
+                  validFiles.push(file);
+                }
+              });
+
+              if (invalidFiles.length > 0) {
+                wx.showToast({
+                  title: `${invalidFiles.length}个文件超过10MB限制`,
+                  icon: 'none'
+                });
+              }
+
+              if (validFiles.length > 0) {
+                const newFileList = this.data.fileList.concat(validFiles);
+                this.setData({
+                  fileList: newFileList,
+                  fileUploadCountText: `${newFileList.length}张图片`
+                }, () => {
+                  this.forceLayout();
+                });
+              }
+            }
+          });
+          return; // 选择微信文件后结束函数
+        }
+        
         const sourceType = res.tapIndex === 0 ? ['camera'] : ['album'];
         
         wx.chooseMedia({
@@ -336,27 +378,36 @@ Page({
 
     this.setData({ uploading: true });
 
-    // 模拟上传和分析过程
-    wx.showLoading({
-      title: '正在生成报告...',
-      mask: true
-    });
+    // 准备表单数据
+    const formData = {
+      customerName: this.data.customerName,
+      fileList: this.data.fileList,
+      file: this.data.fileList[0],
+      fileType: this.data.fileUploadType
+    };
 
-    setTimeout(() => {
-      wx.hideLoading();
-      this.setData({ uploading: false });
-      
-      // 跳转到结果页 (假设有 result 页面)
-      wx.navigateTo({
-        url: '/pages/result/result?customerName=' + this.data.customerName,
-        fail: () => {
-          wx.showToast({
-            title: '跳转失败，请重试',
-            icon: 'none'
-          });
-        }
-      });
-    }, 2000);
+    // 将表单数据存储到全局，以便报告页面获取
+    const app = getApp();
+    if (!app.globalData) {
+      app.globalData = {};
+    }
+    app.globalData.creditFormData = formData;
+
+    // 跳转到报告页面
+    wx.navigateTo({
+      url: '/pages/personal-credit/creditAnalyseReport?fromForm=true',
+      success: () => {
+        this.setData({ uploading: false });
+      },
+      fail: (error) => {
+        console.error('跳转失败:', error);
+        this.setData({ uploading: false });
+        wx.showToast({
+          title: '跳转失败，请重试',
+          icon: 'none'
+        });
+      }
+    });
   },
 
   // 开始拖拽

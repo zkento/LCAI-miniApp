@@ -1,10 +1,10 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/analyse/analyse",
     "pages/history/history",
     "pages/profile/profile",
-    "pages/personal-credit/personal-credit",
+    "pages/personal-credit/creditAnalyseForm",
+    "pages/personal-credit/creditAnalyseReport",
     "pages/business-credit/business-credit",
     "pages/finance-advice/finance-advice",
     "pages/property-advice/property-advice"
@@ -23,12 +23,6 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页",
-        "iconPath": "assets/images/home.png",
-        "selectedIconPath": "assets/images/home_selected.png"
-      },
-      {
-        "pagePath": "pages/analyse/analyse",
         "text": "分析",
         "iconPath": "assets/images/analyse.png",
         "selectedIconPath": "assets/images/analyse_selected.png"

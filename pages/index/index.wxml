@@ -1,15 +1,48 @@
 <view class="container">
-  <view class="header">
-    <image class="logo" src="/assets/images/logo.png" mode="aspectFit"></image>
-    <text class="title">良策AI分析平台</text>
-    <text class="subtitle">您的智能财务与置业顾问</text>
+  <view class="page-title-container">
+    <text class="page-title">选择分析服务</text>
+    <text class="page-subtitle">请选择您需要进行智能分析的项目</text>
   </view>
-  
-  <view class="content">
-    <text class="welcome-text">欢迎使用良策AI，我们致力于为您提供专业、智能的财务分析与决策支持。</text>
-  </view>
-  
-  <view class="footer">
-    <button class="action-btn" type="primary" bindtap="goToAnalyse">开启智能分析</button>
+
+  <view class="service-list">
+    <!-- 个人征信分析 -->
+    <view class="service-card" data-url="/pages/personal-credit/creditAnalyseForm" bindtap="navigateToService">
+      <image class="service-icon" src="/assets/images/personal_credit.png"/>
+      <view class="service-info">
+        <text class="service-title">个人征信分析</text>
+        <text class="service-desc">上传征信报告，获取专业分析与优化建议</text>
+      </view>
+      <image class="arrow-icon" src="/assets/images/arrow_right.png"/>
+    </view>
+
+    <!-- 企业征信分析 -->
+    <view class="service-card" data-url="/pages/business-credit/business-credit" bindtap="navigateToService">
+      <image class="service-icon" src="/assets/images/business_credit.png"/>
+      <view class="service-info">
+        <text class="service-title">企业征信分析</text>
+        <text class="service-desc">上传企业报告，全面评估企业信用状况</text>
+      </view>
+      <image class="arrow-icon" src="/assets/images/arrow_right.png"/>
+    </view>
+
+    <!-- 融资顾问报告 -->
+    <view class="service-card" data-url="/pages/finance-advice/finance-advice" bindtap="navigateToService">
+      <image class="service-icon" src="/assets/images/finance_advice.png"/>
+      <view class="service-info">
+        <text class="service-title">融资顾问报告</text>
+        <text class="service-desc">根据您的需求，智能生成融资方案与建议</text>
+      </view>
+      <image class="arrow-icon" src="/assets/images/arrow_right.png"/>
+    </view>
+
+    <!-- 房产建议报告 -->
+    <view class="service-card" data-url="/pages/property-advice/property-advice" bindtap="navigateToService">
+      <image class="service-icon" src="/assets/images/property_advice.png"/>
+      <view class="service-info">
+        <text class="service-title">房产建议报告</text>
+        <text class="service-desc">基于您的财务状况，提供专业的房产配置建议</text>
+      </view>
+      <image class="arrow-icon" src="/assets/images/arrow_right.png"/>
+    </view>
   </view>
 </view>
