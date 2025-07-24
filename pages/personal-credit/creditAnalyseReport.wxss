@@ -4,12 +4,14 @@
 .credit-analyse-report {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 44px - env(safe-area-inset-top)); /* 减去导航栏高度：44px + 安全区域顶部 */
   width: 100%;
   position: relative;
   overflow: hidden;
   background-color: #f5f7fa;
   padding-bottom: env(safe-area-inset-bottom); /* 添加安全区域底部内边距 */
+  margin-top: 0; /* 确保没有额外的上边距 */
+  box-sizing: border-box; /* 确保padding不会增加总高度 */
 }
 
 .step-content {
@@ -19,6 +21,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  min-height: 0; /* 确保flex子元素能正确收缩 */
 }
 
 .step-container {
@@ -27,390 +30,366 @@
   flex-direction: column;
   overflow: hidden;
   padding-bottom: 20rpx;
+  height: 100%;
+  min-height: 0; /* 确保flex子元素能正确收缩 */
 }
 
-/* --------- 2. 步骤导航样式 --------- */
+/* --------- 2. 步骤指示器样式 --------- */
 .steps-header {
-  border-bottom: 1rpx solid #ebeef5;
-  background-color: white;
-  padding: 20rpx 0;
+  background: #ffffff;
+  padding: 32rpx 40rpx;
+  border-bottom: 2rpx solid #f0f0f0;
   flex-shrink: 0; /* 防止被压缩 */
 }
 
-.steps {
+/* --------- 3. 步骤2：提取内容布局 --------- */
+.extraction-layout {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 40rpx;
+  flex: 1;
+  gap: 20rpx;
+  padding: 20rpx;
+  overflow: hidden;
+  min-height: 0; /* 确保flex子元素能正确收缩 */
 }
 
-.step {
+.original-file, .extracted-text {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  position: relative;
+  background: #ffffff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  min-height: 0; /* 确保flex子元素能正确收缩 */
 }
 
-.step-icon {
-  width: 50rpx;
-  height: 50rpx;
-  border-radius: 50%;
-  background-color: #c0c4cc;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  margin-bottom: 10rpx;
-}
-
-.step.active .step-icon {
-  background-color: #1b68de;
-}
-
-.step.completed .step-icon {
-  background-color: #1b68de;
-}
-
-.step-title {
-  font-size: 24rpx;
-  color: #909399;
-}
-
-.step.active .step-title {
-  color: #303133;
-  font-weight: 500;
-}
-
-.step-line {
-  flex: 1;
-  height: 2rpx;
-  background-color: #c0c4cc;
-  margin: 0 10rpx;
-  position: relative;
-  top: -20rpx;
-}
-
-.step-line.active {
-  background-color: #1b68de;
-}
-
-/* --------- 3. 面板通用样式 --------- */
 .panel-header {
-  padding: 0 32rpx;
-  height: 100rpx;
-  border-bottom: 1rpx solid #ebeef5;
+  padding: 24rpx 32rpx;
+  background: #f8f9fa;
+  border-bottom: 2rpx solid #e9ecef;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  background-color: #f5f7fa;
-  z-index: 1;
+  align-items: center;
+  flex-shrink: 0; /* 防止被压缩 */
 }
 
 .header-title {
-  display: flex;
-  align-items: center;
   font-size: 32rpx;
-  font-weight: 500;
-  color: #303133;
-}
-
-.header-icon {
-  width: 44rpx;
-  height: 44rpx;
-  margin-right: 12rpx;
+  font-weight: 600;
+  color: #333333;
 }
 
 .file-name {
-  font-size: 28rpx;
-  margin-left: 20rpx;
-  color: #909399;
-  max-width: 400rpx;
+  font-size: 24rpx;
+  color: #666666;
+  max-width: 200rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.thinking-status {
-  font-size: 28rpx;
-  color: #909399;
-  font-weight: normal;
-  margin-left: 16rpx;
-  display: inline-flex;
-  align-items: center;
-}
-
-.thinking-status::before {
-  content: '';
-  display: inline-block;
-  width: 12rpx;
-  height: 12rpx;
-  background-color: #1b5dd3;
-  border-radius: 50%;
-  margin-right: 12rpx;
-  animation: pulse 1s infinite;
-}
-
-.thinking-completed {
-  font-size: 28rpx;
-  color: #909399;
-  font-weight: normal;
-  margin-left: 16rpx;
-  display: inline-flex;
-  align-items: center;
-}
-
-.thinking-completed::before {
-  content: '';
-  display: inline-block;
-  width: 12rpx;
-  height: 12rpx;
-  background-color: #909399;
-  border-radius: 50%;
-  margin-right: 12rpx;
-}
-
-.report-duration, 
-.response-status {
-  font-size: 28rpx;
-  color: #909399;
-  font-weight: normal;
-  margin-left: 16rpx;
-}
-
-.header-actions {
-  display: flex;
-  gap: 16rpx;
-}
-
-.action-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 28rpx;
-  height: 60rpx;
+.extraction-progress {
   font-size: 24rpx;
-}
-
-.button-icon {
-  width: 32rpx;
-  height: 32rpx;
-  margin-right: 12rpx;
+  color: #1989fa;
+  font-weight: 500;
 }
 
 .panel-content {
   flex: 1;
-  box-sizing: border-box;
-  background-color: #fff;
-  width: 100%;
-  overflow: hidden; /* 修改为不允许自身滚动 */
-  position: relative;
-}
-
-/* --------- 4. 文件提取和预览样式 --------- */
-.extraction-layout {
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-.extracted-text {
-  height: 70%; /* 调整为70%，给原始文件留更多空间 */
-  display: flex;
-  flex-direction: column;
-  border-bottom: 1rpx solid #ebeef5;
-  overflow: hidden;
-}
-
-.original-file {
-  height: 30%; /* 调整为30%，确保能显示完整 */
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-height: 240rpx; /* 增加最小高度 */
+  min-height: 0; /* 确保flex子元素能正确收缩 */
 }
 
 .file-preview {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
-.file-preview image.preview-image-content {
+.preview-image {
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;
+  border-radius: 8rpx;
 }
 
-.file-placeholder,
-.text-placeholder {
+.preview-webview {
+  width: 100%;
+  height: 100%;
+}
+
+.file-placeholder {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  color: #909399;
+  color: #999999;
 }
 
 .placeholder-icon {
-  width: 96rpx;
-  height: 96rpx;
-  margin-bottom: 32rpx;
-}
-
-.text-content {
-  padding: 32rpx;
-  white-space: pre-wrap;
-  line-height: 1.6;
-  word-break: break-all;
-  word-wrap: break-word;
-  box-sizing: border-box;
-  color: #606266;
-  font-size: 28rpx;
-}
-
-/* 进度条样式 */
-.progress-container {
-  /* width: 240rpx; */
-  margin-left: 24rpx;
-  font-size: 28rpx;
-  color: #909399;
-}
-
-/* --------- 5. AI思考和处理相关样式 --------- */
-/* AI处理中的蒙层 */
-.working-overlay {
-  position: fixed;
-  left: 50%;
-  bottom: calc(80rpx + env(safe-area-inset-bottom)); /* 考虑安全区域 */
-  transform: translateX(-50%);
-  width: 480rpx;
-  border-radius: 16rpx;
-  z-index: 100;
-  padding: 20rpx 32rpx;
-  background-color: rgba(0, 0, 0, 0.65);
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.ai-tip {
-  color: #ffffff;
-  font-size: 28rpx;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-}
-
-.loading-spinner {
-  width: 32rpx;
-  height: 32rpx;
-  border: 4rpx solid #ffffff;
-  border-top: 4rpx solid transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  display: inline-block;
-}
-
-/* 思考容器样式 */
-.thinking-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  background-color: #ffffff;
-}
-
-.thinking-display {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  font-size: 28rpx;
-  line-height: 1.6;
-  height: 100%;
-  width: 100%;
-  max-width: 100%;
-  color: #606266;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  word-break: break-all;
-  font-family: monospace;
-  padding: 32rpx;
-  text-align: left;
-  box-sizing: border-box;
-  transition: opacity 0.3s ease;
-}
-
-.thinking-display.dimmed {
+  width: 80rpx;
+  height: 80rpx;
+  margin-bottom: 16rpx;
   opacity: 0.5;
 }
 
-.Ai-thinking-container {
-  width: 100%;
-  height: 100%;
-  background-color: #ffffff;
-  position: relative;
-  overflow: auto;
+.placeholder-text {
+  font-size: 28rpx;
 }
 
-/* 生成报告过程中的悬浮提示 */
-.generating-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 100;
-  pointer-events: none;
-}
-
-.generating-content {
+.extraction-loading {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding: 40rpx 60rpx;
-  border-radius: 16rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.3s ease;
+  gap: 16rpx;
 }
 
-.generating-content .loading-spinner {
-  width: 72rpx;
-  height: 72rpx;
-  border: 6rpx solid #c3c3c3;
-  border-top: 6rpx solid #ffffff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 24rpx;
-}
-
-.generating-message {
+.loading-text {
   font-size: 28rpx;
-  font-weight: 400;
-  color: #ffffff;
-  white-space: nowrap;
+  color: #666666;
 }
 
-/* --------- 6. 报告样式 --------- */
-.report-container {
+.text-content {
+  flex: 1;
+  padding: 32rpx;
+  overflow-y: auto;
+}
+
+.extracted-content {
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: #333333;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* --------- 4. 悬浮按钮样式 --------- */
+.floating-actions {
+  position: absolute;
+  right: 40rpx;
+  bottom: 40rpx;
+  z-index: 100;
+}
+
+.floating-btn {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #1989fa;
+  color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(25, 137, 250, 0.3);
+  transition: all 0.3s ease;
+}
+
+.floating-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 4rpx 12rpx rgba(25, 137, 250, 0.2);
+}
+
+/* --------- 5. 步骤3：AI思考布局 --------- */
+.thinking-layout {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  background: #ffffff;
+  margin: 20rpx;
+  border-radius: 16rpx;
   overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  min-height: 0; /* 确保flex子元素能正确收缩 */
+}
+
+.thinking-header {
+  padding: 32rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0; /* 防止被压缩 */
+}
+
+.thinking-title {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.thinking-timer {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  opacity: 0.9;
+}
+
+.thinking-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* 确保flex子元素能正确收缩 */
+}
+
+.thinking-process {
+  flex: 1;
+  padding: 32rpx;
+  overflow-y: auto;
+}
+
+.thinking-text {
+  line-height: 1.8;
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.thinking-label {
+  font-weight: 600;
+  color: #1989fa;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.thinking-content-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.thinking-cursor {
+  color: #1989fa;
+  font-weight: bold;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.scroll-anchor {
+  height: 1rpx;
+}
+
+/* --------- 6. 步骤4：报告布局 --------- */
+.report-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  min-height: 0; /* 确保flex子元素能正确收缩 */
+}
+
+.report-header {
+  padding: 32rpx;
+  background: #f8f9fa;
+  border-bottom: 2rpx solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0; /* 防止被压缩 */
+}
+
+.report-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+.report-actions {
+  display: flex;
+  gap: 16rpx;
 }
 
 .report-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* 确保flex子元素能正确收缩 */
+}
+
+.report-text {
+  flex: 1;
   padding: 32rpx;
-  line-height: 1.6;
+  overflow-y: auto;
+  line-height: 1.8;
   font-size: 28rpx;
-  height: 100%;
+  color: #333333;
+}
+
+/* 优化 Markdown 内容显示样式 - 参考主流移动端排版 */
+.report-content rich-text {
+  display: block;
+  width: 100%;
+}
+
+/* 标题样式优化 - 参考微信文章、知乎等主流排版 */
+.report-content h1 {
+  font-size: 40rpx !important; /* 一级标题 */
+  font-weight: 600 !important;
+  color: #1a1a1a !important;
+  line-height: 1.4 !important;
+  margin: 48rpx 0 32rpx 0 !important;
+  padding-bottom: 16rpx !important;
+  border-bottom: 2rpx solid #e8e8e8 !important;
+}
+
+.report-content h2 {
+  font-size: 36rpx !important; /* 二级标题 */
+  font-weight: 600 !important;
+  color: #2c2c2c !important;
+  line-height: 1.4 !important;
+  margin: 40rpx 0 24rpx 0 !important;
+}
+
+.report-content h3 {
+  font-size: 32rpx !important; /* 三级标题 */
+  font-weight: 500 !important;
+  color: #404040 !important;
+  line-height: 1.4 !important;
+  margin: 32rpx 0 20rpx 0 !important;
+}
+
+.report-content p {
+  font-size: 30rpx !important;
+  line-height: 1.8 !important;
+  color: #333333 !important;
+  margin: 0 0 24rpx 0 !important;
+  text-align: justify !important; /* 两端对齐 */
+}
+
+.report-content strong {
+  font-weight: 600 !important;
+  color: #1a1a1a !important;
+}
+
+/* 列表样式优化 */
+.report-content ul, .report-content ol {
+  margin: 16rpx 0 24rpx 0 !important;
+  padding-left: 32rpx !important;
+}
+
+.report-content li {
+  font-size: 30rpx !important;
+  line-height: 1.7 !important;
+  color: #333333 !important;
+  margin-bottom: 12rpx !important;
 }
 
 /* --------- 7. 动画效果 --------- */
@@ -428,57 +407,3 @@
     opacity: 0.5;
   }
 }
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(-20rpx); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
-}
-
-.pdf-preview-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 40rpx;
-  box-sizing: border-box;
-  background-color: #f9f9f9;
-}
-
-.pdf-preview-placeholder .pdf-icon {
-  width: 120rpx;
-  height: 120rpx;
-  margin-bottom: 30rpx;
-}
-
-.pdf-preview-placeholder .pdf-name {
-  font-size: 32rpx;
-  color: #606266;
-  text-align: center;
-  margin-bottom: 40rpx;
-  word-break: break-all;
-}
-
-.pdf-preview-placeholder .view-pdf-button {
-  background-color: #1b68de;
-  color: white;
-  font-size: 32rpx;
-  padding: 15rpx 40rpx;
-  border-radius: 40rpx;
-  margin-bottom: env(safe-area-inset-bottom); /* 确保按钮不被Home Indicator遮挡 */
-} 

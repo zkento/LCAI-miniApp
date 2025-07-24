@@ -10,11 +10,9 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@element-plus/icons-vue": "^2.3.1",
-    "miniprogram-api-typings": "^4.0.7",
-    "sharp": "^0.34.2"
+    "miniprogram-api-typings": "^4.0.7"
   },
   "dependencies": {
-    "@element-plus/icons-svg": "^2.3.1"
+    "@vant/weapp": "^1.11.7"
   }
 }

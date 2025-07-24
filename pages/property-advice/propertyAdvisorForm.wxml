@@ -1,0 +1,197 @@
+<navigation-bar id="nav-bar" title="房产顾问" background="#f8f9fa" bind:back="onBack"></navigation-bar>
+<scroll-view scroll-y="true" class="scroll-container" style="height: {{scrollViewHeight}}">
+  <view class="property-advisor-form">
+    <view class="form-container">
+      <!-- 左侧输入区 -->
+      <view class="input-panel">
+        <view class="panel-header">
+          <text class="panel-title">填写客户购房需求</text>
+        </view>
+        <view class="panel-content">
+          <text class="description-hint">请参照右侧的需求描述要点输入客户的购房需求，要点覆盖得越全面越好。</text>
+          
+          <!-- 需求描述文本框 -->
+          <view class="form-item">
+            <textarea 
+              class="requirements-textarea"
+              placeholder="请用不少于30个字详细地描述客户的购房需求"
+              value="{{formData.requirements}}"
+              bindinput="onRequirementsInput"
+              maxlength="600"
+              show-count
+              disabled="{{isAnalyzing || hasAnalysisResult}}"
+              auto-height
+              style="min-height: 240rpx;"
+            />
+          </view>
+          
+          <!-- 客户姓名输入框 -->
+          <view class="customer-name-input">
+            <view class="form-item">
+              <input 
+                class="name-input"
+                placeholder="请输入客户姓名（必填，方便你查询结果）"
+                value="{{formData.customerName}}"
+                bindinput="onCustomerNameInput"
+                disabled="{{isAnalyzing}}"
+              />
+            </view>
+          </view>
+
+          <!-- 表单按钮操作区 -->
+          <view class="form-actions">
+            <block wx:if="{{!hasAnalysisResult}}">
+              <button 
+                class="reset-button" 
+                bindtap="resetForm"
+                disabled="{{!formData.requirements}}"
+              >重置</button>
+              <button 
+                class="analyze-button {{isAnalyzing ? 'loading' : ''}}" 
+                bindtap="analyzeRequirements"
+                loading="{{isAnalyzing}}"
+                disabled="{{!formData.requirements || formData.requirements.length < 30}}"
+              >
+                <block wx:if="{{!isAnalyzing}}">让AI分析客户需求</block>
+                <block wx:else>AI正在分析需求 用时{{currentAnalysisTime}}秒</block>
+              </button>
+            </block>
+            <block wx:else>
+              <button class="reset-button" bindtap="resetForm">新的需求</button>
+              <button 
+                class="submit-button {{submitting ? 'loading' : ''}}" 
+                bindtap="startMatchingHouses"
+                loading="{{submitting}}"
+                disabled="{{isAnalyzing}}"
+              >
+                ▶ 让AI生成购房建议报告
+              </button>
+            </block>
+          </view>
+        </view>
+      </view>
+
+      <!-- 右侧参考/结果区 -->
+      <view class="content-panel">
+        <!-- 需求描述要点 -->
+        <view class="reference-content" wx:if="{{!hasAnalysisResult}}">
+          <view class="panel-header">
+            <text class="panel-title">购房需求描述要点</text>
+          </view>
+          <view class="panel-content">
+            <view class="reference-grid">
+              <view wx:for="{{requirementGuide}}" wx:key="index" class="reference-group">
+                <text class="group-title">{{item.title}}</text>
+                <view class="reference-items">
+                  <view wx:for="{{item.items}}" wx:key="idx" wx:for-item="subItem" class="reference-item">
+                    <text class="item-label">{{subItem.label}}：</text>
+                    <text class="item-example">{{subItem.example}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+
+            <view class="example-section">
+              <view class="example-block">
+                <text class="section-title">购房需求描述参考示例：</text>
+                <view class="example-quote" bindtap="copyExampleText">
+                  <text>预算总价800-1000万，首付3成（约240万），需按揭贷款。意向天河区珠江新城或海珠区琶洲地铁沿线，重点考察3房2卫户型。购房目的为自住及子女教育，需带省级学位。\n建面85-100㎡，优先中高楼层（15层以上），要求南向或东南向采光，接受10年内楼龄的房子。装修需精装以上标准，可接受局部翻新。\n必须满足地铁500米内（3/5/18号线），步行15分钟内有大型商场。医疗配套不作硬性要求，但需规避临高架、加油站、餐饮街、夜市等嘈杂、危险区域。</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 分析结果内容 -->
+        <view class="analysis-content" wx:if="{{hasAnalysisResult}}">
+          <view class="panel-header">
+            <text class="panel-title">
+              需求AI分析结果
+              <text wx:if="{{analysisTime}}" class="analysis-time">用时{{analysisTime}}秒</text>
+            </text>
+            <!-- 重新分析按钮 -->
+            <button 
+              class="reanalyze-button {{isAnalyzing ? 'loading' : ''}}" 
+              bindtap="analyzeRequirements"
+              loading="{{isAnalyzing}}"
+            >
+              <block wx:if="{{!isAnalyzing}}">重新分析</block>
+              <block wx:else>分析中 用时{{currentAnalysisTime}}秒</block>
+            </button>
+          </view>
+          <view class="panel-content">
+            <view class="reference-grid">
+              <view wx:for="{{requirementGuide}}" wx:key="index" class="reference-group">
+                <text class="group-title">{{item.title}}</text>
+                <view class="reference-items">
+                  <view wx:for="{{item.items}}" wx:key="idx" wx:for-item="subItem" class="reference-item {{getItemClass(item.title, subItem.label)}}">
+                    <text class="item-label">{{subItem.label}}：</text>
+                    
+                    <!-- 金融服务-按揭贷款：使用单选框 -->
+                    <block wx:if="{{item.title === '5. 金融服务' && subItem.label === '按揭贷款'}}">
+                      <view class="radio-options">
+                        <radio-group bindchange="onMortgageChange">
+                          <label class="radio-label">
+                            <radio value="需要" checked="{{editableResults[item.title] && editableResults[item.title][subItem.label] === '需要'}}" disabled="{{isAnalyzing}}" />
+                            <text>需要</text>
+                          </label>
+                          <label class="radio-label">
+                            <radio value="不需要" checked="{{editableResults[item.title] && editableResults[item.title][subItem.label] === '不需要'}}" disabled="{{isAnalyzing}}" />
+                            <text>不需要</text>
+                          </label>
+                        </radio-group>
+                      </view>
+                    </block>
+                    
+                    <!-- 金融服务-购房后融资：根据按揭贷款选择显示不同内容 -->
+                    <block wx:elif="{{item.title === '5. 金融服务' && subItem.label === '购房后融资'}}">
+                      <view wx:if="{{editableResults['5. 金融服务'] && editableResults['5. 金融服务']['按揭贷款'] === '不需要'}}" class="radio-options finance-option">
+                        <text>若全款购房，</text>
+                        <radio-group bindchange="onFinancingChange">
+                          <label class="radio-label">
+                            <radio value="是" checked="{{editableResults[item.title] && editableResults[item.title][subItem.label] === '是'}}" disabled="{{isAnalyzing}}" />
+                            <text>是</text>
+                          </label>
+                          <label class="radio-label">
+                            <radio value="否" checked="{{editableResults[item.title] && editableResults[item.title][subItem.label] === '否'}}" disabled="{{isAnalyzing}}" />
+                            <text>否</text>
+                          </label>
+                        </radio-group>
+                        <text>需要抵押融资</text>
+                      </view>
+                      <view wx:elif="{{editableResults['5. 金融服务'] && editableResults['5. 金融服务']['按揭贷款'] === '需要'}}" class="finance-dash item-found">-</view>
+                      <view wx:else class="finance-dash">请先选择按揭贷款选项</view>
+                    </block>
+                    
+                    <!-- 其他所有字段：使用输入框或显示文本 -->
+                    <block wx:else>
+                      <view class="editable-field">
+                        <view wx:if="{{!isEditing[item.title + subItem.label]}}" class="field-text {{editableResults[item.title] && editableResults[item.title][subItem.label] === '无此信息，建议补充' ? 'empty-value' : ''}} {{isAnalyzing ? 'disabled' : ''}}" bindtap="startEditing" data-group="{{item.title}}" data-item="{{subItem.label}}">
+                          {{editableResults[item.title] && editableResults[item.title][subItem.label] || '无此信息，建议补充'}}
+                          <text wx:if="{{!isAnalyzing}}" class="edit-icon">✏️</text>
+                        </view>
+                        <input 
+                          wx:else
+                          class="field-input {{editableResults[item.title] && editableResults[item.title][subItem.label] === '无此信息，建议补充' ? 'empty-value' : ''}}"
+                          value="{{editableResults[item.title] && editableResults[item.title][subItem.label]}}"
+                          placeholder="{{subItem.example}}"
+                          bindblur="finishEditing"
+                          bindconfirm="finishEditing"
+                          bindinput="onFieldInput"
+                          data-group="{{item.title}}"
+                          data-item="{{subItem.label}}"
+                          disabled="{{isAnalyzing}}"
+                          maxlength="50"
+                        />
+                      </view>
+                    </block>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view> 

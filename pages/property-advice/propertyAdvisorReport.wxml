@@ -1,0 +1,192 @@
+<navigation-bar id="nav-bar" title="购房建议报告" background="#f8f9fa" bind:back="onBack"></navigation-bar>
+<scroll-view scroll-y="true" class="scroll-container" style="height: {{scrollViewHeight}}">
+  <view class="property-advisor-report">
+    <!-- 处理步骤区域 - 只在第一步之后显示 -->
+    <view class="steps-header" wx:if="{{activeStep > 1}}">
+      <view class="steps-container">
+        <view class="step-item {{activeStep >= 1 ? 'active' : ''}}">
+          <view class="step-number">1</view>
+          <text class="step-title">提交客户需求</text>
+        </view>
+        <view class="step-line {{activeStep >= 2 ? 'active' : ''}}"></view>
+        <view class="step-item {{activeStep >= 2 ? 'active' : ''}}">
+          <view class="step-number">2</view>
+          <text class="step-title">AI思考分析</text>
+        </view>
+        <view class="step-line {{activeStep >= 3 ? 'active' : ''}}"></view>
+        <view class="step-item {{activeStep >= 3 ? 'active' : ''}}">
+          <view class="step-number">3</view>
+          <text class="step-title">购房建议报告</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 各步骤对应的内容区域 -->
+    <view class="step-content">
+      <!-- 步骤2: AI思考分析，匹配房产 -->
+      <view wx:if="{{activeStep === 2}}" class="step-container">
+        <view class="ai-thinking-container">
+          <!-- 匹配产品的蒙层，当AI未开始返回思考过程的内容前显示 -->
+          <view wx:if="{{workingStatus === 'working'}}" class="working-overlay">
+            <view class="overlay-content">
+              <view class="animation-container">
+                <view class="loading-brain">
+                  <view class="brain-icon">🧠</view>
+                  <view class="loading-dots">
+                    <view class="dot"></view>
+                    <view class="dot"></view>
+                    <view class="dot"></view>
+                  </view>
+                </view>
+              </view>
+              <view class="wait-footer">
+                <view class="ai-tip">正在等待AI响应，请稍等...</view>
+                <view class="ai-timer">
+                  <text class="timer-icon">⏱️</text>
+                  <text>已耗时 {{workingTimer}} 秒</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          
+          <!-- AI思考过程内容容器，当思考模式开始后显示 -->
+          <view wx:if="{{workingStatus === 'thinking' || workingStatus === 'generating'}}" class="thinking-container">
+            <view class="panel-header">
+              <text class="header-icon">🤖</text>
+              <text wx:if="{{isThinking}}" class="thinking-status">AI正在深度思考中...</text>
+              <text wx:elif="{{workingStatus === 'generating'}}" class="thinking-completed">AI思考已完成。</text>
+            </view>
+            <view class="panel-content">
+              <!-- 报告生成过渡提示，不遮挡思考内容，而是以悬浮提示形式展示 -->
+              <view wx:if="{{workingStatus === 'generating'}}" class="generating-overlay">
+                <view class="generating-content">
+                  <view class="loading-spinner"></view>
+                  <view class="generating-message">即将生成购房建议报告...</view>
+                </view>
+              </view>
+              
+              <view class="thinking-display {{workingStatus === 'generating' ? 'dimmed' : ''}}">
+                <text class="thinking-text">{{displayedThinkingProcess}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 步骤3: 生成房产报告 -->
+      <view wx:if="{{activeStep === 3}}" class="step-container">
+        <view class="report-container">
+          <view class="report-layout">
+            <!-- 左侧AI分析结果 -->
+            <view class="report-left">
+              <view class="panel-header">
+                <text class="panel-title">
+                  📄 购房建议报告
+                  <text wx:if="{{reportGenerationDuration > 0}}" class="report-duration">耗时{{reportGenerationDuration}}秒</text>
+                </text>
+                <view class="header-actions">
+                  <button 
+                    wx:if="{{reportContent}}" 
+                    class="action-button download-btn"
+                    bindtap="downloadReport"
+                  >💾 下载报告</button>
+                  <button 
+                    wx:if="{{reportContent}}" 
+                    class="action-button restart-btn"
+                    bindtap="restartAdvisor"
+                  >🏠 新的任务</button>
+                </view>
+              </view>
+              <view class="panel-content">
+                <view class="report-content">
+                  <text class="report-text">{{reportContent}}</text>
+                </view>
+              </view>
+            </view>
+            
+            <!-- 右侧区域（AI思考过程和咨询）-->
+            <view class="report-right">
+              <!-- 上部分：AI匹配产品思考过程 -->
+              <view class="report-right-top" style="height: {{verticalSplit}}%">
+                <view class="panel-header">
+                  <text class="panel-title">🧠 AI深度思考过程</text>
+                </view>
+                <view class="panel-content">
+                  <view class="thinking-content">
+                    <view wx:if="{{workThinkingContent}}" class="work-thinking">
+                      <text class="thinking-text">{{workThinkingContent}}</text>
+                    </view>
+                    <view wx:for="{{consultationThinkingProcesses}}" wx:key="index" class="consultation-thinking">
+                      <view wx:if="{{index > 0 || workThinkingContent}}" class="thinking-separator">
+                        <view class="separator-line"></view>
+                        <text class="separator-text">新的咨询AI思考过程</text>
+                        <view class="separator-line"></view>
+                      </view>
+                      <text class="thinking-text">{{item}}</text>
+                    </view>
+                  </view>
+                </view>
+              </view>
+              
+              <!-- 下部分：继续向AI咨询 -->
+              <view class="report-right-bottom" style="height: {{100 - verticalSplit}}%">
+                <view class="panel-header">
+                  <text class="panel-title">
+                    💬 继续向AI咨询
+                    <text wx:if="{{consultationThinkingTimer > 0}}" class="thinking-status">
+                      AI正在回复中 {{consultationThinkingTimer}}秒
+                    </text>
+                    <text wx:elif="{{consultationResponseStatus}}" class="response-status">
+                      {{consultationResponseStatus}} 耗时{{consultationResponseTime}}秒
+                    </text>
+                  </text>
+                </view>
+                
+                <!-- 聊天内容区域 -->
+                <view class="chat-messages">
+                  <view wx:for="{{consultationMessages}}" wx:key="index" class="message {{item.role}}">
+                    <view wx:if="{{item.role === 'assistant'}}" class="message-avatar">AI</view>
+                    <view class="message-content">
+                      <text class="message-text">{{item.content}}</text>
+                    </view>
+                  </view>
+                  
+                  <!-- AI回复思考中动画 -->
+                  <view wx:if="{{consultationLoading}}" class="message assistant thinking">
+                    <view class="message-avatar">AI</view>
+                    <view class="message-content">
+                      <view class="thinking-indicator">
+                        <view class="thinking-dot"></view>
+                        <view class="thinking-dot"></view>
+                        <view class="thinking-dot"></view>
+                      </view>
+                    </view>
+                  </view>
+                </view>
+
+                <!-- 聊天输入框 -->
+                <view class="chat-input">
+                  <view class="input-container">
+                    <textarea
+                      class="message-input"
+                      placeholder="请输入你要咨询的内容..."
+                      value="{{consultationInput}}"
+                      bindinput="onConsultationInput"
+                      auto-height
+                      maxlength="500"
+                    />
+                    <button 
+                      class="send-button {{consultationInput.trim() && !consultationLoading ? '' : 'disabled'}}" 
+                      bindtap="sendConsultationMessage" 
+                      disabled="{{!consultationInput.trim() || consultationLoading}}"
+                    >📤</button>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view> 

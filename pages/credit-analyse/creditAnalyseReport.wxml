@@ -1,0 +1,156 @@
+<navigation-bar id="nav-bar" title="{{creditTypeName}}分析报告" background="#f8f9fa" bind:back="onBack"></navigation-bar>
+<view class="credit-analyse-report">
+  <!-- 处理步骤区域 - 只在第一步之后显示 -->
+  <view class="steps-header" wx:if="{{activeStep > 1}}">
+    <view class="steps">
+      <view class="step {{activeStep >= 1 ? 'active' : ''}} {{activeStep > 1 ? 'completed' : ''}}">
+        <view class="step-icon">1</view>
+        <view class="step-title">上传文件</view>
+      </view>
+      <view class="step-line {{activeStep >= 2 ? 'active' : ''}}"></view>
+      <view class="step {{activeStep >= 2 ? 'active' : ''}} {{activeStep > 2 ? 'completed' : ''}}">
+        <view class="step-icon">2</view>
+        <view class="step-title">提取内容</view>
+      </view>
+      <view class="step-line {{activeStep >= 3 ? 'active' : ''}}"></view>
+      <view class="step {{activeStep >= 3 ? 'active' : ''}} {{activeStep > 3 ? 'completed' : ''}}">
+        <view class="step-icon">3</view>
+        <view class="step-title">AI思考</view>
+      </view>
+      <view class="step-line {{activeStep >= 4 ? 'active' : ''}}"></view>
+      <view class="step {{activeStep >= 4 ? 'active' : ''}}">
+        <view class="step-icon">4</view>
+        <view class="step-title">分析结果</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 各步骤对应的内容区域 -->
+  <view class="step-content">
+    <!-- 步骤1: 表单提交 -->
+    <block wx:if="{{activeStep === 1}}">
+      <include src="./creditAnalyseForm.wxml" />
+    </block>
+    
+    <!-- 步骤2: 提取文本内容 -->
+    <view wx:if="{{activeStep === 2}}" class="step-container">
+      <view class="extraction-layout-new">
+        <!-- 提取的文字内容区域 - 占据主要空间 -->
+        <view class="extracted-text-full">
+          <view class="panel-header">
+            <view class="header-title">
+              <image class="header-icon" src="/assets/images/file_icon.png"></image>
+              <text>提取内容</text>
+            </view>
+            <view class="progress-container">
+              <text>提取进度：{{extractionProgress}}%</text>
+            </view>
+          </view>
+          <view class="panel-content">
+            <scroll-view scroll-y="true" style="height: 100%;">
+              <view wx:if="{{extractedText}}" class="text-content">
+                {{extractedText}}
+              </view>
+              <view wx:else class="text-placeholder">
+                <text wx:if="{{isExtracting}}">正在提取文字，请稍候...</text>
+                <text wx:else>等待开始提取...</text>
+              </view>
+            </scroll-view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 悬浮的查看文件按钮 -->
+      <view class="floating-file-button" bindtap="viewUploadedFile">
+        <image class="button-icon" src="/assets/images/file_icon_white.png"></image>
+        <text>查看上传的文件</text>
+      </view>
+
+      <!-- AI处理中的提示 - 居中显示 -->
+      <view wx:if="{{workingStatus === 'working'}}" class="ai-working-center">
+        <view class="ai-tip-center">
+          <view class="loading-spinner"></view>
+          <text>AI正在处理征信内容...已耗时 {{workingTimer}} 秒</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 步骤3: AI思考分析 -->
+    <view wx:if="{{activeStep === 3}}" class="step-container">
+      <view class="Ai-thinking-container">          
+        <!-- AI思考过程内容容器，当思考模式开始后显示 -->
+        <view wx:if="{{workingStatus === 'thinking' || workingStatus === 'generating'}}" class="thinking-container">
+          <view class="panel-header">
+            <view class="header-title">
+              <image class="header-icon" src="/assets/images/file_icon.png"></image>
+              <text wx:if="{{isThinking}}" class="thinking-status">AI正在深度思考中...</text>
+              <text wx:elif="{{workingStatus === 'generating'}}" class="thinking-completed">AI思考已完成。</text>
+            </view>
+          </view>
+          <view class="panel-content">
+            <!-- 报告生成过渡提示，不遮挡思考内容，而是以悬浮提示形式展示 -->
+            <view wx:if="{{workingStatus === 'generating'}}" class="generating-overlay">
+              <view class="generating-content">
+                <view class="loading-spinner"></view>
+                <view class="generating-message">即将生成征信分析报告...</view>
+              </view>
+            </view>
+                
+            <scroll-view
+              scroll-y="true"
+              class="thinking-display {{workingStatus === 'generating' ? 'dimmed' : ''}}"
+              scroll-into-view="{{thinkingScrollTarget}}"
+              scroll-with-animation="true"
+              enable-back-to-top="true"
+              enhanced="true">
+              <view id="thinking-content">
+                <text>{{displayedThinkingProcess}}</text>
+                <view id="thinking-bottom"></view>
+              </view>
+            </scroll-view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 步骤4: 生成分析报告 -->
+    <view wx:if="{{activeStep === 4}}" class="step-container">
+      <view class="report-container">
+        <view class="panel-header">
+          <view class="header-title">
+            <image class="header-icon" src="/assets/images/file_icon.png"></image>
+            <text>征信分析报告</text>
+            <text wx:if="{{reportGenerationDuration > 0}}" class="report-duration">耗时{{reportGenerationDuration}}秒</text>
+          </view>
+          <view class="header-actions">
+            <button
+              wx:if="{{reportContent}}"
+              type="primary"
+              size="mini"
+              bindtap="viewCreditFile"
+              class="action-button"
+            >
+            查看征信文件
+            </button>
+          </view>
+        </view>
+        <view class="panel-content">
+          <scroll-view scroll-y="true" class="report-content">
+            <rich-text nodes="{{reportContentHtml}}"></rich-text>
+          </scroll-view>
+        </view>
+      </view>
+
+      <!-- 统一的胶囊形状悬浮按钮组 -->
+      <view wx:if="{{reportContent}}" class="unified-floating-button">
+        <view class="button-section left-section" bindtap="restartAdvisor">
+          <text>新的任务</text>
+        </view>
+        <view class="button-divider"></view>
+        <view class="button-section right-section" bindtap="shareReport">
+          <text>分享结果</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view> 

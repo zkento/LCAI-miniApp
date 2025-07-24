@@ -3,11 +3,17 @@
     "pages/index/index",
     "pages/history/history",
     "pages/profile/profile",
-    "pages/personal-credit/creditAnalyseForm",
+    "pages/credit-analyse/creditAnalyseForm",
+    "pages/credit-analyse/creditAnalyseReport",
     "pages/personal-credit/creditAnalyseReport",
-    "pages/business-credit/business-credit",
-    "pages/finance-advice/finance-advice",
-    "pages/property-advice/property-advice"
+    "pages/finance-advice/financeAdvisorForm",
+    "pages/finance-advice/financeAdvisorReport",
+    "pages/property-advice/propertyAdvisorForm",
+    "pages/property-advice/propertyAdvisorReport",
+    "pages/task-result/task-result",
+    "pages/test/test-history",
+    "pages/test/test-task-result",
+    "pages/test/test-fixes"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -47,7 +53,6 @@
     "skyline": {
       "defaultDisplayBlock": true,
       "defaultContentBox": true,
-      "tagNameStyleIsolation": "legacy",
       "disableABTest": true,
       "sdkVersionBegin": "3.0.0",
       "sdkVersionEnd": "15.255.255"
@@ -55,5 +60,35 @@
   },
   "componentFramework": "glass-easel",
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "usingComponents": {
+    "van-button": "@vant/weapp/button/index",
+    "van-card": "@vant/weapp/card/index",
+    "van-cell": "@vant/weapp/cell/index",
+    "van-cell-group": "@vant/weapp/cell-group/index",
+    "van-loading": "@vant/weapp/loading/index",
+    "van-empty": "@vant/weapp/empty/index",
+    "van-search": "@vant/weapp/search/index",
+    "van-tag": "@vant/weapp/tag/index",
+    "van-popup": "@vant/weapp/popup/index",
+    "van-checkbox": "@vant/weapp/checkbox/index",
+    "van-checkbox-group": "@vant/weapp/checkbox-group/index",
+    "van-radio": "@vant/weapp/radio/index",
+    "van-radio-group": "@vant/weapp/radio-group/index",
+    "van-picker": "@vant/weapp/picker/index",
+    "van-action-sheet": "@vant/weapp/action-sheet/index",
+    "van-toast": "@vant/weapp/toast/index",
+    "van-dialog": "@vant/weapp/dialog/index",
+    "van-notify": "@vant/weapp/notify/index",
+    "van-skeleton": "@vant/weapp/skeleton/index",
+    "van-divider": "@vant/weapp/divider/index",
+    "van-icon": "@vant/weapp/icon/index",
+    "van-grid": "@vant/weapp/grid/index",
+    "van-grid-item": "@vant/weapp/grid-item/index",
+    "van-progress": "@vant/weapp/progress/index",
+    "van-panel": "@vant/weapp/panel/index",
+    "van-collapse": "@vant/weapp/collapse/index",
+    "van-collapse-item": "@vant/weapp/collapse-item/index",
+    "van-steps": "@vant/weapp/steps/index"
+  }
 }

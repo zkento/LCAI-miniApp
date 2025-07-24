@@ -1,0 +1,387 @@
+/* 整体页面样式 */
+.scroll-container {
+  background-color: #f5f7fa;
+}
+
+.property-advisor-form {
+  min-height: 100vh;
+  padding: 20rpx;
+}
+
+.form-container {
+  display: flex;
+  gap: 20rpx;
+  max-width: 2400rpx;
+  margin: 0 auto;
+}
+
+/* 面板通用样式 */
+.input-panel,
+.content-panel {
+  background: white;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.input-panel {
+  flex: 1;
+  min-width: 500rpx;
+}
+
+.content-panel {
+  flex: 1;
+  min-width: 500rpx;
+}
+
+.panel-header {
+  padding: 30rpx 30rpx 20rpx;
+  border-bottom: 1rpx solid #f0f2f5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.panel-content {
+  padding: 30rpx;
+}
+
+/* 描述提示 */
+.description-hint {
+  color: #666;
+  font-size: 28rpx;
+  line-height: 1.5;
+  margin-bottom: 30rpx;
+  display: block;
+}
+
+/* 表单项样式 */
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.requirements-textarea {
+  width: 100%;
+  border: 2rpx solid #e1e8ed;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.requirements-textarea:focus {
+  border-color: #1890ff;
+  outline: none;
+}
+
+.requirements-textarea[disabled] {
+  background-color: #f5f5f5;
+  color: #999;
+}
+
+.customer-name-input {
+  margin-top: 20rpx;
+}
+
+.name-input {
+  width: 100%;
+  height: 80rpx;
+  border: 2rpx solid #e1e8ed;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: #333;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.name-input:focus {
+  border-color: #1890ff;
+}
+
+.name-input[disabled] {
+  background-color: #f5f5f5;
+  color: #999;
+}
+
+/* 表单按钮 */
+.form-actions {
+  margin-top: 40rpx;
+  display: flex;
+  gap: 20rpx;
+  justify-content: flex-end;
+}
+
+.reset-button,
+.analyze-button,
+.submit-button,
+.reanalyze-button {
+  height: 80rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  border: none;
+  padding: 0 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reset-button {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.reset-button:not([disabled]):active {
+  background-color: #e8e8e8;
+}
+
+.analyze-button,
+.submit-button {
+  background-color: #1890ff;
+  color: white;
+}
+
+.analyze-button:not([disabled]):active,
+.submit-button:not([disabled]):active {
+  background-color: #0066cc;
+}
+
+.reanalyze-button {
+  background-color: #52c41a;
+  color: white;
+  font-size: 24rpx;
+}
+
+.reanalyze-button:not([disabled]):active {
+  background-color: #389e0d;
+}
+
+button[disabled] {
+  opacity: 0.6;
+  background-color: #f5f5f5 !important;
+  color: #999 !important;
+}
+
+.loading {
+  opacity: 0.8;
+}
+
+/* 右侧内容区样式 */
+.reference-grid,
+.analysis-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+
+.reference-group {
+  border: 1rpx solid #f0f2f5;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  background-color: #fafafa;
+}
+
+.group-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.reference-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.reference-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  padding: 12rpx;
+  border-radius: 8rpx;
+  transition: all 0.2s;
+}
+
+.reference-item.item-found {
+  background-color: #e6f7e6;
+  border: 1rpx solid #52c41a;
+}
+
+.reference-item.item-missing {
+  background-color: #fff2e8;
+  border: 1rpx solid #fa8c16;
+}
+
+.reference-item.item-na {
+  background-color: #f0f0f0;
+  border: 1rpx solid #d9d9d9;
+}
+
+.item-label {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #333;
+  min-width: 120rpx;
+}
+
+.item-example {
+  font-size: 26rpx;
+  color: #666;
+  font-style: italic;
+}
+
+/* 可编辑字段样式 */
+.editable-field {
+  flex: 1;
+  position: relative;
+}
+
+.field-text {
+  font-size: 26rpx;
+  color: #333;
+  padding: 8rpx 12rpx;
+  border-radius: 6rpx;
+  background-color: #f8f9fa;
+  border: 1rpx solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s;
+}
+
+.field-text:hover {
+  border-color: #1890ff;
+  background-color: #e6f7ff;
+}
+
+.field-text.empty-value {
+  color: #999;
+  font-style: italic;
+}
+
+.field-text.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.edit-icon {
+  font-size: 20rpx;
+  color: #1890ff;
+  opacity: 0.7;
+}
+
+.field-input {
+  width: 100%;
+  font-size: 26rpx;
+  color: #333;
+  padding: 8rpx 12rpx;
+  border-radius: 6rpx;
+  border: 1rpx solid #1890ff;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.field-input.empty-value {
+  color: #999;
+}
+
+/* 单选框样式 */
+.radio-options {
+  display: flex;
+  gap: 20rpx;
+  align-items: center;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 26rpx;
+  color: #333;
+}
+
+.finance-option {
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 26rpx;
+  color: #333;
+}
+
+.finance-dash {
+  font-size: 26rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+/* 示例区域样式 */
+.example-section {
+  margin-top: 40rpx;
+  padding-top: 30rpx;
+  border-top: 1rpx solid #f0f2f5;
+}
+
+.example-block {
+  background-color: #f8f9fa;
+  border-radius: 12rpx;
+  padding: 24rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.example-quote {
+  background-color: white;
+  border: 1rpx solid #e1e8ed;
+  border-radius: 8rpx;
+  padding: 20rpx;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.example-quote:active {
+  background-color: #e6f7ff;
+  border-color: #1890ff;
+}
+
+.example-quote text {
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: #333;
+  white-space: pre-line;
+}
+
+/* 分析时间显示 */
+.analysis-time {
+  font-size: 24rpx;
+  color: #52c41a;
+  font-weight: normal;
+  margin-left: 16rpx;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200rpx) {
+  .form-container {
+    flex-direction: column;
+  }
+  
+  .input-panel,
+  .content-panel {
+    min-width: unset;
+  }
+} 

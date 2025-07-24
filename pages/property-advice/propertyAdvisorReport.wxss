@@ -1,0 +1,582 @@
+/* 整体页面样式 */
+.scroll-container {
+  background-color: #f5f7fa;
+}
+
+.property-advisor-report {
+  min-height: 100vh;
+  padding: 20rpx;
+}
+
+/* 步骤指示器样式 */
+.steps-header {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.steps-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 600rpx;
+  margin: 0 auto;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.step-number {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background-color: #f0f2f5;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.step-item.active .step-number {
+  background-color: #1890ff;
+  color: white;
+}
+
+.step-title {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.step-item.active .step-title {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.step-line {
+  flex: 1;
+  height: 2rpx;
+  background-color: #f0f2f5;
+  margin: 0 20rpx;
+  transition: all 0.3s;
+}
+
+.step-line.active {
+  background-color: #1890ff;
+}
+
+/* 步骤内容区域 */
+.step-container {
+  background: white;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* AI思考分析阶段样式 */
+.ai-thinking-container {
+  position: relative;
+  min-height: 600rpx;
+}
+
+.working-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.overlay-content {
+  text-align: center;
+}
+
+.animation-container {
+  margin-bottom: 40rpx;
+}
+
+.loading-brain {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30rpx;
+}
+
+.brain-icon {
+  font-size: 120rpx;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.loading-dots {
+  display: flex;
+  gap: 12rpx;
+}
+
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: #1890ff;
+  animation: bounce 1.4s infinite both;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+.wait-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  align-items: center;
+}
+
+.ai-tip {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.ai-timer {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.timer-icon {
+  font-size: 32rpx;
+}
+
+/* 思考过程容器 */
+.thinking-container {
+  padding: 30rpx;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f2f5;
+}
+
+.header-icon {
+  font-size: 32rpx;
+}
+
+.thinking-status,
+.thinking-completed {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.thinking-status {
+  color: #1890ff;
+}
+
+.thinking-completed {
+  color: #52c41a;
+}
+
+.panel-content {
+  position: relative;
+}
+
+.generating-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  border-radius: 12rpx;
+}
+
+.generating-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+  padding: 40rpx;
+  background: white;
+  border-radius: 12rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #f0f2f5;
+  border-top: 4rpx solid #1890ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.generating-message {
+  font-size: 28rpx;
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.thinking-display {
+  transition: all 0.3s;
+}
+
+.thinking-display.dimmed {
+  opacity: 0.3;
+  filter: blur(2rpx);
+}
+
+.thinking-text {
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: #333;
+  white-space: pre-line;
+}
+
+/* 报告页面布局 */
+.report-container {
+  background: white;
+}
+
+.report-layout {
+  display: flex;
+  min-height: 1000rpx;
+}
+
+.report-left {
+  flex: 1;
+  border-right: 1rpx solid #f0f2f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.report-right {
+  width: 600rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f2f5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.report-duration {
+  font-size: 24rpx;
+  color: #52c41a;
+  font-weight: normal;
+  margin-left: 16rpx;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12rpx;
+}
+
+.action-button {
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.download-btn {
+  background-color: #1890ff;
+  color: white;
+}
+
+.download-btn:active {
+  background-color: #0066cc;
+}
+
+.restart-btn {
+  background-color: #fa8c16;
+  color: white;
+}
+
+.restart-btn:active {
+  background-color: #d46b08;
+}
+
+.panel-content {
+  flex: 1;
+  padding: 30rpx;
+  overflow-y: auto;
+}
+
+.report-content {
+  font-size: 28rpx;
+  line-height: 1.8;
+  color: #333;
+}
+
+.report-text {
+  white-space: pre-line;
+}
+
+/* 右侧思考过程和咨询区域 */
+.report-right-top {
+  border-bottom: 1rpx solid #f0f2f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.report-right-bottom {
+  display: flex;
+  flex-direction: column;
+}
+
+.thinking-content {
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: #333;
+}
+
+.work-thinking {
+  margin-bottom: 20rpx;
+  padding-bottom: 20rpx;
+}
+
+.thinking-separator {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin: 30rpx 0;
+}
+
+.separator-line {
+  flex: 1;
+  height: 1rpx;
+  background-color: #e8e8e8;
+}
+
+.separator-text {
+  font-size: 24rpx;
+  color: #999;
+  padding: 0 16rpx;
+  background: white;
+}
+
+/* 聊天区域样式 */
+.chat-messages {
+  flex: 1;
+  padding: 20rpx;
+  overflow-y: auto;
+  max-height: 600rpx;
+}
+
+.message {
+  margin-bottom: 20rpx;
+  display: flex;
+  gap: 12rpx;
+}
+
+.message.user {
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background-color: #1890ff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.message.user .message-avatar {
+  background-color: #52c41a;
+}
+
+.message-content {
+  flex: 1;
+  max-width: 80%;
+}
+
+.message-text {
+  background-color: #f8f9fa;
+  padding: 16rpx 20rpx;
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: #333;
+  white-space: pre-line;
+}
+
+.message.user .message-text {
+  background-color: #e6f7ff;
+}
+
+.message.assistant .message-text {
+  background-color: #f0f0f0;
+}
+
+/* AI思考中动画 */
+.thinking-indicator {
+  display: flex;
+  gap: 8rpx;
+  padding: 16rpx 20rpx;
+}
+
+.thinking-dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background-color: #999;
+  animation: thinking 1.4s infinite both;
+}
+
+.thinking-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.thinking-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes thinking {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+  40% { transform: scale(1.2); opacity: 1; }
+}
+
+/* 聊天输入框 */
+.chat-input {
+  border-top: 1rpx solid #f0f2f5;
+  padding: 20rpx;
+}
+
+.input-container {
+  display: flex;
+  gap: 12rpx;
+  align-items: flex-end;
+}
+
+.message-input {
+  flex: 1;
+  min-height: 80rpx;
+  max-height: 200rpx;
+  border: 2rpx solid #e1e8ed;
+  border-radius: 12rpx;
+  padding: 16rpx;
+  font-size: 28rpx;
+  color: #333;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.message-input:focus {
+  border-color: #1890ff;
+}
+
+.send-button {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 12rpx;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.send-button:not(.disabled):active {
+  background-color: #0066cc;
+}
+
+.send-button.disabled {
+  background-color: #f5f5f5;
+  color: #ccc;
+}
+
+/* 状态显示 */
+.thinking-status,
+.response-status {
+  font-size: 24rpx;
+  color: #666;
+  margin-left: 16rpx;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200rpx) {
+  .report-layout {
+    flex-direction: column;
+  }
+  
+  .report-left {
+    border-right: none;
+    border-bottom: 1rpx solid #f0f2f5;
+  }
+  
+  .report-right {
+    width: auto;
+  }
+  
+  .report-right-top,
+  .report-right-bottom {
+    height: auto !important;
+  }
+} 

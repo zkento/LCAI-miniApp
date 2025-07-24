@@ -1,0 +1,278 @@
+<!-- 历史记录页面 -->
+<view class="history-page">
+  <!-- 自定义导航栏 -->
+  <navigation-bar 
+    title="历史记录" 
+    back="{{true}}"
+    background="#1b68de"
+    color="#ffffff"
+  >
+    <view slot="right" class="nav-right">
+      <van-icon 
+        name="refresh" 
+        size="20px" 
+        color="#ffffff"
+        bind:click="onRefresh"
+      />
+    </view>
+  </navigation-bar>
+
+  <!-- 页面内容 -->
+  <view class="page-content">
+    <!-- 搜索和筛选区域 -->
+    <view class="search-section">
+      <!-- 搜索框 -->
+      <view class="search-container">
+        <van-search
+          value="{{ searchKeyword }}"
+          placeholder="搜索客户姓名或任务类型"
+          use-action-slot
+          bind:change="onSearchChange"
+          bind:search="onSearch"
+          bind:clear="onSearchClear"
+        >
+          <view slot="action" bind:tap="showFilterPopup">
+            <van-icon name="filter-o" size="18px" color="#1b68de" />
+          </view>
+        </van-search>
+      </view>
+
+      <!-- 任务统计信息 -->
+      <view class="task-stats" wx:if="{{ taskStats.total > 0 }}">
+        <text class="stats-text">
+          共{{ taskStats.total }}个任务，进行中{{ taskStats.inProgress }}个，排队中{{ taskStats.queuing }}个
+        </text>
+      </view>
+    </view>
+
+    <!-- 可滚动的任务列表 -->
+    <scroll-view
+      class="task-list-scroll-container"
+      scroll-y="{{true}}"
+      enable-back-to-top="{{true}}"
+      bind:scrolltolower="loadMoreTasks"
+      enhanced="{{true}}"
+      show-scrollbar="{{false}}"
+    >
+      <!-- 加载状态 -->
+      <view class="loading-container" wx:if="{{ loading && taskList.length === 0 }}">
+        <van-loading type="spinner" size="24px" color="#1b68de">加载中...</van-loading>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-container" wx:elif="{{ taskList.length === 0 && !loading }}">
+        <van-empty
+          image="search"
+          description="{{ searchKeyword ? '未找到相关任务' : '暂无历史记录' }}"
+        />
+      </view>
+
+      <!-- 任务卡片列表 -->
+      <view class="task-list" wx:else>
+        <view
+          class="task-card"
+          wx:for="{{ filteredTaskList.length > 0 ? filteredTaskList : taskList }}"
+          wx:key="id"
+          bind:tap="onTaskTap"
+          bind:longpress="onTaskLongPress"
+          data-task="{{ item }}"
+        >
+          <!-- 队列位置标记 -->
+          <view 
+            class="queue-position" 
+            wx:if="{{ (item.result === '排队中...' || item.result === '进行中...') && item.queuePosition && item.queuePosition !== '-' }}"
+          >
+            当前{{ item.queuePosition }}
+          </view>
+
+          <!-- 任务基本信息 -->
+          <view class="task-header">
+            <view class="task-type">{{ item.type }}</view>
+            <van-tag 
+              type="{{ getStatusType(item.result) }}" 
+              size="medium"
+              round
+            >
+              {{ item.result }}
+            </van-tag>
+          </view>
+
+          <!-- 客户信息 -->
+          <view class="task-info">
+            <view class="info-row" wx:if="{{ item.customerName }}">
+              <text class="label">客户姓名：</text>
+              <text class="value">{{ item.customerName }}</text>
+            </view>
+            <view class="info-row">
+              <text class="label">提交时间：</text>
+              <text class="value">{{ item.submitTime }}</text>
+            </view>
+            <view class="info-row" wx:if="{{ item.endTime }}">
+              <text class="label">完成时间：</text>
+              <text class="value">{{ item.endTime }}</text>
+            </view>
+          </view>
+
+          <!-- 处理时间信息 -->
+          <view class="time-info" wx:if="{{ item.result === '已出结果' }}">
+            <text class="time-text">
+              处理时长：{{ calculateProcessingTime(item.submitTime, item.endTime) }}
+            </text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 加载更多 -->
+      <view class="load-more" wx:if="{{ hasMore && taskList.length > 0 }}">
+        <van-loading 
+          wx:if="{{ loadingMore }}" 
+          type="spinner" 
+          size="16px" 
+          color="#1b68de"
+        >
+          加载更多...
+        </van-loading>
+        <text wx:else class="load-more-text">上拉加载更多</text>
+      </view>
+
+      <!-- 没有更多数据 -->
+      <view class="no-more" wx:if="{{ !hasMore && taskList.length > 0 }}">
+        <van-divider>没有更多数据了</van-divider>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 筛选弹窗 -->
+  <van-popup 
+    show="{{ showFilter }}" 
+    position="bottom" 
+    round
+    bind:close="hideFilterPopup"
+  >
+    <view class="filter-popup">
+      <view class="filter-header">
+        <text class="filter-title">筛选条件</text>
+        <van-button 
+          type="primary" 
+          size="small" 
+          bind:click="resetFilter"
+        >
+          重置
+        </van-button>
+      </view>
+
+      <!-- 任务类型筛选 -->
+      <view class="filter-section">
+        <view class="section-title">任务类型</view>
+        <van-checkbox-group value="{{ filterForm.taskTypes }}" bind:change="onTaskTypesChange">
+          <van-checkbox 
+            wx:for="{{ taskTypeOptions }}" 
+            wx:key="*this"
+            name="{{ item }}"
+            shape="square"
+          >
+            {{ item }}
+          </van-checkbox>
+        </van-checkbox-group>
+      </view>
+
+      <!-- 任务状态筛选 -->
+      <view class="filter-section">
+        <view class="section-title">任务状态</view>
+        <van-checkbox-group value="{{ filterForm.taskResults }}" bind:change="onTaskResultsChange">
+          <van-checkbox 
+            wx:for="{{ taskResultOptions }}" 
+            wx:key="*this"
+            name="{{ item }}"
+            shape="square"
+          >
+            {{ item }}
+          </van-checkbox>
+        </van-checkbox-group>
+      </view>
+
+      <!-- 确认按钮 -->
+      <view class="filter-actions">
+        <van-button 
+          type="primary" 
+          block 
+          bind:click="applyFilter"
+        >
+          确定
+        </van-button>
+      </view>
+    </view>
+  </van-popup>
+
+  <!-- 任务详情弹窗 -->
+  <van-popup 
+    show="{{ showTaskDetail }}" 
+    position="bottom" 
+    round
+    bind:close="hideTaskDetail"
+  >
+    <view class="task-detail-popup" wx:if="{{ currentTask }}">
+      <view class="detail-header">
+        <text class="detail-title">{{ currentTask.type }}</text>
+        <van-tag 
+          type="{{ getStatusType(currentTask.result) }}" 
+          size="medium"
+          round
+        >
+          {{ currentTask.result }}
+        </van-tag>
+      </view>
+
+      <view class="detail-content">
+        <!-- 基本信息 -->
+        <view class="detail-section">
+          <view class="section-title">基本信息</view>
+          <van-cell-group>
+            <van-cell 
+              title="客户姓名" 
+              value="{{ currentTask.customerName || '未填写' }}"
+              wx:if="{{ currentTask.customerName }}"
+            />
+            <van-cell title="提交时间" value="{{ currentTask.submitTime }}" />
+            <van-cell 
+              title="完成时间" 
+              value="{{ currentTask.endTime || '未完成' }}"
+              wx:if="{{ currentTask.endTime }}"
+            />
+          </van-cell-group>
+        </view>
+
+        <!-- 处理进度 -->
+        <view class="detail-section" wx:if="{{ currentTask.result !== '已出结果' }}">
+          <view class="section-title">处理进度</view>
+          <view class="progress-info">
+            <text class="progress-text">{{ currentTask.result }}</text>
+            <text class="queue-info" wx:if="{{ currentTask.queuePosition && currentTask.queuePosition !== '-' }}">
+              当前排队位置：{{ currentTask.queuePosition }}
+            </text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="detail-actions">
+        <van-button 
+          wx:if="{{ currentTask.result === '已出结果' }}"
+          type="primary" 
+          block 
+          bind:click="viewTaskResult"
+        >
+          查看结果
+        </van-button>
+        <van-button 
+          wx:elif="{{ currentTask.result === '排队中...' || currentTask.result === '进行中...' }}"
+          type="default" 
+          block 
+          bind:click="cancelTask"
+        >
+          取消任务
+        </van-button>
+      </view>
+    </view>
+  </van-popup>
+</view>

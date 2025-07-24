@@ -1,0 +1,241 @@
+<navigation-bar id="nav-bar" title="融资顾问" background="#f8f9fa" bind:back="onBack"></navigation-bar>
+<scroll-view scroll-y="true" class="scroll-container" style="height: {{scrollViewHeight}}">
+  <view class="finance-advisor-form">
+    <view class="form-container">
+      <!-- 左侧输入区 -->
+      <view class="input-panel">
+        <view class="panel-header">
+          <text class="panel-title">填写客户融资需求</text>
+        </view>
+        <view class="panel-content">
+          <text class="description-hint">请参照右侧的需求描述建议输入客户的融资需求，信息覆盖得越全面越好。</text>
+          
+          <!-- 需求描述文本框 -->
+          <view class="form-item">
+            <textarea 
+              class="requirements-textarea"
+              placeholder="请用不少于10个字详细地描述客户的融资需求"
+              value="{{formData.requirements}}"
+              bindinput="onRequirementsInput"
+              maxlength="500"
+              show-count
+              disabled="{{isExtractingKeywords || hasAttemptedExtraction}}"
+              auto-height
+              style="min-height: 200rpx;"
+            />
+          </view>
+          
+          <!-- 客户信息输入区域 -->
+          <view class="client-info-section">
+            <!-- 客户姓名输入框 -->
+            <view class="form-item">
+              <input 
+                class="name-input"
+                placeholder="请输入客户姓名（必填，方便你查询结果）"
+                value="{{formData.name}}"
+                bindinput="onNameInput"
+                disabled="{{isExtractingKeywords}}"
+              />
+            </view>
+            
+            <!-- 业务地区选择 -->
+            <view class="form-item">
+              <picker 
+                mode="multiSelector"
+                range="{{provinceOptions}}"
+                range-key="label"
+                value="{{formData.businessArea}}"
+                bindchange="onBusinessAreaChange"
+                disabled="{{isExtractingKeywords}}"
+              >
+                <view class="picker-display">
+                  <text wx:if="{{formData.businessArea.length > 0}}" class="selected-text">
+                    {{provinceOptions[formData.businessArea[0]].label}}{{formData.businessArea[1] !== undefined ? ' - ' + provinceOptions[formData.businessArea[0]].children[formData.businessArea[1]].label : ''}}
+                  </text>
+                  <text wx:else class="placeholder-text">请选择业务城市（必填）</text>
+                </view>
+              </picker>
+            </view>
+
+            <!-- 征信报告分析结果选择器 -->
+            <view class="form-item">
+              <view 
+                class="credit-report-trigger {{isExtractingKeywords ? 'is-disabled' : ''}} {{selectedPersonalTask || selectedEnterpriseTask ? 'has-value' : ''}} {{showCreditHistory && !selectedPersonalTask && !selectedEnterpriseTask ? 'is-expanded' : ''}}"
+                bindtap="toggleCreditReportHistory"
+              >
+                <text class="trigger-prefix">📋</text>
+                <text class="trigger-text {{selectedPersonalTask || selectedEnterpriseTask ? 'has-selected' : ''}}">
+                  <block wx:if="{{selectedPersonalTask && selectedEnterpriseTask}}">已选择个人和企业的征信报告分析结果</block>
+                  <block wx:elif="{{selectedPersonalTask}}">已选择"{{selectedPersonalTask.customerName}}"的"个人征信报告分析结果"</block>
+                  <block wx:elif="{{selectedEnterpriseTask}}">已选择"{{selectedEnterpriseTask.customerName}}"的"企业征信报告分析结果"</block>
+                  <block wx:else>请选择征信报告分析结果</block>
+                </text>
+                <text class="trigger-suffix">
+                  <text wx:if="{{selectedPersonalTask || selectedEnterpriseTask}}" class="clear-icon" catchtap="clearSelectedCreditReport">✕</text>
+                  <text wx:else class="arrow-icon {{showCreditHistory && !selectedPersonalTask && !selectedEnterpriseTask ? 'is-reverse' : ''}}">▶</text>
+                </text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 表单按钮操作区 -->
+          <view class="form-actions">
+            <block wx:if="{{!hasAttemptedExtraction}}">
+              <button 
+                class="reset-button" 
+                bindtap="resetForm"
+                disabled="{{!formData.requirements && !formData.name && (!formData.businessArea || !formData.businessArea.length) && !selectedPersonalTask && !selectedEnterpriseTask}}"
+              >重置</button>
+              <button 
+                class="extract-button {{isExtractingKeywords ? 'loading' : ''}}" 
+                bindtap="extractKeywords"
+                loading="{{isExtractingKeywords}}"
+                disabled="{{!formData.requirements || formData.requirements.trim().length < 10 || isExtractingKeywords}}"
+              >
+                <block wx:if="{{!isExtractingKeywords}}">让AI分析客户需求</block>
+                <block wx:else>AI正在提取关键词 用时{{currentAnalysisTime}}秒</block>
+              </button>
+            </block>
+            <block wx:else>
+              <button class="reset-button" bindtap="resetForm">新的需求</button>
+              <button 
+                class="submit-button {{submitting ? 'loading' : ''}}" 
+                bindtap="submitFinanceForm"
+                loading="{{submitting}}"
+                disabled="{{isExtractingKeywords}}"
+              >
+                ▶ 让AI生成融资建议报告
+              </button>
+            </block>
+          </view>
+          
+          <!-- 贷款计算器入口 -->
+          <view class="tools-section">
+            <view class="tool-card" bindtap="openLoanCalculator">
+              <view class="tool-icon">💰</view>
+              <view class="tool-content">
+                <view class="tool-title">贷款计算器</view>
+                <view class="tool-description">计算各种贷款方式的总还款额、利息及月供等</view>
+              </view>
+              <view class="tool-action">▶</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 右侧内容面板 -->
+      <view class="content-panel">
+        <!-- 遮罩层 -->
+        <view class="drawer-overlay" wx:if="{{showCreditHistory}}" bindtap="backToRequirementSuggestion"></view>
+        
+        <!-- 引导内容始终保持在背景 -->
+        <view class="reference-content {{showCreditHistory ? 'is-background' : ''}}" wx:if="{{!hasAttemptedExtraction}}">
+          <view class="panel-header">
+            <text class="panel-title">融资需求描述建议</text>
+          </view>
+          <view class="panel-content">
+            <view class="reference-section">                
+              <text class="section-title">需求尽可能详细地包含以下信息：</text>
+              <view class="reference-items">
+                <view class="reference-item">
+                  <text class="item-label">贷款方式：按揭贷款、抵押贷款、信用贷款、经营贷款、消费贷款等</text>
+                </view>
+                <view class="reference-item">
+                  <text class="item-label">融资金额与期限：需要多少资金，使用多长时间</text>
+                </view>
+                <view class="reference-item">
+                  <text class="item-label">融资用途：资金将用于哪些方面，例如周转、扩大生产、新项目等</text>
+                </view>
+                <view class="reference-item">
+                  <text class="item-label">企业情况：行业、规模、经营时间、近期营收情况</text>
+                </view>
+                <view class="reference-item">
+                  <text class="item-label">现有资产：有无房产、车辆等可抵押物</text>
+                </view>
+                <view class="reference-item">
+                  <text class="item-label">特殊要求：放款速度、利率要求、还款方式偏好</text>
+                </view>
+              </view>
+            </view>
+          
+            <view class="example-section">
+              <view class="example-block">
+                <text class="section-title">融资需求描述参考示例：</text>
+                <view class="example-quote" bindtap="copyExampleText">
+                  <text>我是一家成立了5年的餐饮企业老板，在广州有3家连锁店，月营业额约80万元。\n现计划申请经营抵押贷款300万元用于新开2家分店，希望能在1个月内放款，期限2年以上，可接受月息最高5厘。\n目前在广州名下有一套市值约500万元的商品房可以抵押，目前无贷款，也有约50万元应收账款。希望了解银行抵押贷款和企业经营贷款哪个更合适，最快多久能拿到资金。</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 征信报告历史列表 -->
+        <view class="credit-history-drawer {{showCreditHistory ? 'is-visible' : ''}}">
+          <view class="credit-history-content full-panel">
+            <view class="panel-header">
+              <text class="panel-title">
+                选择征信报告分析结果
+                <text class="info-icon">ℹ️</text>
+              </text>
+              <view class="header-actions">
+                <button class="back-button" bindtap="backToRequirementSuggestion">✕</button>
+              </view>
+            </view>
+            <view class="panel-content no-padding">
+              <view class="empty-state">
+                <view class="empty-state-container">
+                  <view class="empty-state-icon">🌧️</view>
+                  <text class="empty-state-title">没找到征信报告分析结果</text>
+                  <text class="empty-state-description">可前去发起征信分析，获得结果后再回来选择</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 分析结果内容 -->
+        <view class="analysis-content" wx:if="{{hasAttemptedExtraction}}">
+          <view class="panel-header">
+            <text class="panel-title">
+              AI关键词提取结果
+              <text wx:if="{{extractionDuration}}" class="analysis-time">用时{{extractionDuration}}秒</text>
+            </text>
+            <!-- 重新提取按钮 -->
+            <button 
+              class="reanalyze-button {{isExtractingKeywords ? 'loading' : ''}}" 
+              bindtap="extractKeywords"
+              loading="{{isExtractingKeywords}}"
+            >
+              <block wx:if="{{!isExtractingKeywords}}">重新提取</block>
+              <block wx:else>提取中 用时{{currentAnalysisTime}}秒</block>
+            </button>
+          </view>
+          <view class="panel-content">
+            <view class="keywords-display">
+              <text class="section-title">提取的关键词</text>
+              <view class="keywords-content" wx:if="{{aiKeywords.length > 0}}">
+                <view wx:for="{{aiKeywords}}" wx:key="key" class="keyword-tag keyword-tag-{{item.type}}">
+                  {{item.value}}
+                </view>
+              </view>
+              <view class="keywords-placeholder" wx:else>
+                <block wx:if="{{extractError}}">{{extractError}}</block>
+                <block wx:elif="{{isExtractingKeywords}}">
+                  <text class="loading-text">🔄 AI正在提取关键词中...</text>
+                </block>
+              </view>
+            </view>
+            
+            <view class="analysis-suggestion-section">
+              <text class="result-title">AI分析结果建议</text>                 
+              <view class="user-requirement-suggestion">
+                <text>AI已成功提取融资需求关键词，点击"让AI生成融资建议报告"获取完整建议。</text>
+                <text>若对关键词结果不满意，可"重新提取"或点击"新的需求"按钮来重新填写客户融资需求。</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view> 
