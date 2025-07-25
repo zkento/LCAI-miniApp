@@ -18,12 +18,12 @@ export const STATUS_CONFIG = {
     text: '排队中',
     color: '#faad14',
     icon: 'friends-o',
-    tagType: 'warning',
+    tagType: 'default',
     description: '任务排队中，即将开始处理'
   },
   [TASK_STATUS.PROCESSING]: {
     text: '进行中',
-    color: '#1890ff', 
+    color: '#1b68de',
     icon: 'clock-o',
     tagType: 'primary',
     description: '正在处理中，请耐心等待'
@@ -38,15 +38,15 @@ export const STATUS_CONFIG = {
   [TASK_STATUS.FAILED]: {
     text: '失败',
     color: '#ff4d4f',
-    icon: 'warning-o', 
+    icon: 'warning-o',
     tagType: 'danger',
     description: '任务处理失败，请重新提交'
   },
   [TASK_STATUS.CANCELLED]: {
     text: '已取消',
-    color: '#d9d9d9',
+    color: '#faad14',
     icon: 'cross',
-    tagType: 'default',
+    tagType: 'warning',
     description: '任务已被取消'
   }
 };

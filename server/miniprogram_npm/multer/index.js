@@ -4,7 +4,7 @@ var __DEFINE__ = function(modId, func, req) { var m = { exports: {}, _tempexport
 var __REQUIRE__ = function(modId, source) { if(!__MODS__[modId]) return require(source); if(!__MODS__[modId].status) { var m = __MODS__[modId].m; m._exports = m._tempexports; var desp = Object.getOwnPropertyDescriptor(m, "exports"); if (desp && desp.configurable) Object.defineProperty(m, "exports", { set: function (val) { if(typeof val === "object" && val !== m._exports) { m._exports.__proto__ = val.__proto__; Object.keys(val).forEach(function (k) { m._exports[k] = val[k]; }); } m._tempexports = val }, get: function () { return m._tempexports; } }); __MODS__[modId].status = 1; __MODS__[modId].func(__MODS__[modId].req, m, m.exports); } return __MODS__[modId].m.exports; };
 var __REQUIRE_WILDCARD__ = function(obj) { if(obj && obj.__esModule) { return obj; } else { var newObj = {}; if(obj != null) { for(var k in obj) { if (Object.prototype.hasOwnProperty.call(obj, k)) newObj[k] = obj[k]; } } newObj.default = obj; return newObj; } };
 var __REQUIRE_DEFAULT__ = function(obj) { return obj && obj.__esModule ? obj.default : obj; };
-__DEFINE__(1753149254841, function(require, module, exports) {
+__DEFINE__(1753149256045, function(require, module, exports) {
 var makeMiddleware = require('./lib/make-middleware')
 
 var diskStorage = require('./storage/disk')
@@ -110,8 +110,8 @@ module.exports.diskStorage = diskStorage
 module.exports.memoryStorage = memoryStorage
 module.exports.MulterError = MulterError
 
-}, function(modId) {var map = {"./lib/make-middleware":1753149254842,"./storage/disk":1753149254847,"./storage/memory":1753149254848,"./lib/multer-error":1753149254844}; return __REQUIRE__(map[modId], modId); })
-__DEFINE__(1753149254842, function(require, module, exports) {
+}, function(modId) {var map = {"./lib/make-middleware":1753149256046,"./storage/disk":1753149256051,"./storage/memory":1753149256052,"./lib/multer-error":1753149256048}; return __REQUIRE__(map[modId], modId); })
+__DEFINE__(1753149256046, function(require, module, exports) {
 var is = require('type-is')
 var Busboy = require('busboy')
 var extend = require('xtend')
@@ -288,8 +288,8 @@ function makeMiddleware (setup) {
 
 module.exports = makeMiddleware
 
-}, function(modId) { var map = {"./counter":1753149254843,"./multer-error":1753149254844,"./file-appender":1753149254845,"./remove-uploaded-files":1753149254846}; return __REQUIRE__(map[modId], modId); })
-__DEFINE__(1753149254843, function(require, module, exports) {
+}, function(modId) { var map = {"./counter":1753149256047,"./multer-error":1753149256048,"./file-appender":1753149256049,"./remove-uploaded-files":1753149256050}; return __REQUIRE__(map[modId], modId); })
+__DEFINE__(1753149256047, function(require, module, exports) {
 var EventEmitter = require('events').EventEmitter
 
 function Counter () {
@@ -320,7 +320,7 @@ Counter.prototype.onceZero = function onceZero (fn) {
 module.exports = Counter
 
 }, function(modId) { var map = {}; return __REQUIRE__(map[modId], modId); })
-__DEFINE__(1753149254844, function(require, module, exports) {
+__DEFINE__(1753149256048, function(require, module, exports) {
 var util = require('util')
 
 var errorMessages = {
@@ -347,7 +347,7 @@ util.inherits(MulterError, Error)
 module.exports = MulterError
 
 }, function(modId) { var map = {}; return __REQUIRE__(map[modId], modId); })
-__DEFINE__(1753149254845, function(require, module, exports) {
+__DEFINE__(1753149256049, function(require, module, exports) {
 var objectAssign = require('object-assign')
 
 function arrayRemove (arr, item) {
@@ -417,7 +417,7 @@ FileAppender.prototype.replacePlaceholder = function (placeholder, file) {
 module.exports = FileAppender
 
 }, function(modId) { var map = {}; return __REQUIRE__(map[modId], modId); })
-__DEFINE__(1753149254846, function(require, module, exports) {
+__DEFINE__(1753149256050, function(require, module, exports) {
 function removeUploadedFiles (uploadedFiles, remove, cb) {
   var length = uploadedFiles.length
   var errors = []
@@ -448,7 +448,7 @@ function removeUploadedFiles (uploadedFiles, remove, cb) {
 module.exports = removeUploadedFiles
 
 }, function(modId) { var map = {}; return __REQUIRE__(map[modId], modId); })
-__DEFINE__(1753149254847, function(require, module, exports) {
+__DEFINE__(1753149256051, function(require, module, exports) {
 var fs = require('fs')
 var os = require('os')
 var path = require('path')
@@ -517,7 +517,7 @@ module.exports = function (opts) {
 }
 
 }, function(modId) { var map = {}; return __REQUIRE__(map[modId], modId); })
-__DEFINE__(1753149254848, function(require, module, exports) {
+__DEFINE__(1753149256052, function(require, module, exports) {
 var concat = require('concat-stream')
 
 function MemoryStorage (opts) {}
@@ -541,7 +541,7 @@ module.exports = function (opts) {
 }
 
 }, function(modId) { var map = {}; return __REQUIRE__(map[modId], modId); })
-return __REQUIRE__(1753149254841);
+return __REQUIRE__(1753149256045);
 })()
 //miniprogram-npm-outsideDeps=["type-is","busboy","xtend","append-field","events","util","object-assign","fs","os","path","crypto","mkdirp","concat-stream"]
 //# sourceMappingURL=index.js.map

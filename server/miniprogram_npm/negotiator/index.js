@@ -4,7 +4,7 @@ var __DEFINE__ = function(modId, func, req) { var m = { exports: {}, _tempexport
 var __REQUIRE__ = function(modId, source) { if(!__MODS__[modId]) return require(source); if(!__MODS__[modId].status) { var m = __MODS__[modId].m; m._exports = m._tempexports; var desp = Object.getOwnPropertyDescriptor(m, "exports"); if (desp && desp.configurable) Object.defineProperty(m, "exports", { set: function (val) { if(typeof val === "object" && val !== m._exports) { m._exports.__proto__ = val.__proto__; Object.keys(val).forEach(function (k) { m._exports[k] = val[k]; }); } m._tempexports = val }, get: function () { return m._tempexports; } }); __MODS__[modId].status = 1; __MODS__[modId].func(__MODS__[modId].req, m, m.exports); } return __MODS__[modId].m.exports; };
 var __REQUIRE_WILDCARD__ = function(obj) { if(obj && obj.__esModule) { return obj; } else { var newObj = {}; if(obj != null) { for(var k in obj) { if (Object.prototype.hasOwnProperty.call(obj, k)) newObj[k] = obj[k]; } } newObj.default = obj; return newObj; } };
 var __REQUIRE_DEFAULT__ = function(obj) { return obj && obj.__esModule ? obj.default : obj; };
-__DEFINE__(1753149254849, function(require, module, exports) {
+__DEFINE__(1753149256053, function(require, module, exports) {
 /*!
  * negotiator
  * Copyright(c) 2012 Federico Romero
@@ -88,8 +88,8 @@ Negotiator.prototype.preferredLanguages = Negotiator.prototype.languages;
 Negotiator.prototype.preferredMediaType = Negotiator.prototype.mediaType;
 Negotiator.prototype.preferredMediaTypes = Negotiator.prototype.mediaTypes;
 
-}, function(modId) {var map = {"./lib/charset":1753149254850,"./lib/encoding":1753149254851,"./lib/language":1753149254852,"./lib/mediaType":1753149254853}; return __REQUIRE__(map[modId], modId); })
-__DEFINE__(1753149254850, function(require, module, exports) {
+}, function(modId) {var map = {"./lib/charset":1753149256054,"./lib/encoding":1753149256055,"./lib/language":1753149256056,"./lib/mediaType":1753149256057}; return __REQUIRE__(map[modId], modId); })
+__DEFINE__(1753149256054, function(require, module, exports) {
 /**
  * negotiator
  * Copyright(c) 2012 Isaac Z. Schlueter
@@ -261,7 +261,7 @@ function isQuality(spec) {
 }
 
 }, function(modId) { var map = {}; return __REQUIRE__(map[modId], modId); })
-__DEFINE__(1753149254851, function(require, module, exports) {
+__DEFINE__(1753149256055, function(require, module, exports) {
 /**
  * negotiator
  * Copyright(c) 2012 Isaac Z. Schlueter
@@ -448,7 +448,7 @@ function isQuality(spec) {
 }
 
 }, function(modId) { var map = {}; return __REQUIRE__(map[modId], modId); })
-__DEFINE__(1753149254852, function(require, module, exports) {
+__DEFINE__(1753149256056, function(require, module, exports) {
 /**
  * negotiator
  * Copyright(c) 2012 Isaac Z. Schlueter
@@ -630,7 +630,7 @@ function isQuality(spec) {
 }
 
 }, function(modId) { var map = {}; return __REQUIRE__(map[modId], modId); })
-__DEFINE__(1753149254853, function(require, module, exports) {
+__DEFINE__(1753149256057, function(require, module, exports) {
 /**
  * negotiator
  * Copyright(c) 2012 Isaac Z. Schlueter
@@ -927,7 +927,7 @@ function splitParameters(str) {
 }
 
 }, function(modId) { var map = {}; return __REQUIRE__(map[modId], modId); })
-return __REQUIRE__(1753149254849);
+return __REQUIRE__(1753149256053);
 })()
 //miniprogram-npm-outsideDeps=[]
 //# sourceMappingURL=index.js.map

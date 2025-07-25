@@ -10,10 +10,7 @@
     "pages/finance-advice/financeAdvisorReport",
     "pages/property-advice/propertyAdvisorForm",
     "pages/property-advice/propertyAdvisorReport",
-    "pages/task-result/task-result",
-    "pages/test/test-history",
-    "pages/test/test-task-result",
-    "pages/test/test-fixes"
+    "pages/task-result/task-result"
   ],
   "window": {
     "backgroundTextStyle": "light",

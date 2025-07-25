@@ -1,0 +1,19 @@
+{
+  "description": "测试页面配置文件 - 仅用于开发和测试环境",
+  "note": "如需启用测试页面，请将以下页面路径手动添加到 app.json 的 pages 数组中",
+  "testPages": [
+    "pages/test/test-history",
+    "pages/test/test-task-result", 
+    "pages/test/test-fixes"
+  ],
+  "usage": {
+    "enable": "将 testPages 中的路径复制到 app.json 的 pages 数组中",
+    "disable": "从 app.json 的 pages 数组中移除测试页面路径",
+    "warning": "生产环境部署前必须确保测试页面已从 app.json 中移除"
+  },
+  "testPageDescriptions": {
+    "pages/test/test-history": "历史记录功能测试页面",
+    "pages/test/test-task-result": "任务结果页面测试",
+    "pages/test/test-fixes": "修复功能测试页面"
+  }
+}
