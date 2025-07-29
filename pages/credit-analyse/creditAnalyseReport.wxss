@@ -14,6 +14,41 @@
   box-sizing: border-box; /* 确保padding不会增加总高度 */
 }
 
+/* 自定义van-tabs主题色 */
+page {
+  --tabs-line-color: #1b68de;
+  --tabs-active-text-color: #1b68de;
+  --tabs-default-color: #646566;
+  --button-primary-background-color: #1b68de;
+  --button-primary-border-color: #1b68de;
+}
+
+/* 强制覆盖van-tabs样式 */
+.van-tabs__line {
+  background-color: #1b68de !important;
+}
+
+.van-tab--active {
+  color: #1b68de !important;
+}
+
+.van-tab {
+  color: #646566 !important;
+}
+
+.van-tab--active .van-tab__text {
+  color: #1b68de !important;
+}
+
+.van-tab__text {
+  color: #646566 !important;
+}
+
+/* 确保激活状态的标签页文字颜色 */
+.van-tabs__content .van-tab--active {
+  color: #1b68de !important;
+}
+
 .step-content {
   flex: 1;
   overflow: hidden;
@@ -110,7 +145,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #f5f7fa;
+  /* background-color: #f5f7fa; */
   z-index: 1;
 }
 
@@ -248,13 +283,90 @@
   transform: scale(0.9);
 }
 
+/* 自定义"查看征信文件"按钮样式 */
+.custom-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 24rpx;
+  background-color: #ffffff;
+  border: 2rpx solid #1b68de;
+  border-radius: 8rpx;
+  color: #1b68de;
+  font-size: 28rpx;
+  font-weight: 500;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+  min-width: 120rpx;
+  text-align: center;
+}
+
+.custom-action-button-hover {
+  background-color: #f0f7ff;
+  border-color: #0056d6;
+  color: #0056d6;
+  transform: scale(0.98);
+}
+
+/* --------- 新增: Tab相关样式 --------- */
+.report-tab-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  margin: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.report-tabs {
+  width: 100%;
+}
+
+.tab-content-wrapper {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: calc(100vh - 300rpx); /* 确保内容区域足够高 */
+  padding-bottom: calc(160rpx + env(safe-area-inset-bottom)); /* 为统一胶囊按钮留出空间 */
+}
+
+/* 报告内容区域样式 */
+.report-content {
+  height: 100%;
+  padding: 32rpx;
+  box-sizing: border-box;
+}
+
+/* 思考过程内容区域样式 */
+.thinking-content {
+  height: 100%;
+  padding: 32rpx;
+  box-sizing: border-box;
+}
+
+.thinking-process {
+  white-space: pre-wrap;
+  font-size: 32rpx;
+  line-height: 1.8;
+  color: #303133;
+}
+
+/* 确保panel-content在tab内正确显示 */
 .panel-content {
   flex: 1;
-  box-sizing: border-box;
-  background-color: #fff;
-  width: 100%;
-  overflow: hidden; /* 修改为不允许自身滚动 */
+  overflow: hidden;
   position: relative;
+  height: 100%;
+}
+
+/* 确保scroll-view在tab内正确滚动 */
+.panel-content scroll-view {
+  height: 100%;
 }
 
 /* --------- 4. 文件提取和预览样式 --------- */
@@ -681,14 +793,6 @@
   flex: 1; /* 确保占据可用空间 */
   min-height: 0; /* 确保flex子元素能正确收缩 */
   position: relative; /* 确保正常文档流定位 */
-}
-
-.report-content {
-  padding: 32rpx 32rpx calc(160rpx + env(safe-area-inset-bottom)) 32rpx; /* 为统一胶囊按钮留出空间 */
-  line-height: 1.8; /* 增加行间距 */
-  font-size: 30rpx; /* 稍微增大基础字号 */
-  height: 100%;
-  color: #333333; /* 更深的文字颜色提高可读性 */
 }
 
 /* 优化 Markdown 内容显示样式 - 参考主流移动端排版 */

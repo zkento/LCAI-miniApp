@@ -11,5 +11,6 @@
     "van-tab": "@vant/weapp/tab/index",
     "van-toast": "@vant/weapp/toast/index",
     "van-dialog": "@vant/weapp/dialog/index"
-  }
+  },
+  "styleIsolation": "apply-shared"
 }

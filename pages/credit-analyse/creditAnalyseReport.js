@@ -8,6 +8,9 @@ Page({
     // 当前步骤状态（1表示表单填写, 2表示提取内容, 3表示AI思考, 4表示生成报告）
     activeStep: 1,
     
+    // Tab相关
+    activeReportTab: 'report', // 'report'表示分析结果报告, 'thinking'表示分析思考过程
+    
     // 表单数据
     formData: null,
     
@@ -412,7 +415,9 @@ Page({
     this.completeThinking();
   },
   
-  // 完成思考过程
+  /**
+   * 完成思考过程并准备生成报告
+   */
   completeThinking() {
     // 清除计时器
     if (this.thinkingInterval) {
@@ -423,9 +428,11 @@ Page({
     // 显示完整思考内容
     this.setData({
       displayedThinkingProcess: this.data.aiThinkingProcess,
-      isThinking: false
+      isThinking: false,
+      // 同时保存思考过程用于Tab显示
+      aiThinkingProcess: this.data.aiThinkingProcess
     });
-
+    
     // 滚动到底部显示完整内容
     setTimeout(() => {
       this.scrollToThinkingBottom();
@@ -918,6 +925,17 @@ ${this.data.creditType === 'business-credit' ? `## 六、融资申请策略
         });
       }
     });
+  },
+
+  /**
+   * Tab切换事件处理
+   */
+  onReportTabChange(event) {
+    const tabName = event.detail.name;
+    this.setData({
+      activeReportTab: tabName
+    });
+    console.log('切换到Tab:', tabName);
   },
 
   onUnload() {

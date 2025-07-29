@@ -4,10 +4,40 @@
 page {
   --tabs-line-color: #1b68de;
   --tabs-active-text-color: #1b68de;
+  --tabs-default-color: #646566;
   --button-primary-background-color: #1b68de;
   --button-primary-border-color: #1b68de;
+  height: 100%;
+  overflow: hidden;
 }
 
+/* 强制覆盖van-tabs样式 */
+.van-tabs__line {
+  background-color: #1b68de !important;
+}
+
+.van-tab--active {
+  color: #1b68de !important;
+}
+
+.van-tab {
+  color: #646566 !important;
+}
+
+.van-tab--active .van-tab__text {
+  color: #1b68de !important;
+}
+
+.van-tab__text {
+  color: #646566 !important;
+}
+
+/* 确保激活状态的标签页文字颜色 */
+.van-tabs__content .van-tab--active {
+  color: #1b68de !important;
+}
+
+/* 主容器样式 */
 .task-result-container {
   height: 100vh;
   background-color: #f5f7fa;
@@ -15,10 +45,12 @@ page {
   flex-direction: column;
 }
 
-/* 主滚动容器 */
-.main-scroll-container {
+/* 内容容器 */
+.content-container {
   flex: 1;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* 加载状态 */
@@ -36,11 +68,6 @@ page {
 
 .error-retry-btn {
   margin-top: 40rpx;
-}
-
-/* 主要内容 */
-.main-content {
-  padding-bottom: 80rpx;
 }
 
 /* 任务信息区域 */
@@ -126,32 +153,32 @@ page {
   opacity: 0.7;
 }
 
-/* Tab区域 */
-.tab-section {
+/* Tab容器 */
+.tab-container {
+  flex: 1;
   margin: 0 20rpx 40rpx;
   background: #ffffff;
   border-radius: 16rpx;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Tab滚动容器 */
-.tab-scroll-container {
-  height: 60vh;
+/* 自定义Tab样式 */
+.custom-tabs {
   width: 100%;
 }
 
-.tab-content {
-  padding: 0;
-  min-height: 60vh;
-}
-
-/* 报告内容 */
-.report-content {
+/* Tab内容包装器 */
+.tab-content-wrapper {
   padding: 32rpx;
-  min-height: calc(60vh - 64rpx);
+  min-height: 100%;
+  box-sizing: border-box;
+  padding-bottom: calc(160rpx + env(safe-area-inset-bottom)); /* 为统一胶囊按钮留出空间 */
 }
 
+/* 报告头部 */
 .report-header {
   display: flex;
   justify-content: space-between;
@@ -159,6 +186,7 @@ page {
   margin-bottom: 32rpx;
   padding-bottom: 24rpx;
   border-bottom: 1rpx solid #f0f0f0;
+  width: 100%;
 }
 
 .report-title {
@@ -178,71 +206,42 @@ page {
   color: #8c8c8c;
 }
 
-.report-actions {
-  display: flex;
-  gap: 16rpx;
-}
-
 .report-body {
   line-height: 2.0;
   padding-bottom: 40rpx;
+  width: 100%;
 }
 
+/* Markdown内容 */
 .markdown-content {
-  font-size: 28rpx;
-  color: #262626;
-  line-height: 2.0;
-}
-
-/* 优化报告内容样式 */
-.markdown-content h1 {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #1b68de;
-  margin: 40rpx 0 24rpx 0;
-  padding-bottom: 16rpx;
-  border-bottom: 2rpx solid #1b68de;
-}
-
-.markdown-content h2 {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #262626;
-  margin: 32rpx 0 20rpx 0;
-}
-
-.markdown-content h3 {
   font-size: 30rpx;
-  font-weight: 600;
-  color: #595959;
-  margin: 24rpx 0 16rpx 0;
+  color: #303133;
+  line-height: 1.8;
+  word-break: break-word;
+  min-height: 200rpx;
+  width: 100%;
 }
 
-.markdown-content strong {
-  font-weight: 600;
-  color: #262626;
+.report-text {
+  white-space: pre-wrap;
+  font-size: 30rpx;
+  line-height: 1.8;
+  color: #303133;
+  width: 100%;
+  display: block;
 }
 
-.markdown-content li {
-  margin: 8rpx 0;
-  padding-left: 20rpx;
-  position: relative;
-}
-
-.markdown-content li::before {
-  content: "•";
-  color: #1b68de;
-  font-weight: bold;
-  position: absolute;
-  left: 0;
+/* 空内容提示 */
+.empty-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400rpx;
+  color: #999;
+  font-size: 28rpx;
 }
 
 /* 思考过程内容 */
-.thinking-content {
-  padding: 32rpx;
-  min-height: calc(60vh - 64rpx);
-}
-
 .thinking-header {
   margin-bottom: 32rpx;
   padding-bottom: 24rpx;
@@ -258,19 +257,24 @@ page {
 .thinking-body {
   line-height: 2.0;
   padding-bottom: 40rpx;
+  width: 100%;
 }
 
 .thinking-process {
   margin-bottom: 40rpx;
+  width: 100%;
 }
 
 .thinking-text {
-  font-size: 28rpx;
-  color: #262626;
+  font-size: 30rpx;
+  color: #606266;
   line-height: 1.8;
   white-space: pre-wrap;
+  width: 100%;
+  display: block;
 }
 
+/* 咨询过程中的思考记录 */
 .consultation-thinking {
   border-top: 1rpx solid #f0f0f0;
   padding-top: 32rpx;
@@ -302,22 +306,12 @@ page {
 }
 
 /* 咨询内容 */
-.consultation-content {
-  display: flex;
-  flex-direction: column;
-  height: 60vh;
-}
-
-/* 消息滚动容器 */
-.messages-scroll-container {
-  flex: 1;
-  height: calc(60vh - 120rpx);
+.consultation-wrapper {
+  padding-bottom: 160rpx; /* 为输入区域留出空间 */
 }
 
 .messages-container {
-  padding: 32rpx;
-  padding-bottom: 16rpx;
-  min-height: 100%;
+  padding: 0;
 }
 
 .message-item {
@@ -379,11 +373,17 @@ page {
 
 /* 输入区域 */
 .input-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: flex-end;
-  padding: 16rpx 32rpx 32rpx;
+  padding: 16rpx 32rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
   border-top: 1rpx solid #f0f0f0;
   background: #ffffff;
+  z-index: 100;
 }
 
 .consultation-input {
@@ -396,16 +396,170 @@ page {
   height: 72rpx;
 }
 
-/* 真机兼容性样式 */
-.task-result-container scroll-view {
-  -webkit-overflow-scrolling: touch;
+/* 现代化统一胶囊悬浮按钮样式 */
+.unified-floating-button {
+  position: fixed;
+  bottom: calc(48rpx + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  background: #1b68de;
+  border-radius: 56rpx;
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.15), 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  z-index: 99;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(20rpx);
+  color: white;
 }
 
-/* 确保scroll-view在真机上正常工作 */
-scroll-view {
-  display: block;
+/* 现代化按钮区域基础样式 */
+.button-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 28rpx 44rpx;
+  color: white;
+  font-size: 30rpx;
+  font-weight: 600;
+  flex: 1;
+  min-width: 180rpx;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.button-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.button-section:active::before {
+  opacity: 1;
+}
+
+.button-section:active {
+  transform: scale(0.96);
+}
+
+/* 现代化按钮图标样式 */
+.button-section .button-icon {
+  width: 40rpx;
+  height: 40rpx;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 2rpx 4rpx rgba(0, 0, 0, 0.1));
+}
+
+.button-section:active .button-icon {
+  transform: scale(0.9);
+}
+
+/* 现代化左侧区域样式 - 下载报告 */
+.left-section {
+  background: #1b68de;
+  border-radius: 52rpx 0 0 52rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.left-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
   width: 100%;
-  box-sizing: border-box;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.left-section:active::before {
+  left: 100%;
+}
+
+.left-section:active {
+  background: #1b68de;
+  transform: scale(0.96);
+}
+
+/* 现代化右侧区域样式 - 分享 */
+.right-section {
+  background: #1b68de;
+  border-radius: 0 52rpx 52rpx 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.right-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.right-section:active::before {
+  left: 100%;
+}
+
+.right-section:active {
+  background: #1b68de;
+  transform: scale(0.96);
+}
+
+/* 现代化分割线样式 */
+.button-divider {
+  width: 1rpx;
+  height: 64rpx;
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 20%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(255, 255, 255, 0.5) 80%,
+    transparent 100%
+  );
+  flex-shrink: 0;
+  margin: 0 1rpx;
+}
+
+/* 单按钮样式（无分割） */
+.full-section {
+  background: #1b68de;
+  border-radius: 52rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.full-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.full-section:active::before {
+  left: 100%;
+}
+
+.full-section:active {
+  background: #1b68de;
+  transform: scale(0.96);
 }
 
 /* 响应式适配 */
@@ -427,13 +581,5 @@ scroll-view {
   .thinking-text,
   .message-text {
     font-size: 26rpx;
-  }
-
-  .tab-scroll-container {
-    height: 50vh;
-  }
-
-  .messages-scroll-container {
-    height: calc(50vh - 120rpx);
   }
 }

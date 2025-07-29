@@ -38,9 +38,11 @@ Page({
     // 滚动相关
     messagesScrollTop: 0,
     scrollIntoView: '',
+    navHeight: 0, // 导航栏高度，用于设置Tab吸顶偏移量
 
     // 系统状态
-    systemInfo: null
+    systemInfo: null,
+    forceUpdate: 0 // 用于强制更新页面
   },
 
   /**
@@ -52,9 +54,16 @@ Page({
     // 获取系统信息
     wx.getSystemInfo({
       success: (res) => {
+        // 计算导航栏高度 = 状态栏高度 + 导航栏固定高度(44px)
+        const navHeight = res.statusBarHeight + 44;
+        
         this.setData({
-          systemInfo: res
+          systemInfo: res,
+          navHeight: navHeight
         });
+        
+        console.log('系统信息:', res);
+        console.log('导航栏高度:', navHeight);
       }
     });
     
@@ -89,12 +98,66 @@ Page({
   },
 
   /**
+   * 生命周期函数--监听页面渲染完成
+   */
+  onReady() {
+    // 页面渲染完成后，检查报告内容是否正确显示
+    if (this.data.reportContent) {
+      console.log('页面渲染完成，报告内容长度:', this.data.reportContent.length);
+      
+      // 延迟一会儿再次检查，确保渲染完成
+      setTimeout(() => {
+        this.checkAndForceUpdate();
+        
+        // 调试样式应用情况
+        console.log('检查样式应用情况...');
+        const query = wx.createSelectorQuery();
+        query.select('.thinking-text').fields({
+          computedStyle: ['fontSize', 'color', 'lineHeight', 'whiteSpace', 'width', 'display']
+        }, function(res) {
+          console.log('thinking-text 样式:', res);
+        }).exec();
+        
+        query.select('.report-text').fields({
+          computedStyle: ['fontSize', 'color', 'lineHeight', 'whiteSpace', 'width', 'display']
+        }, function(res) {
+          console.log('report-text 样式:', res);
+        }).exec();
+      }, 1000);
+    }
+  },
+
+  /**
+   * 检查并强制更新页面
+   */
+  checkAndForceUpdate() {
+    const { reportContent } = this.data;
+    if (reportContent) {
+      console.log('强制更新页面，确保内容显示');
+      this.setData({ 
+        forceUpdate: Date.now() 
+      });
+    }
+  },
+
+  /**
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh() {
     this.loadTaskResult().finally(() => {
       wx.stopPullDownRefresh();
     });
+  },
+
+  /**
+   * Tab切换事件
+   */
+  onTabChange(event) {
+    const index = event.detail.index;
+    this.setData({
+      activeTab: index
+    });
+    console.log('切换到Tab:', index);
   },
 
   /**
@@ -127,7 +190,10 @@ Page({
 
       // 生成报告内容
       this.generateReportContent();
-      
+
+      // 调试：检查报告内容是否生成
+      console.log('报告内容生成完成:', this.data.reportContent ? '有内容' : '无内容');
+
       // 初始化AI思考过程
       this.initAiThinkingProcess();
       
@@ -195,21 +261,13 @@ Page({
   },
 
   /**
-   * Tab切换事件
-   */
-  onTabChange(event) {
-    const index = event.detail.index;
-    this.setData({
-      activeTab: index
-    });
-  },
-
-  /**
    * 生成报告内容
    */
   generateReportContent() {
     const { taskType, taskResult } = this.data;
     const currentDate = new Date().toLocaleString('zh-CN').replace(/\//g, '-');
+
+    console.log('开始生成报告内容，任务类型:', taskType);
 
     // 设置报告生成时间（模拟）
     this.setData({
@@ -217,30 +275,56 @@ Page({
     });
 
     // 根据任务类型生成不同的报告内容
+    let reportContent = '';
+    
     switch(taskType) {
       case '个人征信报告分析':
-        this.generatePersonalCreditReport();
+        console.log('生成个人征信报告');
+        reportContent = this.generatePersonalCreditReportContent();
         break;
       case '企业征信报告分析':
-        this.generateBusinessCreditReport();
+        console.log('生成企业征信报告');
+        reportContent = this.generateBusinessCreditReportContent();
         break;
       case '买家顾问报告':
-        this.generateBuyerAdvisorReport();
+        console.log('生成买家顾问报告');
+        reportContent = this.generateBuyerAdvisorReportContent();
         break;
       case '融资顾问报告':
-        this.generateFinanceAdvisorReport();
+        console.log('生成融资顾问报告');
+        reportContent = this.generateFinanceAdvisorReportContent();
         break;
       default:
-        this.setData({
-          reportContent: `# ${taskType || '未知类型任务'}\n\n生成时间：${currentDate}\n\n暂不支持显示该类型任务的详细结果。`
-        });
+        console.log('未知任务类型，使用默认模板');
+        reportContent = `# ${taskType || '未知类型任务'}\n\n生成时间：${currentDate}\n\n暂不支持显示该类型任务的详细结果。`;
     }
+    
+    // 直接设置reportContent
+    if (reportContent) {
+      this.setData({ reportContent }, () => {
+        console.log('报告内容设置成功，长度:', reportContent.length);
+        // 强制更新页面
+        this.setData({ 
+          forceUpdate: Date.now() 
+        });
+      });
+    } else {
+      console.error('报告内容生成失败');
+    }
+
+    // 延迟检查报告内容是否设置成功
+    setTimeout(() => {
+      console.log('报告内容设置结果:', this.data.reportContent ? '成功' : '失败');
+      if (this.data.reportContent) {
+        console.log('报告内容长度:', this.data.reportContent.length);
+      }
+    }, 500);
   },
 
   /**
    * 生成个人征信报告分析
    */
-  generatePersonalCreditReport() {
+  generatePersonalCreditReportContent() {
     const { taskResult } = this.data;
     const customerName = taskResult?.customerName || '未知客户';
     const currentDate = new Date().toLocaleString('zh-CN').replace(/\//g, '-');
@@ -299,13 +383,14 @@ Page({
 - **建议贷款期限**：25-30年
 - **预计月供**：约5,500-8,500元（基于当前利率）`;
 
-    this.setData({ reportContent });
+    console.log('个人征信报告内容长度:', reportContent.length);
+    return reportContent;
   },
 
   /**
    * 生成企业征信报告分析
    */
-  generateBusinessCreditReport() {
+  generateBusinessCreditReportContent() {
     const { taskResult } = this.data;
     const customerName = taskResult?.customerName || '未知企业';
     const currentDate = new Date().toLocaleString('zh-CN').replace(/\//g, '-');
@@ -348,13 +433,14 @@ Page({
 - **资产负债率**：42%
 - **评估结果**：企业短期和长期偿债能力均处于良好水平`;
 
-    this.setData({ reportContent });
+    console.log('企业征信报告内容长度:', reportContent.length);
+    return reportContent;
   },
 
   /**
    * 生成买家顾问报告
    */
-  generateBuyerAdvisorReport() {
+  generateBuyerAdvisorReportContent() {
     const { taskResult } = this.data;
     const customerName = taskResult?.customerName || '未知客户';
     const currentDate = new Date().toLocaleString('zh-CN').replace(/\//g, '-');
@@ -402,13 +488,14 @@ Page({
 - **配套设施**：小区内有游泳池、健身房、儿童乐园
 - **推荐理由**：位置优越，对口优质学校，小区环境佳，物业服务好`;
 
-    this.setData({ reportContent });
+    console.log('买家顾问报告内容长度:', reportContent.length);
+    return reportContent;
   },
 
   /**
    * 生成融资顾问报告
    */
-  generateFinanceAdvisorReport() {
+  generateFinanceAdvisorReportContent() {
     const { taskResult } = this.data;
     const customerName = taskResult?.customerName || '未知客户';
     const currentDate = new Date().toLocaleString('zh-CN').replace(/\//g, '-');
@@ -468,7 +555,8 @@ Page({
 - **所需材料**：身份证、公积金缴存证明、购房合同等
 - **优势**：利率低，总利息少`;
 
-    this.setData({ reportContent });
+    console.log('融资顾问报告内容长度:', reportContent.length);
+    return reportContent;
   },
 
   /**
@@ -476,17 +564,20 @@ Page({
    */
   initAiThinkingProcess() {
     const { taskType, taskResult } = this.data;
-    const thinkingPrefix = `正在分析${taskType}...\n\n思考过程：\n`;
+    const thinkingPrefix = `正在分析${taskType}...\n`;
 
     const aiThinkingProcess = thinkingPrefix +
-      `嗯，我需要仔细分析这份${taskType}的内容，提取关键信息并给出专业建议。\n\n` +
-      `首先，我注意到这是一份关于${taskResult?.customerName || '客户'}的${taskType}。\n` +
-      `让我逐项分析内容，确保不遗漏任何重要信息...\n\n` +
-      `看起来总体情况良好，没有发现明显的风险点。\n` +
-      `基于分析结果，我可以提供以下几点建议...\n\n` +
-      `综合评估，客户的状况适合...\n` +
-      `需要特别注意的是...\n\n` +
-      `我认为这份报告的结论是合理的，可以作为决策参考。`;
+`嗯，用户给了一个PDF文件，看起来是个人信用报告。我需要仔细分析里面的内容，然后给出专业的建议。首先，我要理解各个表格和数据的含义。
+从报告中可以看到，用户名为张三，有2家机构的3笔贷款，总余额为1,200,000元。其中包括一笔住房贷款，余额900,000元，还款状态正常；一笔消费贷款，余额200,000元，还款状态也正常。
+信用卡方面，用户有3家银行发行的4张信用卡，授信总额200,000元，已用额度50,000元，使用率为25%。从明细来看，各卡使用情况都正常，没有超限或逾期情况。
+公共记录部分显示无不良记录，这是很好的信号，表明用户没有严重的信用问题。
+查询记录显示，最近2年内被查询8次，其中贷款审批查询3次，信用卡审批查询2次，本人查询3次。查询次数适中，不会对信用评分产生太大负面影响。
+综合分析，用户的信用状况总体良好，所有贷款和信用卡账户均按时还款，无逾期记录。但需要注意以下几点：
+1. 总债务水平较高，尤其是住房贷款占比较大，需要关注月供与收入的比例，确保还款能力。
+2. 信用卡使用率为25%，处于合理范围内（建议保持在30%以下），有利于维持良好的信用评分。
+3. 查询记录次数适中，不会对信用评分产生太大影响。
+建议用户继续保持良好的还款习惯，合理规划财务，避免过度依赖信用产品，同时关注信用报告中的查询记录，减少不必要的信用检查。
+好了，模拟思考的内容差不多就得了，够了，就这样吧。`;
 
     this.setData({ aiThinkingProcess });
   },
@@ -756,7 +847,25 @@ Page({
   },
 
   /**
-   * 分享报告
+   * 显示分享功能说明弹窗
+   */
+  showShareDialog() {
+    wx.showModal({
+      title: '功能说明',
+      content: '点击后将从服务器获取PDF版本报告链接，并自动打开PDF预览页面，用户可在预览页面使用微信原生分享功能进行分享',
+      showCancel: false,
+      confirmText: '确定',
+      // confirmColor: '#1b68de',
+      // success: (res) => {
+      //   if (res.confirm) {
+      //     console.log('用户点击确定');
+      //   }
+      // }
+    });
+  },
+
+  /**
+   * 分享报告（保留原方法，以备后续使用）
    */
   shareReport() {
     const { taskType, taskResult } = this.data;
@@ -865,21 +974,99 @@ Page({
   },
 
   /**
+   * 测试报告内容显示
+   */
+  testReportContent() {
+    console.log('测试报告内容显示');
+    console.log('当前reportContent长度:', this.data.reportContent ? this.data.reportContent.length : 0);
+    
+    // 检查reportContent是否正确设置
+    if (!this.data.reportContent) {
+      console.error('报告内容为空，重新生成');
+      this.generateReportContent();
+      return;
+    }
+    
+    // 测试markdown转换
+    const html = this.markdownToHtml(this.data.reportContent);
+    console.log('markdownToHtml结果长度:', html.length);
+    
+    // 输出HTML的前200个字符用于调试
+    console.log('HTML预览:', html.substring(0, 200) + '...');
+    
+    // 更新调试信息
+    wx.showToast({
+      title: '内容已重新渲染',
+      icon: 'success'
+    });
+  },
+
+  /**
    * 简单的Markdown转HTML处理
    */
   markdownToHtml(markdown) {
     if (!markdown) return '';
 
-    return markdown
-      // 处理标题
-      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-      // 处理粗体
-      .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
-      // 处理列表
-      .replace(/^\- (.*$)/gim, '<li>$1</li>')
-      // 处理换行
-      .replace(/\n/gim, '<br/>');
+    try {
+      // 先将markdown内容按行分割
+      const lines = markdown.split('\n');
+      let html = '';
+      let inList = false;
+      
+      // 逐行处理markdown内容
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        
+        // 跳过空行，但在列表中时需要结束列表
+        if (line === '') {
+          if (inList) {
+            html += '</ul>';
+            inList = false;
+          }
+          html += '<p></p>';
+          continue;
+        }
+        
+        // 处理标题
+        if (line.startsWith('# ')) {
+          html += `<h1 style="font-size: 40rpx; font-weight: bold; margin: 28rpx 0 24rpx 0; color: #262626;">${line.substring(2)}</h1>`;
+        } 
+        else if (line.startsWith('## ')) {
+          html += `<h2 style="font-size: 36rpx; font-weight: bold; margin: 24rpx 0 20rpx 0; color: #262626;">${line.substring(3)}</h2>`;
+        } 
+        else if (line.startsWith('### ')) {
+          html += `<h3 style="font-size: 32rpx; font-weight: bold; margin: 20rpx 0 16rpx 0; color: #262626;">${line.substring(4)}</h3>`;
+        } 
+        // 处理列表项
+        else if (line.startsWith('- ')) {
+          if (!inList) {
+            html += '<ul style="margin: 16rpx 0; padding-left: 30rpx;">';
+            inList = true;
+          }
+          html += `<li style="margin: 8rpx 0; color: #303133;">${line.substring(2)}</li>`;
+        } 
+        // 处理普通段落
+        else {
+          if (inList) {
+            html += '</ul>';
+            inList = false;
+          }
+          // 处理粗体
+          line = line.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: bold; color: #1b68de;">$1</strong>');
+          html += `<p style="margin: 16rpx 0; line-height: 1.6; color: #303133;">${line}</p>`;
+        }
+      }
+      
+      // 确保列表正确关闭
+      if (inList) {
+        html += '</ul>';
+      }
+
+      // 包装在一个容器中，设置整体样式
+      return `<div style="padding: 0; font-size: 30rpx; line-height: 1.6; word-break: break-all; width: 100%; box-sizing: border-box;">${html}</div>`;
+    } catch (error) {
+      console.error('Markdown转换错误:', error);
+      return `<div style="padding: 20rpx; color: #999;">${markdown}</div>`;
+    }
   }
 });

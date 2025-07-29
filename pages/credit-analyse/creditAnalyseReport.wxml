@@ -115,30 +115,57 @@
     
     <!-- 步骤4: 生成分析报告 -->
     <view wx:if="{{activeStep === 4}}" class="step-container">
-      <view class="report-container">
-        <view class="panel-header">
-          <view class="header-title">
-            <image class="header-icon" src="/assets/images/file_icon.png"></image>
-            <text>征信分析报告</text>
-            <text wx:if="{{reportGenerationDuration > 0}}" class="report-duration">耗时{{reportGenerationDuration}}秒</text>
-          </view>
-          <view class="header-actions">
-            <button
-              wx:if="{{reportContent}}"
-              type="primary"
-              size="mini"
-              bindtap="viewCreditFile"
-              class="action-button"
-            >
-            查看征信文件
-            </button>
-          </view>
-        </view>
-        <view class="panel-content">
-          <scroll-view scroll-y="true" class="report-content">
-            <rich-text nodes="{{reportContentHtml}}"></rich-text>
-          </scroll-view>
-        </view>
+      <view class="report-tab-container">
+        <van-tabs 
+          active="{{activeReportTab}}" 
+          bind:change="onReportTabChange"
+          swipeable="{{true}}"
+          animated
+          sticky
+          custom-class="report-tabs"
+        >
+          <!-- 分析结果报告 Tab -->
+          <van-tab title="分析结果报告" name="report">
+            <view class="tab-content-wrapper">
+              <view class="panel-header">
+                <view class="header-title">
+                  <!-- <image class="header-icon" src="/assets/images/file_icon.png"></image> -->
+                  <text>征信分析报告</text>
+                  <text wx:if="{{reportGenerationDuration > 0}}" class="report-duration">耗时{{reportGenerationDuration}}秒</text>
+                </view>
+                <view class="header-actions">
+                  <view
+                    wx:if="{{reportContent}}"
+                    bindtap="viewCreditFile"
+                    class="custom-action-button"
+                    hover-class="custom-action-button-hover"
+                    hover-stay-time="150"
+                  >
+                    查看征信文件
+                  </view>
+                </view>
+              </view>
+              <view class="panel-content">
+                <scroll-view scroll-y="true" class="report-content">
+                  <rich-text nodes="{{reportContentHtml}}"></rich-text>
+                </scroll-view>
+              </view>
+            </view>
+          </van-tab>
+
+          <!-- 分析思考过程 Tab -->
+          <van-tab title="分析思考过程" name="thinking">
+            <view class="tab-content-wrapper">
+              <view class="panel-content">
+                <scroll-view scroll-y="true" class="thinking-content">
+                  <view class="thinking-process">
+                    <text>{{aiThinkingProcess}}</text>
+                  </view>
+                </scroll-view>
+              </view>
+            </view>
+          </van-tab>
+        </van-tabs>
       </view>
 
       <!-- 统一的胶囊形状悬浮按钮组 -->

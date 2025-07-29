@@ -9,7 +9,7 @@
 
   <!-- 加载状态 -->
   <view wx:if="{{loading}}" class="loading-container">
-    <van-loading type="spinner" size="24px" color="#1890ff">加载中...</van-loading>
+    <van-loading type="circular" size="24px">报告内容加载中...</van-loading>
   </view>
 
   <!-- 错误状态 -->
@@ -30,210 +30,144 @@
   </view>
 
   <!-- 主要内容 -->
-  <scroll-view wx:else class="main-scroll-container" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
-    <view class="main-content">
-      <!-- 任务关键信息区域 -->
-      <view class="task-info-section">
-        <view class="info-header">
-          <text class="info-title">{{taskType}}</text>
-        </view>
-
-        <view class="info-content">
-          <view class="info-row">
-            <text class="info-label">客户姓名：</text>
-            <text class="info-value">{{taskResult.customerName}}</text>
-          </view>
-
-          <view class="info-row">
-            <text class="info-label">上传文件：</text>
-            <view class="info-value">
-              <!-- 融资顾问报告和买家顾问报告不支持上传文件 -->
-              <text wx:if="{{taskType === '融资顾问报告' || taskType === '买家顾问报告'}}" class="no-file">-</text>
-              <!-- 有文件的情况（征信报告类型） -->
-              <view wx:elif="{{taskResult.uploadFile && taskType.indexOf('征信') !== -1}}" class="file-list-inline">
-                <view
-                  class="file-item-inline"
-                  bind:tap="viewCreditFile"
-                  data-file="{{taskResult.uploadFile}}"
-                >
-                  <text class="file-name-text">{{taskResult.uploadFile}}</text>
-                  <text class="file-view-link">查看</text>
-                </view>
-              </view>
-              <!-- 其他有文件情况 -->
-              <text wx:elif="{{taskResult.uploadFile}}" class="file-name-text">{{taskResult.uploadFile}}</text>
-              <!-- 无文件情况 -->
-              <text wx:else class="no-file">-</text>
-            </view>
-          </view>
-
-
-          <view class="info-row">
-            <text class="info-label">提交时间：</text>
-            <text class="info-value">{{taskResult.submitTime}}</text>
-          </view>
-
-          <view class="info-row">
-            <text class="info-label">实际开始：</text>
-            <text class="info-value">{{taskResult.actualStartTime}}</text>
-          </view>
-
-          <view class="info-row">
-            <text class="info-label">结束时间：</text>
-            <text class="info-value">{{taskResult.endTime}}</text>
-          </view>
-
-          <view class="info-row">
-            <text class="info-label">处理耗时：</text>
-            <text class="info-value">{{taskResult.processingTime}}</text>
-          </view>
-
-          <view class="info-row">
-            <text class="info-label">全部耗时：</text>
-            <text class="info-value">{{taskResult.totalTime}}</text>
-          </view>
-        </view>
+  <view wx:else class="content-container">
+    <!-- 任务信息区域 -->
+    <view class="task-info-section">
+      <view class="info-header">
+        <text class="info-title">{{taskType}}</text>
       </view>
 
-      <!-- Tab区域 -->
-      <view class="tab-section">
-        <van-tabs
-          active="{{activeTab}}"
-          bind:change="onTabChange"
-          sticky="{{true}}"
-          offset-top="{{(systemInfo.statusBarHeight || 44) + 44}}"
-        >
-        <!-- AI结果报告 Tab -->
-        <van-tab title="AI结果报告">
-          <scroll-view class="tab-scroll-container" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
-            <view class="tab-content report-content">
-              <view class="report-header">
-                <view class="report-title">
-                  <text class="title-text">{{taskType}}</text>
-                  <text class="generation-time">生成耗时: {{reportGenerationDuration}}秒</text>
-                </view>
+      <view class="info-content">
+        <view class="info-row">
+          <text class="info-label">客户姓名：</text>
+          <text class="info-value">{{taskResult.customerName}}</text>
+        </view>
 
-                <view class="report-actions">
-                  <van-button
-                    size="small"
-                    type="primary"
-                    plain
-                    bind:click="downloadReport"
-                  >
-                    下载报告
-                  </van-button>
-                  <van-button
-                    size="small"
-                    type="default"
-                    plain
-                    bind:click="shareReport"
-                  >
-                    分享
-                  </van-button>
-                </view>
-              </view>
-
-              <view class="report-body">
-                <rich-text nodes="{{markdownToHtml(reportContent)}}" class="markdown-content"></rich-text>
+        <view class="info-row">
+          <text class="info-label">上传文件：</text>
+          <view class="info-value">
+            <!-- 融资顾问报告和买家顾问报告不支持上传文件 -->
+            <text wx:if="{{taskType === '融资顾问报告' || taskType === '买家顾问报告'}}" class="no-file">-</text>
+            <!-- 有文件的情况（征信报告类型） -->
+            <view wx:elif="{{taskResult.uploadFile && taskType.indexOf('征信') !== -1}}" class="file-list-inline">
+              <view
+                class="file-item-inline"
+                bind:tap="viewCreditFile"
+                data-file="{{taskResult.uploadFile}}"
+              >
+                <text class="file-name-text">{{taskResult.uploadFile}}</text>
+                <text class="file-view-link">查看</text>
               </view>
             </view>
-          </scroll-view>
+            <!-- 其他有文件情况 -->
+            <text wx:elif="{{taskResult.uploadFile}}" class="file-name-text">{{taskResult.uploadFile}}</text>
+            <!-- 无文件情况 -->
+            <text wx:else class="no-file">-</text>
+          </view>
+        </view>
+
+        <view class="info-row">
+          <text class="info-label">提交时间：</text>
+          <text class="info-value">{{taskResult.submitTime}}</text>
+        </view>
+
+        <view class="info-row">
+          <text class="info-label">实际开始：</text>
+          <text class="info-value">{{taskResult.actualStartTime}}</text>
+        </view>
+
+        <view class="info-row">
+          <text class="info-label">结束时间：</text>
+          <text class="info-value">{{taskResult.endTime}}</text>
+        </view>
+
+        <view class="info-row">
+          <text class="info-label">处理耗时：</text>
+          <text class="info-value">{{taskResult.processingTime}}</text>
+        </view>
+
+        <view class="info-row">
+          <text class="info-label">全部耗时：</text>
+          <text class="info-value">{{taskResult.totalTime}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Tab区域 -->
+    <view class="tab-container">
+      <van-tabs 
+        active="{{activeTab}}" 
+        bind:change="onTabChange"
+        swipeable="{{true}}"
+        animated
+        sticky
+        offset-top="{{navHeight}}"
+        custom-class="custom-tabs"
+      >
+        <!-- AI结果报告 Tab -->
+        <van-tab title="AI结果报告" name="report">
+          <view class="tab-content-wrapper">
+            <!-- <view class="report-header">
+              <view class="report-title">
+                <text class="title-text">{{taskType}}</text>
+                <text class="generation-time">生成耗时: {{reportGenerationDuration}}秒</text>
+              </view>
+            </view> -->
+
+            <view class="report-body">
+              <view wx:if="{{reportContent}}" class="markdown-content">
+                <text space="nbsp" decode="true" class="report-text">{{reportContent}}</text>
+              </view>
+              <view wx:else class="empty-content">
+                <text>报告内容加载中...</text>
+              </view>
+            </view>
+            
+            <!-- 单个分享报告按钮 -->
+            <view wx:if="{{reportContent}}" class="unified-floating-button">
+              <view class="button-section full-section" bindtap="showShareDialog">
+                <text>分享报告结果</text>
+              </view>
+            </view>
+          </view>
         </van-tab>
 
         <!-- AI思考过程 Tab -->
-        <van-tab title="AI思考过程">
-          <scroll-view class="tab-scroll-container" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
-            <view class="tab-content thinking-content">
-              <view class="thinking-header">
-                <text class="thinking-title">AI分析思考过程</text>
+        <van-tab title="AI思考过程" name="thinking">
+          <view class="tab-content-wrapper">
+            <!-- <view class="thinking-header">
+              <text class="thinking-title">AI分析思考过程</text>
+            </view> -->
+
+            <view class="thinking-body">
+              <view class="thinking-process">
+                <text class="thinking-text">{{aiThinkingProcess}}</text>
               </view>
 
-              <view class="thinking-body">
-                <view class="thinking-process">
-                  <text class="thinking-text">{{aiThinkingProcess}}</text>
-                </view>
-
-                <!-- 咨询过程中的思考记录 -->
-                <view wx:if="{{consultationThinkingProcesses.length > 0}}" class="consultation-thinking">
-                  <view class="consultation-thinking-title">咨询过程思考记录</view>
-                  <view
-                    wx:for="{{consultationThinkingProcesses}}"
-                    wx:key="index"
-                    class="consultation-thinking-item"
-                  >
-                    <view class="thinking-index">思考过程 {{index + 1}}</view>
-                    <text class="thinking-text">{{item}}</text>
-                  </view>
-                </view>
-              </view>
-            </view>
-          </scroll-view>
-        </van-tab>
-
-        <!-- 继续向AI咨询 Tab -->
-        <van-tab title="继续向AI咨询">
-          <view class="tab-content consultation-content">
-            <!-- 消息列表 -->
-            <scroll-view
-              class="messages-scroll-container"
-              scroll-y="{{true}}"
-              enhanced="{{true}}"
-              show-scrollbar="{{false}}"
-              scroll-top="{{messagesScrollTop}}"
-              scroll-into-view="{{scrollIntoView}}"
-            >
-              <view class="messages-container">
+              <!-- 咨询过程中的思考记录 -->
+              <view wx:if="{{consultationThinkingProcesses.length > 0}}" class="consultation-thinking">
+                <view class="consultation-thinking-title">咨询过程思考记录</view>
                 <view
-                  wx:for="{{consultationMessages}}"
+                  wx:for="{{consultationThinkingProcesses}}"
                   wx:key="index"
-                  class="message-item {{item.role === 'user' ? 'user-message' : 'assistant-message'}}"
-                  id="message-{{index}}"
+                  class="consultation-thinking-item"
                 >
-                  <view class="message-content">
-                    <text class="message-text">{{item.content}}</text>
-                  </view>
-                  <view class="message-time">{{formatMessageTime(item.timestamp)}}</view>
-                </view>
-
-                <!-- 加载状态 -->
-                <view wx:if="{{consultationLoading}}" class="loading-message">
-                  <van-loading type="spinner" size="16px">AI正在思考中...</van-loading>
+                  <view class="thinking-index">思考过程 {{index + 1}}</view>
+                  <text class="thinking-text">{{item}}</text>
                 </view>
               </view>
-            </scroll-view>
-
-            <!-- 输入区域 -->
-            <view class="input-container">
-              <van-field
-                value="{{consultationInput}}"
-                placeholder="请输入您想咨询的问题..."
-                type="textarea"
-                autosize
-                maxlength="500"
-                show-word-limit
-                bind:input="onConsultationInput"
-                class="consultation-input"
-              />
-              <van-button
-                type="primary"
-                size="small"
-                disabled="{{!consultationInput.trim() || consultationLoading}}"
-                bind:click="sendConsultationMessage"
-                class="send-btn"
-              >
-                发送
-              </van-button>
             </view>
           </view>
         </van-tab>
-        </van-tabs>
-      </view>
+      </van-tabs>
     </view>
-  </scroll-view>
+  </view>
 
   <!-- Toast组件 -->
   <van-toast id="van-toast" />
-  
+
   <!-- Dialog组件 -->
   <van-dialog id="van-dialog" />
+
+
 </view>
