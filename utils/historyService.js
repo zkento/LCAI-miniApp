@@ -17,8 +17,12 @@ function generateMockData() {
   const taskTypes = ['个人征信报告分析', '企业征信报告分析', '买家顾问报告', '融资顾问报告'];
   const statuses = ['排队中...', '进行中...', '已出结果', '任务失败', '已取消'];
   const customers = ['张三', '李四', '王五', '赵六', '钱七', '孙八', '周九', '吴十'];
-  
+
   const mockData = [];
+
+  // 用于生成不重复的排队位置
+  let queueCounter = 1;
+  let progressCounter = 1;
   const now = Date.now();
   
   for (let i = 0; i < 50; i++) {
@@ -37,20 +41,24 @@ function generateMockData() {
     // 根据状态设置时间信息
     if (status === '进行中...') {
       actualStartTime = new Date(submitTime.getTime() + Math.random() * 60 * 60 * 1000);
-      queuePosition = `第${Math.floor(Math.random() * 5) + 1}位`;
+      queuePosition = `第${progressCounter++}位`;
     } else if (status === '已出结果') {
       actualStartTime = new Date(submitTime.getTime() + Math.random() * 60 * 60 * 1000);
       endTime = new Date(actualStartTime.getTime() + Math.random() * 120 * 60 * 1000);
       processingTime = formatDuration(endTime - actualStartTime);
       totalTime = formatDuration(endTime - submitTime);
     } else if (status === '排队中...') {
-      queuePosition = `第${Math.floor(Math.random() * 10) + 1}位`;
+      queuePosition = `第${queueCounter + 10}位`; // 排队中的位置从11开始
+      queueCounter++;
       expectedStartTime = new Date(now + Math.random() * 60 * 60 * 1000).toLocaleString('zh-CN');
     } else if (status === '已取消') {
       endTime = new Date(submitTime.getTime() + Math.random() * 30 * 60 * 1000);
     } else if (status === '任务失败') {
       actualStartTime = new Date(submitTime.getTime() + Math.random() * 60 * 60 * 1000);
       endTime = new Date(actualStartTime.getTime() + Math.random() * 60 * 60 * 1000);
+      // 添加处理耗时和总耗时计算
+      processingTime = formatDuration(endTime - actualStartTime);
+      totalTime = formatDuration(endTime - submitTime);
     }
     
     const task = {
@@ -66,7 +74,7 @@ function generateMockData() {
       queuePosition,
       expectedStartTime,
       content: generateTaskContent(taskType, status),
-      uploadFiles: generateUploadFiles(taskType)
+      uploadFile: generateUploadFiles(taskType)
     };
     
     mockData.push(task);
@@ -96,32 +104,41 @@ function generateTaskContent(taskType, status) {
   return contents[taskType] || '正在处理任务...';
 }
 
-// 生成上传文件信息
+// 生成上传文件信息（最多1个文件）
 function generateUploadFiles(taskType) {
   if (taskType === '融资顾问报告' || taskType === '买家顾问报告') {
-    return []; // 这两种类型不需要上传文件
+    return null; // 这两种类型不需要上传文件
   }
-  
-  const fileNames = [
-    '征信报告.pdf',
-    '财务报表.xlsx', 
-    '银行流水.pdf',
-    '资产证明.jpg',
-    '收入证明.pdf'
-  ];
-  
-  const fileCount = Math.floor(Math.random() * 3) + 1;
-  const files = [];
-  
-  for (let i = 0; i < fileCount; i++) {
-    files.push({
-      name: fileNames[Math.floor(Math.random() * fileNames.length)],
-      size: Math.floor(Math.random() * 5000) + 1000,
-      type: 'application/pdf'
-    });
+
+  // 根据任务类型生成对应的文件
+  let fileNames = [];
+
+  if (taskType === '个人征信报告分析') {
+    fileNames = [
+      '征信报告.pdf',
+      '银行流水.pdf'
+    ];
+  } else if (taskType === '企业征信报告分析') {
+    fileNames = [
+      '征信报告.pdf',
+      '财务报表.xlsx',
+      '银行流水.pdf'
+    ];
+  } else {
+    // 其他类型的默认文件
+    fileNames = [
+      '征信报告.pdf'
+    ];
   }
-  
-  return files;
+
+  // 随机选择1个文件
+  const selectedFile = fileNames[Math.floor(Math.random() * fileNames.length)];
+
+  return {
+    name: selectedFile,
+    size: Math.floor(Math.random() * 3000) + 2000,
+    type: selectedFile.endsWith('.pdf') ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  };
 }
 
 // 格式化时长
@@ -381,6 +398,27 @@ class HistoryService {
     } catch (error) {
       console.error('清除缓存失败:', error);
     }
+  }
+
+  /**
+   * 获取模拟历史数据（不保存到本地存储）
+   */
+  getMockHistoryData() {
+    // 直接返回生成的模拟数据
+    const mockData = generateMockData();
+    
+    // 添加状态标签信息
+    return mockData.map(item => {
+      const statusConfig = getStatusConfig(item.result);
+      return {
+        ...item,
+        taskType: item.type, // 为了兼容新的筛选逻辑
+        customer: item.customerName, // 为了兼容新的筛选逻辑
+        statusText: STATUS_TEXT_MAPPING[item.result] || item.result,
+        statusTagType: statusConfig.tagType,
+        statusTagColor: statusConfig.tagColor
+      };
+    });
   }
 }
 

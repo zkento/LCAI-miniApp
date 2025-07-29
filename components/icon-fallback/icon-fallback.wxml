@@ -1,0 +1,21 @@
+<!-- 图标降级组件 - 当字体图标无法显示时使用图片替代 -->
+<view class="icon-fallback {{customClass}}" style="{{customStyle}}">
+  <!-- 优先使用字体图标 -->
+  <van-icon 
+    wx:if="{{!useFallback}}"
+    name="{{name}}" 
+    size="{{size}}" 
+    color="{{color}}"
+    custom-class="font-icon"
+    bind:error="onFontIconError"
+  />
+  
+  <!-- 降级使用图片图标 -->
+  <image 
+    wx:else
+    src="{{getImageSrc(name)}}" 
+    class="image-icon"
+    style="width: {{size}}; height: {{size}}; {{imageStyle}}"
+    mode="aspectFit"
+  />
+</view>

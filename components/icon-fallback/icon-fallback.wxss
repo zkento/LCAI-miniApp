@@ -1,0 +1,15 @@
+/* 图标降级组件样式 */
+.icon-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.font-icon {
+  /* 字体图标样式 */
+}
+
+.image-icon {
+  /* 图片图标样式 */
+  display: block;
+}

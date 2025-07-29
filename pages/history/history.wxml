@@ -14,14 +14,14 @@
     <view class="search-container">
       <van-search
         value="{{searchKeyword}}"
-        placeholder="搜索任务类型或客户姓名"
+        placeholder="输入客户姓名进行搜索"
         use-action-slot
         bind:change="onSearchChange"
         bind:search="onSearch"
         bind:clear="onSearchClear"
       >
         <view slot="action" class="filter-action" bind:tap="onShowFilter">
-          <van-icon name="filter-o" size="22px" />
+          <van-icon name="filter-o" size="22px" class="filter-icon" />
         </view>
       </van-search>
     </view>
@@ -30,6 +30,7 @@
   <!-- 页面内容区域 -->
   <scroll-view
     class="page-content"
+    style="{{contentStyle}}"
     scroll-y="true"
     enable-back-to-top="true"
     refresher-enabled="true"
@@ -80,26 +81,68 @@
           bind:tap="onTaskTap"
           data-task="{{item}}"
         >
-          <!-- 状态标签 - 左上角 -->
-          <view class="status-tag-corner" wx:if="{{item.result}}">
-            <van-tag
-              color="{{item.statusTagColor.color}}"
-              text-color="{{item.statusTagColor.textColor}}"
-              size="small"
-              round
+          <!-- 自定义状态标签 - 左上角 -->
+          <view class="custom-status-tag" wx:if="{{item.result}}">
+            <!-- 进行中 - 蓝色 -->
+            <view
+              wx:if="{{item.result === '进行中...'}}"
+              class="status-tag status-tag-processing"
+            >
+              进行中…
+            </view>
+
+            <!-- 排队中 - 灰色 -->
+            <view
+              wx:elif="{{item.result === '排队中...'}}"
+              class="status-tag status-tag-waiting"
+            >
+              排队中…
+            </view>
+
+            <!-- 已出结果 - 绿色 -->
+            <view
+              wx:elif="{{item.result === '已出结果'}}"
+              class="status-tag status-tag-completed"
+            >
+              已出结果
+            </view>
+
+            <!-- 任务失败 - 红色 -->
+            <view
+              wx:elif="{{item.result === '任务失败'}}"
+              class="status-tag status-tag-failed"
+            >
+              任务失败
+            </view>
+
+            <!-- 已取消 - 橙色 -->
+            <view
+              wx:elif="{{item.result === '已取消'}}"
+              class="status-tag status-tag-cancelled"
+            >
+              已取消
+            </view>
+
+            <!-- 默认情况 -->
+            <view
+              wx:else
+              class="status-tag status-tag-default"
             >
               {{item.statusText || item.result}}
-            </van-tag>
+            </view>
+          </view>
+
+          <!-- 排队位置 - 右上角 -->
+          <view
+            class="queue-position-corner"
+            wx:if="{{(item.result === '排队中...' || item.result === '进行中...' || item.result.includes('排队中') || item.result.includes('进行中')) && item.queuePosition && item.queuePosition !== '-'}}"
+          >
+            <text class="queue-position-text">当前{{item.queuePosition}}</text>
           </view>
 
           <!-- 卡片头部 -->
           <view class="card-header">
             <view class="task-type">
-              <van-icon
-                name="{{getTaskTypeIcon(item.type)}}"
-                size="16px"
-                color="#1b68de"
-              />
               <text class="type-text">{{item.type}}</text>
             </view>
           </view>
@@ -118,13 +161,9 @@
               <text class="time-value">{{item.submitTime}}</text>
             </view>
 
-            <!-- 队列位置（排队中和进行中任务） -->
-            <view
-              class="queue-info"
-              wx:if="{{(item.result.includes('排队中') || item.result.includes('进行中')) && item.queuePosition && item.queuePosition !== '-'}}"
-            >
-              <text class="queue-text">当前{{item.queuePosition}}</text>
-            </view>
+
+
+
 
             <!-- 预计开始时间（排队中任务） -->
             <view
@@ -139,7 +178,12 @@
       </block>
       <!-- 空状态 -->
       <van-empty
-        wx:if="{{!loading && displayList.length === 0}}"
+        wx:if="{{!loading && displayList.length === 0 && (searchKeyword || filterForm.taskTypes.length > 0 || filterForm.taskResults.length > 0 || filterForm.timeRange)}}"
+        image="search"
+        description="没有找到目标结果"
+      />
+      <van-empty
+        wx:elif="{{!loading && displayList.length === 0}}"
         image="search"
         description="暂无历史记录"
       />
@@ -173,61 +217,111 @@
     bind:close="onCloseFilter"
     bind:click-overlay="onCloseFilter"
     close-on-click-overlay="{{true}}"
-
     duration="300"
-    custom-style="top: {{filterPopupTop}}rpx; left: 24rpx; right: 24rpx; border-radius: 12rpx;"
+    custom-style="top: {{filterPopupTop}}rpx; left: 0; right: 0; width: 100%; border-radius: 0;"
     overlay-style="background: rgba(0, 0, 0, 0.3);"
   >
     <view class="filter-popup">
+      <!-- 筛选内容区 -->
       <view class="filter-content">
         <!-- 任务类型筛选 -->
         <view class="filter-section">
-          <text class="filter-label">任务类型</text>
-          <van-checkbox-group value="{{filterForm.taskTypes}}" bind:change="onTaskTypeChange">
-            <van-checkbox
-              wx:for="{{taskTypeOptions}}"
-              wx:key="*this"
-              name="{{item}}"
-              custom-class="filter-checkbox"
-            >
-              {{item}}
-            </van-checkbox>
-          </van-checkbox-group>
+          <view class="filter-row">
+            <view class="filter-label">任务类型</view>
+            <view class="filter-options">
+              <view
+                class="filter-option {{taskTypeSelected[''] ? 'active' : ''}}"
+                data-type="taskTypes"
+                data-value=""
+                bind:tap="onFilterOptionTap"
+              >
+                不限
+              </view>
+              <view
+                wx:for="{{taskTypeOptions}}"
+                wx:key="*this"
+                class="filter-option {{taskTypeSelected[item] ? 'active' : ''}}"
+                data-type="taskTypes"
+                data-value="{{item}}"
+                bind:tap="onFilterOptionTap"
+              >
+                {{item}}
+              </view>
+            </view>
+          </view>
         </view>
 
         <!-- 任务状态筛选 -->
         <view class="filter-section">
-          <text class="filter-label">任务状态</text>
-          <van-checkbox-group value="{{filterForm.taskResults}}" bind:change="onTaskResultChange">
-            <van-checkbox
-              wx:for="{{taskResultOptions}}"
-              wx:key="*this"
-              name="{{item}}"
-              custom-class="filter-checkbox"
-            >
-              {{item}}
-            </van-checkbox>
-          </van-checkbox-group>
+          <view class="filter-row">
+            <view class="filter-label">任务状态</view>
+            <view class="filter-options">
+              <view
+                class="filter-option {{taskResultSelected[''] ? 'active' : ''}}"
+                data-type="taskResults"
+                data-value=""
+                bind:tap="onFilterOptionTap"
+              >
+                不限
+              </view>
+              <view
+                wx:for="{{taskResultOptions}}"
+                wx:key="*this"
+                class="filter-option {{taskResultSelected[item] ? 'active' : ''}}"
+                data-type="taskResults"
+                data-value="{{item}}"
+                bind:tap="onFilterOptionTap"
+              >
+                {{item}}
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 时间范围筛选 -->
+        <view class="filter-section">
+          <view class="filter-label">时间范围</view>
+          <view class="filter-options">
+            <view
+              class="filter-option {{filterForm.timeRange === '' ? 'active' : ''}}"
+              data-type="timeRange"
+              data-value=""
+              bind:tap="onFilterOptionTap"
+            >不限</view>
+            <view
+              class="filter-option {{filterForm.timeRange === 'today' ? 'active' : ''}}"
+              data-type="timeRange"
+              data-value="today"
+              bind:tap="onFilterOptionTap"
+            >今天</view>
+            <view
+              class="filter-option {{filterForm.timeRange === 'week' ? 'active' : ''}}"
+              data-type="timeRange"
+              data-value="week"
+              bind:tap="onFilterOptionTap"
+            >本周</view>
+            <view
+              class="filter-option {{filterForm.timeRange === 'month' ? 'active' : ''}}"
+              data-type="timeRange"
+              data-value="month"
+              bind:tap="onFilterOptionTap"
+            >本月</view>
+            <view
+              class="filter-option {{filterForm.timeRange === 'quarter' ? 'active' : ''}}"
+              data-type="timeRange"
+              data-value="quarter"
+              bind:tap="onFilterOptionTap"
+            >本季度</view>
+          </view>
         </view>
       </view>
 
+      <!-- 底部操作区域 - 仅保留清空按钮 -->
       <view class="filter-actions">
-        <van-button
-          type="default"
-          size="large"
-          bind:click="onResetFilter"
-          custom-class="filter-btn"
-        >
-          重置
-        </van-button>
-        <van-button
-          type="primary"
-          size="large"
-          bind:click="onApplyFilter"
-          custom-class="filter-btn"
-        >
-          确定
-        </van-button>
+        <view class="filter-clear" bind:tap="onResetFilter">
+          <van-icon name="delete" size="32rpx" />
+          <text>清空筛选</text>
+        </view>
       </view>
     </view>
   </van-popup>
@@ -244,85 +338,196 @@
   >
     <view class="detail-popup" wx:if="{{currentTask}}">
       <view class="detail-header">
-        <text class="detail-title">{{currentTask.type}}</text>
-        <van-tag
-          type="{{getStatusTagType(currentTask.result)}}"
-          size="medium"
-        >
-          {{currentTask.result}}
-        </van-tag>
+        <view class="detail-header-left">
+          <text class="detail-title">{{currentTask.type}}</text>
+          <!-- 状态标签紧跟在标题后面 -->
+          <view
+            wx:if="{{currentTask.result === '进行中...'}}"
+            class="status-tag status-tag-processing"
+          >
+            {{currentTask.result}}
+          </view>
+          <view
+            wx:elif="{{currentTask.result === '排队中...'}}"
+            class="status-tag status-tag-waiting"
+          >
+            {{currentTask.result}}
+          </view>
+          <view
+            wx:elif="{{currentTask.result === '已出结果'}}"
+            class="status-tag status-tag-completed"
+          >
+            {{currentTask.result}}
+          </view>
+          <view
+            wx:elif="{{currentTask.result === '任务失败'}}"
+            class="status-tag status-tag-failed"
+          >
+            {{currentTask.result}}
+          </view>
+          <view
+            wx:elif="{{currentTask.result === '已取消'}}"
+            class="status-tag status-tag-cancelled"
+          >
+            {{currentTask.result}}
+          </view>
+          <view
+            wx:else
+            class="status-tag status-tag-default"
+          >
+            {{currentTask.result}}
+          </view>
+        </view>
       </view>
 
       <view class="detail-content">
         <!-- 基本信息 -->
         <view class="detail-section">
+          <!-- 客户姓名 -->
           <view class="detail-item" wx:if="{{currentTask.customerName}}">
             <text class="detail-label">客户姓名：</text>
             <text class="detail-value">{{currentTask.customerName}}</text>
           </view>
 
+          <!-- 上传文件 -->
+          <view class="detail-item">
+            <text class="detail-label">上传文件：</text>
+            <view class="detail-value">
+              <!-- 融资顾问报告和买家顾问报告不支持上传文件 -->
+              <text wx:if="{{currentTask.type === '融资顾问报告' || currentTask.type === '买家顾问报告'}}" class="no-file">-</text>
+              <!-- 有文件的情况（最多1个文件） -->
+              <view wx:elif="{{currentTask.uploadFile}}" class="file-list-inline">
+                <view
+                  class="file-item-inline"
+                  bind:tap="onViewFile"
+                  data-file="{{currentTask.uploadFile}}"
+                >
+                  <text class="file-name-text">{{currentTask.uploadFile.name}}</text>
+                  <text class="file-view-link">查看</text>
+                </view>
+              </view>
+              <!-- 无文件情况 -->
+              <text wx:else class="no-file">-</text>
+            </view>
+          </view>
+
+          <!-- 提交时间 -->
           <view class="detail-item">
             <text class="detail-label">提交时间：</text>
             <text class="detail-value">{{currentTask.submitTime}}</text>
           </view>
 
+
+
+          <!-- 队列位置（仅排队中和进行中任务显示，且有值时） -->
           <view
             class="detail-item"
-            wx:if="{{currentTask.actualStartTime}}"
+            wx:if="{{(currentTask.result === '排队中...' || currentTask.result === '进行中...' || currentTask.result.includes('排队中') || currentTask.result.includes('进行中')) && currentTask.queuePosition && currentTask.queuePosition !== '-'}}"
           >
-            <text class="detail-label">开始时间：</text>
-            <text class="detail-value">{{currentTask.actualStartTime}}</text>
+            <text class="detail-label">队列位置：</text>
+            <text class="detail-value">{{currentTask.queuePosition}}</text>
           </view>
 
+          <!-- 预计开始（仅排队中任务显示，且有值时） -->
           <view
             class="detail-item"
-            wx:if="{{currentTask.endTime}}"
+            wx:if="{{(currentTask.result === '排队中...' || currentTask.result.includes('排队中')) && currentTask.expectedStartTime}}"
           >
+            <text class="detail-label">预计开始：</text>
+            <text class="detail-value">{{currentTask.expectedStartTime}}</text>
+          </view>
+
+          <!-- 实际开始 -->
+          <view class="detail-item">
+            <text class="detail-label">实际开始：</text>
+            <text class="detail-value">
+              <!-- 排队中或已取消任务的实际开始时间为空 -->
+              <text wx:if="{{currentTask.result.includes('排队中') || currentTask.result.includes('已取消')}}">-</text>
+              <text wx:else>{{currentTask.actualStartTime || '-'}}</text>
+            </text>
+          </view>
+
+          <!-- 结束时间 -->
+          <view class="detail-item">
             <text class="detail-label">结束时间：</text>
-            <text class="detail-value">{{currentTask.endTime}}</text>
+            <text class="detail-value">
+              <!-- 进行中/排队中任务结束时间为空 -->
+              <text wx:if="{{currentTask.result.includes('进行中') || currentTask.result.includes('排队中')}}">-</text>
+              <text wx:else>{{currentTask.endTime || '-'}}</text>
+            </text>
           </view>
 
-          <view
-            class="detail-item"
-            wx:if="{{currentTask.processingTime}}"
-          >
+          <!-- 处理耗时 -->
+          <view class="detail-item">
             <text class="detail-label">处理耗时：</text>
-            <text class="detail-value">{{currentTask.processingTime}}</text>
+            <text class="detail-value">
+              <!-- 排队中或已取消时处理耗时为空 -->
+              <text wx:if="{{currentTask.result.includes('排队中') || currentTask.result.includes('已取消')}}">-</text>
+              <!-- 进行中任务显示实时处理耗时 -->
+              <text wx:elif="{{currentTask.result.includes('进行中')}}">{{realtimeProcessingTime}}</text>
+              <!-- 其他状态（包括任务失败、已出结果）显示具体耗时 -->
+              <text wx:else>{{currentTask.processingTime || '-'}}</text>
+            </text>
+          </view>
+
+          <!-- 全部耗时 -->
+          <view class="detail-item">
+            <text class="detail-label">全部耗时：</text>
+            <text class="detail-value">
+              <!-- 排队中或已取消时全部耗时为空 -->
+              <text wx:if="{{currentTask.result.includes('排队中') || currentTask.result.includes('已取消')}}">-</text>
+              <!-- 进行中任务显示实时全部耗时 -->
+              <text wx:elif="{{currentTask.result.includes('进行中')}}">{{realtimeTotalTime}}</text>
+              <!-- 其他状态（包括任务失败、已出结果）显示具体耗时 -->
+              <text wx:else>{{currentTask.totalTime || '-'}}</text>
+            </text>
           </view>
         </view>
 
         <!-- 任务详情 -->
         <view class="detail-section" wx:if="{{currentTask.content}}">
           <text class="detail-section-title">任务详情</text>
-          <text class="detail-description">{{currentTask.content}}</text>
+          <text class="detail-description">
+            <!-- 已取消任务显示特定内容 -->
+            <text wx:if="{{currentTask.result.includes('已取消')}}">
+              {{currentTask.type}}任务已被用户取消，取消时间：{{currentTask.endTime}}
+            </text>
+            <text wx:else>{{currentTask.content}}</text>
+          </text>
         </view>
+      </view>
 
-        <!-- 上传文件 -->
-        <view
-          class="detail-section"
-          wx:if="{{currentTask.uploadFiles && currentTask.uploadFiles.length > 0}}"
+      <!-- 操作按钮区域 - 仅排队中和进行中任务显示 -->
+      <view
+        class="detail-actions"
+        wx:if="{{currentTask.result.includes('排队中') || currentTask.result.includes('进行中')}}"
+      >
+        <!-- 排队中任务：显示可点击的取消任务按钮 -->
+        <van-button
+          wx:if="{{currentTask.result.includes('排队中')}}"
+          type="danger"
+          size="small"
+          bind:click="onShowCancelConfirm"
         >
-          <text class="detail-section-title">上传文件</text>
-          <view class="file-list">
-            <view
-              class="file-item"
-              wx:for="{{currentTask.uploadFiles}}"
-              wx:key="name"
-              bind:tap="onViewFile"
-              data-file="{{item}}"
-            >
-              <van-icon name="description" size="16px" color="#1b68de" />
-              <text class="file-name">{{item.name}}</text>
-              <van-icon name="arrow" size="12px" color="#ccc" />
-            </view>
-          </view>
-        </view>
+          取消任务
+        </van-button>
+
+        <!-- 进行中任务：显示禁用的取消任务按钮 -->
+        <van-button
+          wx:if="{{currentTask.result.includes('进行中')}}"
+          type="danger"
+          size="small"
+          disabled
+          bind:click="onCancelInProgressTask"
+        >
+          取消任务
+        </van-button>
       </view>
     </view>
   </van-popup>
 
-  <!-- Toast 提示 -->
-  <van-toast id="van-toast" />
+  <!-- Toast 提示 - 设置高层级确保不被遮挡 -->
+  <van-toast id="van-toast"  />
 
   <!-- Dialog 对话框 -->
   <van-dialog id="van-dialog" />

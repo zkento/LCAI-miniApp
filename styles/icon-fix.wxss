@@ -1,0 +1,72 @@
+/* 
+ * Vant Weapp 图标修复样式
+ * 解决iOS真机上字体图标显示为空白方框的问题
+ */
+
+/* 方案1：重写字体图标样式，强制使用本地字体 */
+.van-icon {
+  font-family: 'vant-icon', 'iconfont', sans-serif !important;
+}
+
+/* 方案2：为iOS设备提供特殊处理 */
+.ios-device .van-icon {
+  /* iOS设备上的特殊样式 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 方案3：提供图标降级样式 */
+.icon-fallback-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.icon-fallback-container .van-icon {
+  /* 尝试显示字体图标 */
+}
+
+.icon-fallback-container .fallback-image {
+  /* 降级图片图标样式 */
+  display: none;
+  width: 1em;
+  height: 1em;
+}
+
+/* 当字体图标无法显示时，显示图片图标 */
+.icon-fallback-container.use-fallback .van-icon {
+  display: none;
+}
+
+.icon-fallback-container.use-fallback .fallback-image {
+  display: block;
+}
+
+/* Toast层级修复 */
+.van-toast {
+  z-index: 10000 !important;
+}
+
+.van-toast__container {
+  z-index: 10000 !important;
+}
+
+/* 确保Toast在所有弹窗之上 */
+.van-popup {
+  z-index: 1000;
+}
+
+.van-overlay {
+  z-index: 1000;
+}
+
+/* 详情弹窗的层级 */
+.detail-popup {
+  z-index: 1000;
+}
+
+.detail-popup .van-popup {
+  z-index: 1000;
+}

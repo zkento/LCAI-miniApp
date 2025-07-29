@@ -1,0 +1,439 @@
+/* pages/task-result/task-result.wxss */
+
+/* 自定义van-tabs主题色 */
+page {
+  --tabs-line-color: #1b68de;
+  --tabs-active-text-color: #1b68de;
+  --button-primary-background-color: #1b68de;
+  --button-primary-border-color: #1b68de;
+}
+
+.task-result-container {
+  height: 100vh;
+  background-color: #f5f7fa;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 主滚动容器 */
+.main-scroll-container {
+  flex: 1;
+  height: 100%;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+}
+
+/* 错误状态 */
+.error-container {
+  padding: 100rpx 40rpx;
+}
+
+.error-retry-btn {
+  margin-top: 40rpx;
+}
+
+/* 主要内容 */
+.main-content {
+  padding-bottom: 80rpx;
+}
+
+/* 任务信息区域 */
+.task-info-section {
+  background: #ffffff;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.info-header {
+  padding: 32rpx 32rpx 16rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.info-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #262626;
+}
+
+.info-content {
+  padding: 24rpx 32rpx 32rpx;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 30rpx;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+/* 使用更具体的选择器确保样式生效 */
+.task-result-container .info-content .info-label {
+  font-size: 32rpx !important;
+  color: #8c8c8c !important;
+  min-width: 160rpx;
+}
+
+.task-result-container .info-content .info-value {
+  font-size: 32rpx !important;
+  color: #262626 !important;
+  flex: 1;
+  word-break: break-all;
+}
+
+/* 文件显示相关样式 */
+.no-file {
+  color: #ccc;
+  font-style: italic;
+}
+
+.file-list-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.file-item-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.file-name-text {
+  color: #262626;
+  flex: 1;
+  word-break: break-all;
+}
+
+.file-view-link {
+  color: #1b68de;
+  font-size: 28rpx;
+  font-weight: 500;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+.file-view-link:active {
+  opacity: 0.7;
+}
+
+/* Tab区域 */
+.tab-section {
+  margin: 0 20rpx 40rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* Tab滚动容器 */
+.tab-scroll-container {
+  height: 60vh;
+  width: 100%;
+}
+
+.tab-content {
+  padding: 0;
+  min-height: 60vh;
+}
+
+/* 报告内容 */
+.report-content {
+  padding: 32rpx;
+  min-height: calc(60vh - 64rpx);
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.report-title {
+  flex: 1;
+}
+
+.title-text {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 8rpx;
+}
+
+.generation-time {
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+.report-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.report-body {
+  line-height: 2.0;
+  padding-bottom: 40rpx;
+}
+
+.markdown-content {
+  font-size: 28rpx;
+  color: #262626;
+  line-height: 2.0;
+}
+
+/* 优化报告内容样式 */
+.markdown-content h1 {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1b68de;
+  margin: 40rpx 0 24rpx 0;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid #1b68de;
+}
+
+.markdown-content h2 {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #262626;
+  margin: 32rpx 0 20rpx 0;
+}
+
+.markdown-content h3 {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #595959;
+  margin: 24rpx 0 16rpx 0;
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: #262626;
+}
+
+.markdown-content li {
+  margin: 8rpx 0;
+  padding-left: 20rpx;
+  position: relative;
+}
+
+.markdown-content li::before {
+  content: "•";
+  color: #1b68de;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+/* 思考过程内容 */
+.thinking-content {
+  padding: 32rpx;
+  min-height: calc(60vh - 64rpx);
+}
+
+.thinking-header {
+  margin-bottom: 32rpx;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.thinking-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #262626;
+}
+
+.thinking-body {
+  line-height: 2.0;
+  padding-bottom: 40rpx;
+}
+
+.thinking-process {
+  margin-bottom: 40rpx;
+}
+
+.thinking-text {
+  font-size: 28rpx;
+  color: #262626;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.consultation-thinking {
+  border-top: 1rpx solid #f0f0f0;
+  padding-top: 32rpx;
+}
+
+.consultation-thinking-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 24rpx;
+}
+
+.consultation-thinking-item {
+  margin-bottom: 32rpx;
+  padding: 24rpx;
+  background: #fafafa;
+  border-radius: 12rpx;
+}
+
+.consultation-thinking-item:last-child {
+  margin-bottom: 0;
+}
+
+.thinking-index {
+  font-size: 26rpx;
+  color: #1890ff;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+/* 咨询内容 */
+.consultation-content {
+  display: flex;
+  flex-direction: column;
+  height: 60vh;
+}
+
+/* 消息滚动容器 */
+.messages-scroll-container {
+  flex: 1;
+  height: calc(60vh - 120rpx);
+}
+
+.messages-container {
+  padding: 32rpx;
+  padding-bottom: 16rpx;
+  min-height: 100%;
+}
+
+.message-item {
+  margin-bottom: 32rpx;
+}
+
+.message-item:last-child {
+  margin-bottom: 0;
+}
+
+.user-message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.user-message .message-content {
+  background: #1890ff;
+  color: #ffffff;
+  max-width: 80%;
+  padding: 20rpx 24rpx;
+  border-radius: 20rpx 20rpx 8rpx 20rpx;
+  word-break: break-word;
+}
+
+.assistant-message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.assistant-message .message-content {
+  background: #f0f0f0;
+  color: #262626;
+  max-width: 80%;
+  padding: 20rpx 24rpx;
+  border-radius: 20rpx 20rpx 20rpx 8rpx;
+  word-break: break-word;
+}
+
+.message-text {
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.message-time {
+  font-size: 22rpx;
+  color: #8c8c8c;
+  margin-top: 8rpx;
+}
+
+.loading-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32rpx;
+  color: #8c8c8c;
+}
+
+/* 输入区域 */
+.input-container {
+  display: flex;
+  align-items: flex-end;
+  padding: 16rpx 32rpx 32rpx;
+  border-top: 1rpx solid #f0f0f0;
+  background: #ffffff;
+}
+
+.consultation-input {
+  flex: 1;
+  margin-right: 16rpx;
+}
+
+.send-btn {
+  flex-shrink: 0;
+  height: 72rpx;
+}
+
+/* 真机兼容性样式 */
+.task-result-container scroll-view {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 确保scroll-view在真机上正常工作 */
+scroll-view {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 响应式适配 */
+@media (max-width: 375px) {
+  .task-result-container .info-content .info-label {
+    min-width: 140rpx !important;
+    font-size: 30rpx !important;
+  }
+
+  .task-result-container .info-content .info-value {
+    font-size: 30rpx !important;
+  }
+
+  .title-text {
+    font-size: 30rpx;
+  }
+
+  .markdown-content,
+  .thinking-text,
+  .message-text {
+    font-size: 26rpx;
+  }
+
+  .tab-scroll-container {
+    height: 50vh;
+  }
+
+  .messages-scroll-container {
+    height: calc(50vh - 120rpx);
+  }
+}

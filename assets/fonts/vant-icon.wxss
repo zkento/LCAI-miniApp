@@ -1,0 +1,51 @@
+/* Vant Icon 本地字体文件 - 解决iOS真机显示问题 */
+@font-face {
+  font-family: 'vant-icon';
+  src: url('./vant-icon.woff2') format('woff2'),
+       url('./vant-icon.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: auto;
+}
+
+/* 重写van-icon样式，使用本地字体 */
+.van-icon {
+  font-family: 'vant-icon' !important;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  font: normal normal normal 14px/1 'vant-icon';
+  font-size: inherit;
+  position: relative;
+  display: inline-block;
+}
+
+.van-icon:before {
+  display: inline-block;
+}
+
+/* 常用图标定义 */
+.van-icon-search:before { content: "\e710"; }
+.van-icon-filter-o:before { content: "\e6b5"; }
+.van-icon-delete:before { content: "\e6a4"; }
+.van-icon-delete-o:before { content: "\e6a6"; }
+.van-icon-cross:before { content: "\e6a7"; }
+.van-icon-close:before { content: "\e690"; }
+.van-icon-arrow-left:before { content: "\e668"; }
+.van-icon-arrow-down:before { content: "\e65e"; }
+.van-icon-arrow-up:before { content: "\e65f"; }
+.van-icon-plus:before { content: "\e6fa"; }
+.van-icon-minus:before { content: "\e6ee"; }
+.van-icon-success:before { content: "\e728"; }
+.van-icon-fail:before { content: "\e6b7"; }
+.van-icon-warning:before { content: "\e740"; }
+.van-icon-info:before { content: "\e6cf"; }
+.van-icon-question:before { content: "\e70f"; }
+.van-icon-checked:before { content: "\e68d"; }
+.van-icon-clear:before { content: "\e68b"; }
+.van-icon-eye:before { content: "\e6b0"; }
+.van-icon-eye-o:before { content: "\e6b3"; }
+.van-icon-edit:before { content: "\e6a8"; }
+.van-icon-share:before { content: "\e714"; }
+.van-icon-share-o:before { content: "\e716"; }
+.van-icon-setting:before { content: "\e717"; }
+.van-icon-setting-o:before { content: "\e745"; }

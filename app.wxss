@@ -1,4 +1,21 @@
 /**app.wxss**/
+
+/* 引入图标修复样式 */
+@import "styles/icon-fix.wxss";
+
+/* 修复vant图标字体文件加载问题 - 使用本地备份 */
+@font-face {
+  font-display: auto;
+  font-family: vant-icon;
+  font-style: normal;
+  font-weight: 400;
+  /* 优先使用本地字体文件，降级到在线字体 */
+  src: url('./assets/fonts/vant-icon.woff2') format("woff2"),
+       url('./assets/fonts/vant-icon.woff') format("woff"),
+       url(https://at.alicdn.com/t/c/font_2553510_kfwma2yq1rs.woff2?t=1694918397022) format("woff2"),
+       url(https://at.alicdn.com/t/c/font_2553510_kfwma2yq1rs.woff?t=1694918397022) format("woff");
+}
+
 .container {
   height: 100%;
   display: flex;
@@ -7,7 +24,7 @@
   justify-content: space-between;
   padding: 200rpx 0;
   box-sizing: border-box;
-} 
+}
 
 page {
   --theme-color: #1296db;
