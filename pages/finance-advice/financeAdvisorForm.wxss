@@ -58,6 +58,11 @@
   line-height: 1.6;
   box-sizing: border-box;
   background-color: #fff;
+  color: #303133;
+}
+
+.requirements-textarea::placeholder {
+  color: #a8abb2;
 }
 
 .requirements-textarea[disabled] {
@@ -74,6 +79,11 @@
   font-size: 28rpx;
   box-sizing: border-box;
   background-color: #fff;
+  color: #303133;
+}
+
+.name-input::placeholder {
+  color: #a8abb2;
 }
 
 .name-input[disabled] {
@@ -100,6 +110,7 @@
   border-radius: 8rpx;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   background-color: #fff;
 }
 
@@ -116,11 +127,23 @@
 .selected-text {
   color: #303133;
   font-size: 28rpx;
+  flex: 1;
 }
 
 .placeholder-text {
-  color: #c0c4cc;
+  color: #a8abb2;
   font-size: 28rpx;
+  flex: 1;
+}
+
+.selector-icon {
+  position: absolute;
+  right: 20rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 客户信息输入区域 */
@@ -546,7 +569,7 @@
 }
 
 .trigger-text.has-selected {
-  color: #606266;
+  color: #303133;
 }
 
 .trigger-suffix {
@@ -561,17 +584,30 @@
   font-size: 24rpx;
 }
 
+/* 箭头图标样式 */
+.van-cell__right-icon {
+  font-size: 28rpx !important;
+  color: #a8abb2 !important;
+  transition: transform 0.3s ease;
+}
+
+.van-cell__right-icon.is-reverse {
+  transform: rotate(90deg);
+}
+
+/* 清除图标样式 */
+.clear-icon {
+  font-size: 28rpx !important;
+  color: #a8abb2 !important;
+}
+
+/* 保留原有arrow-icon样式以防兼容性问题 */
 .arrow-icon {
   transition: transform 0.3s ease;
 }
 
 .arrow-icon.is-reverse {
   transform: rotate(90deg);
-}
-
-.clear-icon {
-  font-size: 28rpx;
-  color: #a8abb2;
 }
 
 /* 征信报告历史列表样式 */
@@ -1150,7 +1186,7 @@ page {
 .filter-dropdown-wrapper .van-dropdown-item__option {
   color: #606266 !important;
   font-size: 30rpx !important; /* 增大字体提升可读性 */
-
+  padding: 28rpx 32rpx !important; /* 增加垂直内边距，提升点击体验 */
   border-bottom: 1rpx solid #f5f5f5 !important;
   background-color: #ffffff !important;
   transition: background-color 0.2s ease !important; /* 添加过渡动画 */
