@@ -128,13 +128,14 @@
         </view>
         
         <!-- 操作按钮 -->
-        <view class="upload-actions">
-          <view class="button-wrapper">
+        <view class="upload-actions" style="width:100%; padding:0;">
+          <view style="width:100%; padding:0rpx; box-sizing:border-box;">
             <button
               class="action-button {{ (fileList.length === 0 || !customerName) ? 'is-disabled' : '' }}"
               bindtap="startAnalyse"
               loading="{{uploading || mergingToPdf}}"
-              disabled="{{uploading || mergingToPdf}}">
+              disabled="{{uploading || mergingToPdf}}"
+              style="width:100%; margin:0; box-sizing:border-box;">
               <text wx:if="{{!mergingToPdf}}">让AI生成征信分析报告</text>
               <text wx:else>{{mergeStatus}}</text>
             </button>
@@ -153,14 +154,14 @@
 
     <!-- 右侧说明区 -->
     <view class="side-panel">
-      <view class="panel-header">
+      <!-- <view class="panel-header">
         <text class="panel-title">使用说明</text>
-      </view>
+      </view> -->
       <view class="panel-content">
         <view class="reference-grid">
           <!-- 不显示文件要求，只显示报告要求的说明 -->
           <view class="reference-group">
-            <text class="group-title">报告要求</text>
+            <text class="group-title">报告文件要求</text>
             <view class="reference-item">
               <text>请确保上传完整的征信报告内容</text>
             </view>

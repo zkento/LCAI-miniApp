@@ -1,5 +1,12 @@
 <navigation-bar id="nav-bar" title="融资顾问" background="#f8f9fa" bind:back="onBack"></navigation-bar>
-<scroll-view scroll-y="true" class="scroll-container" style="height: {{scrollViewHeight}}">
+<scroll-view
+  scroll-y="true"
+  class="scroll-container"
+  style="height: {{scrollViewHeight}}"
+  bindscroll="onScroll"
+  scroll-into-view="{{scrollIntoView}}"
+  scroll-with-animation="{{true}}"
+>
   <view class="finance-advisor-form">
     <view class="form-container">
       <!-- 左侧输入区 -->
@@ -93,47 +100,49 @@
           </view>
 
           <!-- 表单按钮操作区 -->
-          <view class="form-actions">
+          <view class="form-actions" style="width:100%; padding:0;">
             <block wx:if="{{!hasAttemptedExtraction}}">
-              <button 
-                class="reset-button" 
-                bindtap="resetForm"
-                disabled="{{!formData.requirements && !formData.name && (!formData.businessArea || !formData.businessArea.length) && !selectedPersonalTask && !selectedEnterpriseTask}}"
-              >重置</button>
-              <button 
-                class="extract-button {{isExtractingKeywords ? 'loading' : ''}}" 
-                bindtap="extractKeywords"
-                loading="{{isExtractingKeywords}}"
-                disabled="{{!formData.requirements || formData.requirements.trim().length < 10 || isExtractingKeywords}}"
-              >
-                <block wx:if="{{!isExtractingKeywords}}">让AI分析客户需求</block>
-                <block wx:else>AI正在提取关键词 用时{{currentAnalysisTime}}秒</block>
-              </button>
+              <view style="width:100%; padding:0rpx; margin-bottom:30rpx; box-sizing:border-box;">
+                <button 
+                  class="reset-button {{!formData.requirements && !formData.name && (!formData.businessArea || !formData.businessArea.length) && !selectedPersonalTask && !selectedEnterpriseTask ? 'is-disabled' : ''}}" 
+                  bindtap="resetForm"
+                  disabled="{{!formData.requirements && !formData.name && (!formData.businessArea || !formData.businessArea.length) && !selectedPersonalTask && !selectedEnterpriseTask}}"
+                  style="width:100%; margin:0; box-sizing:border-box; {{(!formData.requirements && !formData.name && (!formData.businessArea || !formData.businessArea.length) && !selectedPersonalTask && !selectedEnterpriseTask) ? 'background-color:#fff !important; color:#c0c4cc !important; border:2rpx solid #e4e7ed !important; opacity:0.6 !important;' : ''}}"
+                >重置</button>
+              </view>
+              <view style="width:100%; padding:0rpx; box-sizing:border-box;">
+                <button
+                  class="extract-button {{isExtractingKeywords ? 'loading' : ''}} {{!canExtractKeywords ? 'is-disabled' : ''}}"
+                  bindtap="extractKeywords"
+                  loading="{{isExtractingKeywords}}"
+                  disabled="{{!canExtractKeywords || isExtractingKeywords}}"
+                  style="width:100%; margin:0; box-sizing:border-box; {{(!canExtractKeywords || isExtractingKeywords) ? 'background-color:#1b68de !important; color:#ffffff !important; opacity:0.6 !important;' : ''}}"
+                >
+                  <block wx:if="{{!isExtractingKeywords}}">让AI分析客户需求</block>
+                  <block wx:else>
+                    AI正在提取关键词...
+                    <span class="time-counter"> 用时{{currentAnalysisTime}}秒</span>
+                  </block>
+                </button>
+              </view>
             </block>
             <block wx:else>
-              <button class="reset-button" bindtap="resetForm">新的需求</button>
-              <button 
-                class="submit-button {{submitting ? 'loading' : ''}}" 
-                bindtap="submitFinanceForm"
-                loading="{{submitting}}"
-                disabled="{{isExtractingKeywords}}"
-              >
-                ▶ 让AI生成融资建议报告
-              </button>
+              <view style="width:100%; padding:0rpx; margin-bottom:30rpx; box-sizing:border-box;">
+                <button class="reset-button" bindtap="resetForm" style="width:100%; margin:0; box-sizing:border-box;">新的需求</button>
+              </view>
+              <view style="width:100%; padding:0rpx; box-sizing:border-box;">
+                <button 
+                  class="submit-button {{submitting ? 'loading' : ''}} {{isExtractingKeywords ? 'is-disabled' : ''}}" 
+                  bindtap="submitFinanceForm"
+                  loading="{{submitting}}"
+                  disabled="{{isExtractingKeywords}}"
+                  style="width:100%; margin:0; box-sizing:border-box; {{isExtractingKeywords ? 'background-color:#1b68de !important; color:#ffffff !important; opacity:0.6 !important;' : ''}}"
+                >
+                让AI生成融资建议报告
+                </button>
+              </view>
             </block>
           </view>
-          
-          <!-- 贷款计算器入口 -->
-          <!-- <view class="tools-section">
-            <view class="tool-card" bindtap="openLoanCalculator">
-              <view class="tool-icon">💰</view>
-              <view class="tool-content">
-                <view class="tool-title">贷款计算器</view>
-                <view class="tool-description">计算各种贷款方式的总还款额、利息及月供等</view>
-              </view>
-              <view class="tool-action">▶</view>
-            </view>
-          </view> -->
         </view>
       </view>
 
@@ -181,44 +190,70 @@
         </view>
 
         <!-- 分析结果内容 -->
-        <view class="analysis-content" wx:if="{{hasAttemptedExtraction}}">
+        <view class="analysis-content" id="analysis-content" wx:if="{{hasAttemptedExtraction}}">
           <view class="panel-header">
-            <text class="panel-title">
-              AI关键词提取结果
-              <text wx:if="{{extractionDuration}}" class="analysis-time">用时{{extractionDuration}}秒</text>
-            </text>
-            <!-- 重新提取按钮 -->
-            <button 
-              class="reanalyze-button {{isExtractingKeywords ? 'loading' : ''}}" 
-              bindtap="extractKeywords"
-              loading="{{isExtractingKeywords}}"
-            >
-              <block wx:if="{{!isExtractingKeywords}}">重新提取</block>
-              <block wx:else>提取中 用时{{currentAnalysisTime}}秒</block>
-            </button>
+            <text class="panel-title">客户需求分析结果</text>
+            <view class="refresh-button-wrapper">
+              <button 
+                class="refresh-button {{isExtractingKeywords ? 'loading' : ''}}"
+                bindtap="extractKeywords"
+                disabled="{{isExtractingKeywords}}"
+              >
+                <block wx:if="{{!isExtractingKeywords}}">重新分析</block>
+                <block wx:else>
+                  <view class="loading-container">
+                    <view class="custom-loading"></view>
+                    <text>分析中</text>
+                  </view>
+                </block>
+              </button>
+            </view>
           </view>
-          <view class="panel-content">
-            <view class="keywords-display">
-              <text class="section-title">提取的关键词</text>
-              <view class="keywords-content" wx:if="{{aiKeywords.length > 0}}">
-                <view wx:for="{{aiKeywords}}" wx:key="key" class="keyword-tag keyword-tag-{{item.type}}">
+
+          <!-- 使用 Vant Card 组件优化关键词显示 -->
+          <van-card custom-class="keywords-card">
+            <view slot="title" class="keywords-title">
+              <view class="keywords-title-left">
+                <van-icon name="tag" size="32rpx" color="#1989fa" />
+                <text class="keywords-title-text">需求关键词</text>
+                <text wx:if="{{extractionDuration}}" class="analysis-time">AI分析用时{{extractionDuration}}秒</text>
+              </view>
+            </view>
+            <view slot="desc" class="keywords-content">
+              <view wx:if="{{aiKeywords.length > 0}}" class="keywords-tags">
+                <van-tag
+                  wx:for="{{aiKeywords}}"
+                  wx:key="key"
+                  type="primary"
+                  size="medium"
+                  round
+                  custom-class="keyword-tag-item custom-tag-primary"
+                >
                   {{item.value}}
-                </view>
+                </van-tag>
               </view>
               <view class="keywords-placeholder" wx:else>
-                <block wx:if="{{extractError}}">{{extractError}}</block>
+                                  <block wx:if="{{extractError}}">
+                  <van-icon name="warning" size="32rpx" color="#ee0a24" />
+                  <text class="error-text">{{extractError}}</text>
+                </block>
                 <block wx:elif="{{isExtractingKeywords}}">
-                  <text class="loading-text">🔄 AI正在提取关键词中...</text>
+                  <!-- <view class="custom-loading"></view> -->
+                  <text class="loading-text">AI正在提取关键词中...，用时 {{currentAnalysisTime}} 秒</text>
                 </block>
               </view>
             </view>
-            
-            <view class="analysis-suggestion-section">
-              <text class="result-title">AI分析结果建议</text>                 
-              <view class="user-requirement-suggestion">
-                <text>AI已成功提取融资需求关键词，点击"让AI生成融资建议报告"获取完整建议。</text>
-                <text>若对关键词结果不满意，可"重新提取"或点击"新的需求"按钮来重新填写客户融资需求。</text>
-              </view>
+          </van-card>
+
+          <view class="suggestion-title-text">
+            <text>分析结果建议</text>
+          </view>
+          <view class="suggestion-content">
+            <view class="suggestion-item">
+              <text>AI已成功提取融资需求关键词，点击"让AI生成融资建议报告"获取完整融资建议。</text>
+            </view>
+            <view class="suggestion-item">
+              <text>若对关键词提取结果不满意，可"重新分析"或点击"新的需求"按钮来重新填写客户融资需求。</text>
             </view>
           </view>
         </view>

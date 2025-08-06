@@ -17,10 +17,15 @@ Page({
     extractionStartTime: 0,
     currentAnalysisTime: 0,
     submitting: false,
+    canExtractKeywords: false,
     
     // 关键词和错误信息
     aiKeywords: [],
     extractError: '',
+
+    // 滚动位置
+    scrollTop: 0,
+    scrollIntoView: '',
     
     // 省份选项
     provinceOptions: [
@@ -257,14 +262,17 @@ Page({
 
   // 需求描述输入处理
   onRequirementsInput(e) {
+    const value = e.detail.value;
+    const trimmedValue = value.trim();
+
     this.setData({
-      'formData.requirements': e.detail.value
+      'formData.requirements': value,
+      'canExtractKeywords': trimmedValue.length >= 10
     });
-    
+
     // 当用户输入时，判断是否需要重置关键词状态
     if (this.data.hasAttemptedExtraction) {
-      const trimmedText = e.detail.value.trim();
-      if (trimmedText !== this.data.lastExtractedText) {
+      if (trimmedValue !== this.data.lastExtractedText) {
         this.resetExtractionState();
       }
     }
@@ -496,9 +504,37 @@ Page({
         aiKeywords: mockKeywords,
         isExtractingKeywords: false
       });
-      
+
       this.stopExtractionTimer();
+
+      // 自动滚动到分析结果区域
+      this.scrollToAnalysisContent();
     }, 3000);
+  },
+
+  // 自动滚动到分析结果区域
+  scrollToAnalysisContent() {
+    // 延迟执行，确保DOM更新完成
+    setTimeout(() => {
+      // 使用 scroll-view 的 scroll-into-view 属性实现平滑滚动
+      this.setData({
+        scrollIntoView: 'analysis-content'
+      });
+
+      // 清除 scroll-into-view，避免影响后续滚动
+      setTimeout(() => {
+        this.setData({
+          scrollIntoView: ''
+        });
+      }, 500);
+    }, 100);
+  },
+
+  // 监听滚动事件
+  onScroll(e) {
+    this.setData({
+      scrollTop: e.detail.scrollTop
+    });
   },
 
   // 提交表单

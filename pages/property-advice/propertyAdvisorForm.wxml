@@ -39,33 +39,48 @@
           </view>
 
           <!-- 表单按钮操作区 -->
-          <view class="form-actions">
+          <view class="form-actions" style="width:100%; padding:0;">
             <block wx:if="{{!hasAnalysisResult}}">
-              <button 
-                class="reset-button" 
-                bindtap="resetForm"
-                disabled="{{!formData.requirements}}"
-              >重置</button>
-              <button 
-                class="analyze-button {{isAnalyzing ? 'loading' : ''}}" 
-                bindtap="analyzeRequirements"
-                loading="{{isAnalyzing}}"
-                disabled="{{!formData.requirements || formData.requirements.length < 30}}"
-              >
-                <block wx:if="{{!isAnalyzing}}">让AI分析客户需求</block>
-                <block wx:else>AI正在分析需求 用时{{currentAnalysisTime}}秒</block>
-              </button>
+              <view style="width:100%; padding:0rpx; margin-bottom:30rpx; box-sizing:border-box;">
+                <button 
+                  class="reset-button {{!formData.requirements ? 'is-disabled' : ''}}" 
+                  bindtap="resetForm"
+                  disabled="{{!formData.requirements}}"
+                  style="width:100%; margin:0; box-sizing:border-box; {{!formData.requirements ? 'background-color:#f5f5f5 !important; color:#999 !important; opacity:0.6 !important;' : ''}}"
+                >重置</button>
+              </view>
+              <view style="width:100%; padding:0rpx; box-sizing:border-box;">
+                <button 
+                  class="analyze-button {{isAnalyzing ? 'loading' : ''}} {{(!formData.requirements || formData.requirements.length < 30) ? 'is-disabled' : ''}}" 
+                  bindtap="analyzeRequirements"
+                  loading="{{isAnalyzing}}"
+                  disabled="{{!formData.requirements || formData.requirements.length < 30}}"
+                  style="width:100%; margin:0; box-sizing:border-box; {{(!formData.requirements || formData.requirements.length < 30) ? 'background-color:#1890ff !important; color:#ffffff !important; opacity:0.6 !important;' : ''}}"
+                >
+                  <block wx:if="{{!isAnalyzing}}">让AI分析客户需求</block>
+                  <block wx:else>AI正在分析需求 用时{{currentAnalysisTime}}秒</block>
+                </button>
+              </view>
             </block>
             <block wx:else>
-              <button class="reset-button" bindtap="resetForm">新的需求</button>
-              <button 
-                class="submit-button {{submitting ? 'loading' : ''}}" 
-                bindtap="startMatchingHouses"
-                loading="{{submitting}}"
-                disabled="{{isAnalyzing}}"
-              >
-                ▶ 让AI生成购房建议报告
-              </button>
+              <view style="width:100%; padding:0rpx; margin-bottom:30rpx; box-sizing:border-box;">
+                <button 
+                  class="reset-button" 
+                  bindtap="resetForm"
+                  style="width:100%; margin:0; box-sizing:border-box;"
+                >新的需求</button>
+              </view>
+              <view style="width:100%; padding:0rpx; box-sizing:border-box;">
+                <button 
+                  class="submit-button {{submitting ? 'loading' : ''}} {{isAnalyzing ? 'is-disabled' : ''}}" 
+                  bindtap="startMatchingHouses"
+                  loading="{{submitting}}"
+                  disabled="{{isAnalyzing}}"
+                  style="width:100%; margin:0; box-sizing:border-box; {{isAnalyzing ? 'background-color:#1890ff !important; color:#ffffff !important; opacity:0.6 !important;' : ''}}"
+                >
+                  ▶ 让AI生成购房建议报告
+                </button>
+              </view>
             </block>
           </view>
         </view>
