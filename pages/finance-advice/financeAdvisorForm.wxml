@@ -35,7 +35,7 @@
           <!-- 客户信息输入区域 -->
           <view class="client-info-section">
             <!-- 客户姓名输入框 -->
-            <view class="form-item">
+            <view class="form-item" id="name-input-container">
               <input 
                 class="name-input"
                 placeholder="请输入客户姓名（必填，方便你查询结果）"

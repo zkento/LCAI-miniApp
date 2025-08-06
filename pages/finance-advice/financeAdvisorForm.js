@@ -549,6 +549,9 @@ Page({
         title: '请输入客户姓名',
         icon: 'none'
       });
+      
+      // 自动聚焦到姓名输入框
+      this.focusNameInput();
       return;
     }
     
@@ -557,6 +560,9 @@ Page({
         title: '请选择业务城市',
         icon: 'none'
       });
+      
+      // 自动唤起城市选择器
+      this.openCascader();
       return;
     }
     
@@ -591,8 +597,9 @@ Page({
       success: () => {
         this.setData({ submitting: false });
       },
-      fail: () => {
+      fail: (error) => {
         this.setData({ submitting: false });
+        console.error('跳转失败:', error);
         wx.showToast({
           title: '跳转失败',
           icon: 'none'
@@ -1263,5 +1270,34 @@ Page({
 
     // 确保恢复背景滚动
     this.enableBackgroundScroll();
+  },
+
+  // 自动聚焦到姓名输入框
+  focusNameInput() {
+    // 使用延时确保toast显示后再聚焦
+    setTimeout(() => {
+      // 创建选择器查询
+      const query = wx.createSelectorQuery();
+      // 选择姓名输入框
+      query.select('.name-input').boundingClientRect();
+      query.exec((res) => {
+        if (res && res[0]) {
+          // 滚动到姓名输入框位置
+          this.setData({
+            scrollIntoView: 'name-input-container'
+          });
+          
+          // 使用微信小程序API聚焦输入框
+          wx.createSelectorQuery()
+            .select('.name-input')
+            .context((ctx) => {
+              if (ctx && ctx.context) {
+                ctx.context.focus();
+              }
+            })
+            .exec();
+        }
+      });
+    }, 500); // 延迟500毫秒执行
   }
 });
