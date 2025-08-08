@@ -4,11 +4,13 @@
 }
 
 .credit-analyse-page {
-  display: block; 
-  background-color: #f5f7fa;
-  min-height: 100vh;
-  box-sizing: border-box;
   width: 100%;
+  min-height: 100vh;
+  padding: 20rpx;
+  background-color: #f5f7fa;
+  box-sizing: border-box;
+  display: block;
+  justify-content: center;
   padding-bottom: 40rpx; /* 增加底部内边距，防止内容被遮挡 */
 }
 
@@ -16,9 +18,9 @@
 .main-panel,
 .side-panel {
   background-color: #ffffff;
-  /* border-bottom: 1px solid #dcdfe6; */
   padding-bottom: 30rpx;
   margin-bottom: 30rpx;
+  border-radius: 16rpx;
 }
 
 .side-panel {
@@ -71,7 +73,7 @@
   flex: 1;
   display: flex;
   align-items: center;
-  padding: 16rpx;
+  padding: 16rpx 0;
   border: 1px solid #e4e7ed;
   border-radius: 16rpx;
   transition: all 0.3s;
@@ -141,11 +143,11 @@
 /* ========== 5. 上传区域样式 ========== */
 .upload-dropzone {
   position: relative;
-  border: 1px solid #dcdfe6; /* 改为 solid */
-  border-radius: 8rpx; /* 4px -> 8rpx */
+  border: 1px solid #dcdfe6; 
+  border-radius: 8rpx;  
   transition: all 0.3s;
-  margin-bottom: 32rpx; /* 20px -> 40rpx */
-  min-height: 360rpx; /* 180px -> 360rpx */
+  margin-bottom: 32rpx; 
+  min-height: 360rpx; 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -257,10 +259,10 @@
 
 /* ========== 6. 图片预览相关样式 ========== */
 .image-preview-container {
-  margin-bottom: 32rpx; /* 20px -> 40rpx */
+  margin-bottom: 32rpx; 
   border: 1px solid #ebeef5;
-  border-radius: 8rpx; /* 4px -> 8rpx */
-  padding: 16rpx 32rpx; /* 8px 16px -> 16rpx 32rpx */
+  border-radius: 8rpx; 
+  padding: 16rpx 32rpx; 
   background-color: #f8f8f8;
 }
 

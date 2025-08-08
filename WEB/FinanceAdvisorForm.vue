@@ -765,12 +765,12 @@ export default {
       
       // 设置开始时间和初始化持续时间
       extractionStartTime.value = Date.now();
-      currentAnalysisTime.value = 0;
+      currentAnalysisTime.value = 1;
       
       // 创建新的计时器
       extractionTimerInterval.value = setInterval(() => {
         if (extractionStartTime.value > 0) {
-          currentAnalysisTime.value = Math.round((Date.now() - extractionStartTime.value) / 1000);
+          currentAnalysisTime.value = Math.round((Date.now() - extractionStartTime.value) / 1000) + 1;
         }
       }, 1000);
     }
@@ -784,7 +784,7 @@ export default {
       
       // 确保最后更新一次持续时间
       if (extractionStartTime.value > 0) {
-        extractionDuration.value = Math.round((Date.now() - extractionStartTime.value) / 1000);
+        extractionDuration.value = Math.round((Date.now() - extractionStartTime.value) / 1000) + 1;
       }
     }
 
@@ -796,7 +796,7 @@ export default {
       }
       extractionDuration.value = 0;
       extractionStartTime.value = 0;
-      currentAnalysisTime.value = 0;
+      currentAnalysisTime.value = 1;
     }
     
     // 提取关键词

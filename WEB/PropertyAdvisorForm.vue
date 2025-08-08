@@ -891,12 +891,12 @@ export default {
         
         isAnalyzing.value = true
         analysisStartTime.value = Date.now()
-        currentAnalysisTime.value = 0
+        currentAnalysisTime.value = 1
         
         // 启动计时器
         clearInterval(timerInterval.value)
         timerInterval.value = setInterval(() => {
-          currentAnalysisTime.value = Math.round((Date.now() - analysisStartTime.value) / 1000)
+          currentAnalysisTime.value = Math.round((Date.now() - analysisStartTime.value) / 1000) + 1
         }, 1000)
         
         // 构建用户输入消息
@@ -1001,7 +1001,7 @@ export default {
           })
           
         // 计算分析用时
-        analysisTime.value = Math.round((Date.now() - analysisStartTime.value) / 100) / 10
+        analysisTime.value = Math.round((Date.now() - analysisStartTime.value) / 100) / 10 + 1
         hasAnalysisResult.value = true
         
         // 保存原始AI分析结果以便恢复

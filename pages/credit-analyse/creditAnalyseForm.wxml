@@ -20,7 +20,7 @@
             </view>
             <view class="file-type-info">
               <text class="file-type-name">PDF文件</text>
-              <text class="file-type-desc">上传征信报告原版或扫描版文件<text class="file-type-desc-tip">（建议）</text></text>
+              <text class="file-type-desc">上传征信报告原版或扫描文件<text class="file-type-desc-tip">（建议）</text></text>
             </view>
           </view>
           <view 

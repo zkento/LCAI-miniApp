@@ -63,7 +63,7 @@ Page({
         title: '5. 金融服务',
         items: [
           { label: '按揭贷款', example: '是否需要按揭贷款' },
-          { label: '购房后融资', example: '若全款购房是否需要抵押融资' }
+          { label: '购房融资', example: '若全款购房是否需要抵押融资' }
         ]
       }
     ],
@@ -107,12 +107,13 @@ Page({
       ...this.data.editableResults,
       '5. 金融服务': {
         '按揭贷款': '无此信息，建议补充',
-        '购房后融资': '无此信息，建议补充'
+        '购房融资': '无此信息，建议补充'
       }
     };
     
     this.setData({
-      editableResults: initialEditableResults
+      editableResults: initialEditableResults,
+      originalAIResults: {} // 初始化原始AI分析结果对象，用于保存编辑前的值
     });
   },
 
@@ -158,7 +159,7 @@ Page({
       results['5. 金融服务'] = {};
     }
     results['5. 金融服务']['按揭贷款'] = '无此信息，建议补充';
-    results['5. 金融服务']['购房后融资'] = '无此信息，建议补充';
+    results['5. 金融服务']['购房融资'] = '无此信息，建议补充';
     
     this.setData({
       editableResults: results,
@@ -201,7 +202,8 @@ Page({
       hasAnalysisResult: false,
       lastAnalyzedText: '',
       isAnalyzing: false,
-      submitting: false
+      submitting: false,
+      originalAIResults: {} // 重置原始AI分析结果
     });
     
     // 重置分析结果
@@ -218,12 +220,12 @@ Page({
     const startTime = Date.now();
     this.setData({
       analysisStartTime: startTime,
-      currentAnalysisTime: 0
+      currentAnalysisTime: 1
     });
     
     this.analysisTimerInterval = setInterval(() => {
       if (this.data.analysisStartTime > 0) {
-        const currentTime = Math.round((Date.now() - this.data.analysisStartTime) / 1000);
+        const currentTime = Math.round((Date.now() - this.data.analysisStartTime) / 1000) + 1;
         this.setData({
           currentAnalysisTime: currentTime
         });
@@ -239,7 +241,7 @@ Page({
     }
     
     if (this.data.analysisStartTime > 0) {
-      const duration = Math.round((Date.now() - this.data.analysisStartTime) / 1000);
+      const duration = Math.round((Date.now() - this.data.analysisStartTime) / 1000) + 1;
       this.setData({
         analysisTime: duration
       });
@@ -255,7 +257,7 @@ Page({
     this.setData({
       analysisTime: 0,
       analysisStartTime: 0,
-      currentAnalysisTime: 0
+      currentAnalysisTime: 1
     });
   },
 
@@ -298,7 +300,7 @@ Page({
       ...this.data.editableResults,
       '5. 金融服务': {
         '按揭贷款': '无此信息，建议补充',
-        '购房后融资': '无此信息，建议补充'
+        '购房融资': '无此信息，建议补充'
     }
     };
     
@@ -363,7 +365,7 @@ Page({
       '交易周期': ['交易周期', '交易时间', '交易要求', '交易限制'],
       '抗性因素': ['抗性因素', '避嫌设施', '避免区域', '规避设施', '禁忌因素'],
       '按揭贷款': ['按揭贷款', '按揭', '贷款', '贷款需求', '按揭需求', '是否需要贷款'],
-      '购房后融资': ['购房后融资', '抵押融资', '购房融资', '房产抵押', '抵押贷款', '是否需要抵押融资']
+      '购房融资': ['购房融资', '抵押融资', '购房融资', '房产抵押', '抵押贷款', '是否需要抵押融资']
     };
     
     // 模拟AI分析结果 - 基于用户输入的文本进行简单的关键词提取
@@ -389,10 +391,10 @@ Page({
     
     // 特殊处理：如果按揭贷款为"需要"，自动设置购房后融资为"-"
     if (extractedResults['5. 金融服务'] && extractedResults['5. 金融服务']['按揭贷款'] === '需要') {
-      extractedResults['5. 金融服务']['购房后融资'] = '-';
+      extractedResults['5. 金融服务']['购房融资'] = '-';
     } else if (extractedResults['5. 金融服务'] && extractedResults['5. 金融服务']['按揭贷款'] === '不需要') {
       // 如果是不需要按揭贷款，但没有明确的购房后融资信息，则保持为"无此信息，建议补充"
-      if (extractedResults['5. 金融服务']['购房后融资'] === '无此信息，建议补充') {
+      if (extractedResults['5. 金融服务']['购房融资'] === '无此信息，建议补充') {
         // 保持原样
       }
     }
@@ -578,16 +580,16 @@ Page({
         items: [{ label: '按揭贷款', value: '不需要' }]
       });
       
-      // 购房后融资
+      // 购房融资
       if (text.match(/(抵押|融资|再贷款|二次贷款)/)) {
         result.push({
           category: '金融服务',
-          items: [{ label: '购房后融资', value: '是' }]
+          items: [{ label: '购房融资', value: '是' }]
         });
       } else {
         result.push({
           category: '金融服务',
-          items: [{ label: '购房后融资', value: '否' }]
+          items: [{ label: '购房融资', value: '否' }]
         });
       }
     }
@@ -695,20 +697,71 @@ Page({
 
   // 开始编辑字段
   startEditing(e) {
-    if (this.data.isAnalyzing) return;
+    if (this.data.isAnalyzing) {
+      return;
+    }
     
     const { group, item } = e.currentTarget.dataset;
     const key = group + item;
     
-    this.setData({
-      [`isEditing.${key}`]: true
+    // 保存原始AI分析结果，以便在编辑取消时恢复
+    if (!this.data.originalAIResults) {
+      this.setData({
+        originalAIResults: {}
+      });
+    }
+    
+    if (!this.data.originalAIResults[group]) {
+      const originalResults = this.data.originalAIResults || {};
+      originalResults[group] = {};
+      this.setData({
+        originalAIResults: originalResults
+      });
+    }
+    
+    // 保存当前值作为原始值（如果尚未保存）
+    const originalResults = this.data.originalAIResults;
+    if (originalResults[group] && originalResults[group][item] === undefined) {
+      originalResults[group][item] = this.data.editableResults[group][item];
+      this.setData({
+        originalAIResults: originalResults
+      });
+    }
+    
+    // 创建一个完整的新对象，确保视图更新
+    const newIsEditing = {...this.data.isEditing};
+    newIsEditing[key] = true;
+    
+    // 确保所有其他编辑状态都是false，避免多个输入框同时处于编辑状态
+    Object.keys(newIsEditing).forEach(k => {
+      if (k !== key) {
+        newIsEditing[k] = false;
+      }
     });
     
-    // 延迟聚焦到输入框
+    // 如果当前值是"无此信息，建议补充"，则清空它
+    const newEditableResults = {...this.data.editableResults};
+    if (!newEditableResults[group]) {
+      newEditableResults[group] = {};
+    }
+    
+    if (newEditableResults[group][item] === '无此信息，建议补充') {
+      newEditableResults[group][item] = '';
+    }
+    
+    this.setData({
+      isEditing: newIsEditing,
+      editableResults: newEditableResults
+    });
+    
+    // 强制刷新视图
     setTimeout(() => {
-      // 小程序中无法直接聚焦到动态创建的输入框
-      // 这里可以考虑使用其他交互方式
-    }, 100);
+      wx.showToast({
+        title: '请输入内容',
+        icon: 'none',
+        duration: 1000
+      });
+    }, 50);
   },
 
   // 完成编辑
@@ -716,9 +769,55 @@ Page({
     const { group, item } = e.currentTarget.dataset;
     const key = group + item;
     
+    // 获取当前输入的值
+    let currentValue = this.data.editableResults[group][item];
+    
+    // 如果值为undefined，设置为空字符串以避免错误
+    if (currentValue === undefined) {
+      currentValue = '';
+    }
+    
+    // 去除前后空格
+    if (typeof currentValue === 'string') {
+      currentValue = currentValue.trim();
+    }
+    
+    // 确保不超过50个字符
+    if (currentValue && currentValue.length > 50) {
+      currentValue = currentValue.substring(0, 50);
+    }
+    
+    // 如果用户清空了内容或输入的全是空格
+    if (!currentValue) {
+      // 恢复到AI原始分析结果
+      if (this.data.originalAIResults && 
+          this.data.originalAIResults[group] && 
+          this.data.originalAIResults[group][item] !== undefined) {
+        currentValue = this.data.originalAIResults[group][item];
+      } else {
+        // 作为后备，如果没有原始分析结果，则使用"无此信息，建议补充"
+        currentValue = '无此信息，建议补充';
+      }
+    }
+    
+    // 创建新对象，确保视图更新
+    const newEditableResults = {...this.data.editableResults};
+    if (!newEditableResults[group]) {
+      newEditableResults[group] = {};
+    }
+    newEditableResults[group][item] = currentValue;
+    
+    const newIsEditing = {...this.data.isEditing};
+    newIsEditing[key] = false;
+    
+    // 更新值
     this.setData({
-      [`isEditing.${key}`]: false
+      editableResults: newEditableResults,
+      isEditing: newIsEditing
     });
+    
+    // 重新生成建议
+    this.generateRequirementSuggestion();
   },
 
   // 处理字段输入变化
@@ -726,8 +825,31 @@ Page({
     const { group, item } = e.currentTarget.dataset;
     const value = e.detail.value;
     
+    // 确保不超过50个字符
+    let finalValue = value;
+    if (finalValue && finalValue.length > 50) {
+      finalValue = finalValue.substring(0, 50);
+    }
+    
+    // 处理换行符，最多允许2个换行符
+    if (finalValue) {
+      const newlineCount = (finalValue.match(/\n/g) || []).length;
+      if (newlineCount > 2) {
+        // 保留前两个换行符
+        const parts = finalValue.split(/\n/);
+        finalValue = parts.slice(0, 3).join('\n');
+      }
+    }
+    
+    // 创建新对象，确保视图更新
+    const newEditableResults = {...this.data.editableResults};
+    if (!newEditableResults[group]) {
+      newEditableResults[group] = {};
+    }
+    newEditableResults[group][item] = finalValue;
+    
     this.setData({
-      [`editableResults.${group}.${item}`]: value
+      editableResults: newEditableResults
     });
   },
 
@@ -744,10 +866,10 @@ Page({
     // 根据按揭贷款选择设置购房后融资
     if (value === '需要') {
       // 如果选择"需要"按揭贷款，自动设置购房后融资为"-"
-      updatedFinanceService['购房后融资'] = '-';
+      updatedFinanceService['购房融资'] = '-';
     } else if (value === '不需要') {
       // 如果选择"不需要"按揭贷款，重置购房后融资为"无此信息，建议补充"
-      updatedFinanceService['购房后融资'] = '无此信息，建议补充';
+      updatedFinanceService['购房融资'] = '无此信息，建议补充';
     }
     
     // 更新整个金融服务对象
@@ -771,7 +893,7 @@ Page({
     // 创建一个新的对象以确保状态更新
     const updatedFinanceService = {
       ...this.data.editableResults['5. 金融服务'],
-      '购房后融资': value
+      '购房融资': value
     };
     
     // 更新整个金融服务对象
@@ -825,11 +947,9 @@ Page({
       url: '/pages/property-advice/propertyAdvisorReport?fromForm=true',
       success: () => {
         this.setData({ submitting: false });
-        console.log('跳转到购房建议报告页面成功');
       },
       fail: (error) => {
         this.setData({ submitting: false });
-        console.error('跳转失败:', error);
         wx.showToast({
           title: '跳转失败',
           icon: 'none'
@@ -949,7 +1069,7 @@ Page({
     }
     
     this.setData({
-      scrollIntoView: 'analysis-content',
+      scrollIntoView: 'scroll-anchor',
       lastScrollTime: now
     });
   },
@@ -990,7 +1110,7 @@ Page({
       // T4级 - 金融服务（补充权重）
       T4: {
         '按揭贷款': 7,
-        '购房后融资': 4
+        '购房融资': 4
       }
     };
     
@@ -1031,7 +1151,7 @@ Page({
               existingItems.push(itemInfo);
             }
           } 
-          else if (item.label === '购房后融资') {
+          else if (item.label === '购房融资') {
             // 只有当按揭贷款为"不需要"时才检查购房后融资
             if (this.data.editableResults[groupTitle]['按揭贷款'] === '不需要') {
               const value = this.data.editableResults[groupTitle][item.label];

@@ -14,18 +14,23 @@
   box-sizing: border-box;
   display: flex;
   justify-content: center;
+  padding-bottom: 40rpx; /* 增加底部内边距，防止内容被遮挡 */
 }
 
 .form-container {
   width: 100%;
   max-width: 1000rpx;
-  background: white;
   border-radius: 16rpx;
-  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   overflow: hidden;
+}
+
+.input-panel,
+.content-panel {
+  background-color: #ffffff;
+  border-radius: 16rpx;
 }
 
 /* ----------------- 左侧输入面板 ----------------- */
@@ -34,6 +39,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  margin-bottom: 30rpx;
 }
 
 .description-hint {
@@ -51,6 +57,7 @@
 .requirements-textarea {
   width: 100%;
   min-height: 200rpx;
+  max-height: 500rpx; /* 当超过这个高度时会出现滚动条 */
   padding: 24rpx;
   border: 2rpx solid #dcdfe6;
   border-radius: 8rpx;
@@ -58,6 +65,7 @@
   line-height: 1.6;
   box-sizing: border-box;
   background-color: #fff;
+  overflow-y: auto; /* 添加垂直滚动条 */
 }
 
 .requirements-textarea[disabled] {
@@ -109,10 +117,6 @@
   color: #c0c4cc;
   border-color: #e4e7ed;
 }
-
-/* .area-selector.has-value {
-  border-color: #1b68de;
-} */
 
 .selected-text {
   color: #303133;
@@ -207,7 +211,7 @@ button[disabled].extract-button, button[disabled].submit-button {
 .panel-header {
   padding: 0;
   border-bottom: 2rpx solid #eee;
-  background-color: #f8f9fa;
+  /* background-color: #f8f9fa; */
   height: 100rpx;
   box-sizing: border-box;
   position: relative;
@@ -220,7 +224,7 @@ button[disabled].extract-button, button[disabled].submit-button {
 
 .panel-title {
   color: #000000;
-  font-size: 36rpx;
+  font-size: 34rpx;
   font-weight: 500;
   margin: 0;
   display: flex;

@@ -14,18 +14,23 @@
   box-sizing: border-box;
   display: flex;
   justify-content: center;
+  padding-bottom: 40rpx; /* 增加底部内边距，防止内容被遮挡 */
 }
 
 .form-container {
   width: 100%;
   max-width: 1000rpx;
-  background: white;
   border-radius: 16rpx;
-  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   overflow: hidden;
+}
+
+.input-panel,
+.content-panel {
+  background-color: #ffffff;
+  border-radius: 16rpx;
 }
 
 /* ----------------- 左侧输入面板 ----------------- */
@@ -34,6 +39,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  margin-bottom: 30rpx;
 }
 
 .description-hint {
@@ -51,6 +57,7 @@
 .requirements-textarea {
   width: 100%;
   min-height: 200rpx;
+  max-height: 600rpx; /* 当超过这个高度时会出现滚动条 */
   padding: 24rpx;
   border: 2rpx solid #dcdfe6;
   border-radius: 8rpx;
@@ -58,6 +65,7 @@
   line-height: 1.6;
   box-sizing: border-box;
   background-color: #fff;
+  overflow-y: auto; /* 添加垂直滚动条 */
 }
 
 .requirements-textarea[disabled] {
@@ -164,7 +172,7 @@ button[disabled].analyze-button, button[disabled].submit-button {
 .panel-header {
   padding: 0;
   border-bottom: 2rpx solid #eee;
-  background-color: #f8f9fa;
+  /* background-color: #f8f9fa; */
   height: 100rpx;
   box-sizing: border-box;
   position: relative;
@@ -177,7 +185,7 @@ button[disabled].analyze-button, button[disabled].submit-button {
 
 .panel-title {
   color: #000000;
-  font-size: 36rpx;
+  font-size: 34rpx;
   font-weight: 500;
   margin: 0;
   display: flex;
@@ -301,7 +309,7 @@ button[disabled].refresh-button {
 .advice-hint {
   font-size: 28rpx;
   color: #909399;
-  margin-left: 20rpx;
+  /* margin-left: 20rpx; */
   font-weight: normal;
 }
 
@@ -310,18 +318,18 @@ button[disabled].refresh-button {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   gap: 16rpx;
-  margin-bottom: 32rpx;
+  margin-bottom: 10rpx;
 }
 
 .reference-group {
-  margin-bottom: 12rpx;
+  margin-bottom: 6rpx;
 }
 
 .group-title {
   font-size: 30rpx;
   font-weight: 500;
   color: #909399;
-  margin: 16rpx 0;
+  margin: 36rpx 0 6rpx 0;
   display: block;
 }
 
@@ -329,14 +337,14 @@ button[disabled].refresh-button {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 6rpx;
 }
 
 .reference-item {
   display: flex;
   align-items: flex-start;
   font-size: 28rpx;
-  padding: 8rpx;
+  /* padding: 8rpx; */
   border-radius: 4rpx;
 }
 
@@ -354,15 +362,15 @@ button[disabled].refresh-button {
 .item-label {
   color: #606266;
   font-size: 28rpx;
-  line-height: 1.5;
-  min-width: 120rpx;
+  line-height: 2.3;
+  min-width: 140rpx;
   font-weight: 500;
 }
 
 .item-example {
   color: #a0a9b6;
   font-size: 28rpx;
-  line-height: 1.5;
+  line-height: 2.3;
 }
 
 /* 示例部分 */
@@ -398,23 +406,25 @@ button[disabled].refresh-button {
 .field-text {
   font-size: 28rpx;
   color: #303133;
-  padding: 8rpx 12rpx;
+  padding: 10rpx 12rpx;
   border-radius: 4rpx;
   border: 1rpx solid transparent;
   display: flex;
   align-items: center;
   justify-content: space-between;
   transition: all 0.2s;
+  min-height: 46rpx;
+  box-sizing: border-box;
 }
 
-.field-text:hover {
+/* .field-text:hover {
   border-color: #1b68de;
-  background-color: #ecf5ff;
-}
+  background-color: #ecf5ff; 
+} */
 
 .field-text.empty-value {
   color: #b88230cc;
-  font-style: italic;
+  /* font-style: italic; */
 }
 
 .field-text.disabled {
@@ -432,15 +442,31 @@ button[disabled].refresh-button {
   width: 100%;
   font-size: 28rpx;
   color: #303133;
-  padding: 8rpx 12rpx;
+  padding: 10rpx 12rpx;
   border-radius: 4rpx;
   border: 1rpx solid #1b68de;
   background-color: #fff;
   box-sizing: border-box;
+  min-height: 46rpx;
+  height: auto;
+  line-height: 1.6;
+  display: block;
 }
 
 .field-input.empty-value {
   color: #c0c4cc;
+}
+
+.field-input::placeholder {
+  color: #c0c4cc;
+  line-height: 1.6;
+}
+
+/* 确保textarea在编辑模式下的样式 */
+textarea.field-input {
+  width: 100%;
+  max-height: 120rpx; /* 当内容超过这个高度时会出现滚动条 */
+  overflow-y: auto;
 }
 
 /* 单选框样式 */
@@ -448,6 +474,7 @@ button[disabled].refresh-button {
   display: flex;
   gap: -20rpx;
   align-items: center;
+  margin-top: 12rpx;
 }
 
 .radio-label {
@@ -469,6 +496,7 @@ button[disabled].refresh-button {
   font-size: 28rpx;
   color: #909399;
   font-weight: normal;
+  line-height: 2.3;
 }
 
 /* 建议标题样式 */

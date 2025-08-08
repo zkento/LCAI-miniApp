@@ -401,12 +401,12 @@ Page({
     const startTime = Date.now();
     this.setData({
       extractionStartTime: startTime,
-      currentAnalysisTime: 0
+      currentAnalysisTime: 1
     });
     
     this.extractionTimerInterval = setInterval(() => {
       if (this.data.extractionStartTime > 0) {
-        const currentTime = Math.round((Date.now() - this.data.extractionStartTime) / 1000);
+        const currentTime = Math.round((Date.now() - this.data.extractionStartTime) / 1000) + 1;
         this.setData({
           currentAnalysisTime: currentTime
         });
@@ -422,7 +422,7 @@ Page({
     }
     
     if (this.data.extractionStartTime > 0) {
-      const duration = Math.round((Date.now() - this.data.extractionStartTime) / 1000);
+      const duration = Math.round((Date.now() - this.data.extractionStartTime) / 1000) + 1;
       this.setData({
         extractionDuration: duration
       });
@@ -438,7 +438,7 @@ Page({
     this.setData({
       extractionDuration: 0,
       extractionStartTime: 0,
-      currentAnalysisTime: 0
+      currentAnalysisTime: 1
     });
   },
 

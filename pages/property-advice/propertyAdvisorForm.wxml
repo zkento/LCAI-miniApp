@@ -1,4 +1,4 @@
-<navigation-bar id="nav-bar" title="房产顾问" background="#f8f9fa" bind:back="onBack"></navigation-bar>
+<navigation-bar id="nav-bar" title="买家顾问" background="#f8f9fa" bind:back="onBack"></navigation-bar>
 <scroll-view 
   scroll-y="true" 
   class="scroll-container" 
@@ -11,11 +11,11 @@
     <view class="form-container">
       <!-- 左侧输入区 -->
       <view class="input-panel">
-        <view class="panel-header">
+        <!-- <view class="panel-header">
           <text class="panel-title">填写客户购房需求</text>
-        </view>
+        </view> -->
         <view class="panel-content">
-          <text class="description-hint">请参照右侧的需求描述要点输入客户的购房需求，要点覆盖得越全面越好。</text>
+          <text class="description-hint">请参照下方“购房需求描述要点”输入客户的购房需求，要点覆盖得越全面越好。</text>
           
           <!-- 需求描述文本框 -->
           <view class="form-item">
@@ -29,6 +29,7 @@
               disabled="{{isAnalyzing || hasAnalysisResult}}"
               auto-height
               style="min-height: 240rpx;"
+              maxlines="12"
             />
           </view>
           
@@ -72,14 +73,16 @@
               </view>
             </block>
             <block wx:else>
-              <view style="width:100%; padding:0rpx; margin-bottom:30rpx; box-sizing:border-box;">
+              <view style="width:100%; padding:0rpx; box-sizing:border-box;">
                 <button 
                   class="reset-button" 
                   bindtap="resetForm"
                   style="width:100%; margin:0; box-sizing:border-box;"
                 >新的需求</button>
               </view>
-              <view style="width:100%; padding:0rpx; box-sizing:border-box;">
+              <view id="scroll-anchor">
+              </view>
+              <view style="width:100%; margin-top:30rpx; padding:0rpx; box-sizing:border-box;">
                 <button 
                   class="submit-button {{submitting ? 'loading' : ''}} {{isAnalyzing ? 'is-disabled' : ''}}" 
                   bindtap="startMatchingHouses"
@@ -125,11 +128,12 @@
         </view>
         
         <!-- 分析结果内容 -->
-        <view class="analysis-content" id="analysis-content" wx:if="{{hasAnalysisResult}}">
+        <view class="analysis-content" wx:if="{{hasAnalysisResult}}">
           <view class="panel-header">
             <view class="panel-title">
               需求AI分析结果
-              <text wx:if="{{analysisTime}}" class="analysis-time">用时{{analysisTime}}秒</text>
+              <text wx:if="{{analysisTime && !isAnalyzing}}" class="analysis-time">用时{{analysisTime}}秒</text>
+              <text wx:if="{{isAnalyzing}}" class="analysis-time">用时{{currentAnalysisTime}}秒</text>
             </view>
             <view class="refresh-button-wrapper">
               <button 
@@ -166,7 +170,7 @@
                     </block>
                     
                     <!-- 金融服务-购房后融资：根据按揭贷款选择显示不同内容 -->
-                    <block wx:elif="{{item.title === '5. 金融服务' && subItem.label === '购房后融资'}}">
+                    <block wx:elif="{{item.title === '5. 金融服务' && subItem.label === '购房融资'}}">
                       <view wx:if="{{editableResults['5. 金融服务']['按揭贷款'] === '不需要'}}" class="radio-options finance-option">
                         <text>若全款购房，</text>
                         <van-radio-group value="{{editableResults[item.title][subItem.label]}}" bind:change="onFinancingChange" direction="horizontal" disabled="{{isAnalyzing}}" v-model="checked" shape="square">
@@ -182,23 +186,32 @@
                     <!-- 其他所有字段：使用输入框或显示文本 -->
                     <block wx:else>
                       <view class="editable-field">
-                        <view wx:if="{{!isEditing[item.title + subItem.label]}}" class="field-text {{editableResults[item.title] && editableResults[item.title][subItem.label] === '无此信息，建议补充' ? 'empty-value' : ''}} {{isAnalyzing ? 'disabled' : ''}}" bindtap="startEditing" data-group="{{item.title}}" data-item="{{subItem.label}}">
-                          {{editableResults[item.title] && editableResults[item.title][subItem.label] || '无此信息，建议补充'}}
-                          <text wx:if="{{!isAnalyzing}}" class="edit-icon">✏️</text>
-                        </view>
-                        <input 
-                          wx:else
-                          class="field-input {{editableResults[item.title] && editableResults[item.title][subItem.label] === '无此信息，建议补充' ? 'empty-value' : ''}}"
-                          value="{{editableResults[item.title] && editableResults[item.title][subItem.label]}}"
-                          placeholder="{{subItem.example}}"
-                          bindblur="finishEditing"
-                          bindconfirm="finishEditing"
-                          bindinput="onFieldInput"
-                          data-group="{{item.title}}"
-                          data-item="{{subItem.label}}"
-                          disabled="{{isAnalyzing}}"
-                          maxlength="50"
-                        />
+                        <block wx:if="{{!isEditing[item.title + subItem.label]}}">
+                          <view class="field-text {{editableResults[item.title] && editableResults[item.title][subItem.label] === '无此信息，建议补充' ? 'empty-value' : ''}} {{isAnalyzing ? 'disabled' : ''}}" bindtap="startEditing" data-group="{{item.title}}" data-item="{{subItem.label}}">
+                            {{editableResults[item.title] && editableResults[item.title][subItem.label] || '无此信息，建议补充'}}
+                            <text wx:if="{{!isAnalyzing}}" class="edit-icon"></text>
+                          </view>
+                        </block>
+                        <block wx:else>
+                          <textarea 
+                            class="field-input {{editableResults[item.title] && editableResults[item.title][subItem.label] === '无此信息，建议补充' ? 'empty-value' : ''}}"
+                            value="{{editableResults[item.title] && editableResults[item.title][subItem.label]}}"
+                            placeholder="{{subItem.example}}"
+                            bindblur="finishEditing"
+                            bindconfirm="finishEditing"
+                            bindinput="onFieldInput"
+                            data-group="{{item.title}}"
+                            data-item="{{subItem.label}}"
+                            disabled="{{isAnalyzing}}"
+                            maxlength="50"
+                            id="input-{{item.title}}-{{subItem.label}}"
+                            focus="{{true}}"
+                            auto-height
+                            maxlines="3"
+                            show-confirm-bar="{{false}}"
+                            cursor-spacing="20"
+                          />
+                        </block>
                       </view>
                     </block>
                   </view>
@@ -207,9 +220,9 @@
             </view>
             
               <view class="suggestion-title-text">
-                <!-- <view> -->
+                <view>
                   <text>AI分析结果建议</text>
-                <!-- </view> -->
+                </view>
                 <text class="advice-hint">你可在上方直接修改AI的分析结果，再让AI生成建议报告</text>
               </view>
               <view class="suggestion-content">
