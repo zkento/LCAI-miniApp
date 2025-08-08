@@ -115,7 +115,6 @@
                   class="extract-button {{isExtractingKeywords ? 'loading' : ''}} {{!canExtractKeywords ? 'is-disabled' : ''}}"
                   bindtap="extractKeywords"
                   loading="{{isExtractingKeywords}}"
-                  disabled="{{!canExtractKeywords || isExtractingKeywords}}"
                   style="width:100%; margin:0; box-sizing:border-box; {{(!canExtractKeywords || isExtractingKeywords) ? 'background-color:#1b68de !important; color:#ffffff !important; opacity:0.6 !important;' : ''}}"
                 >
                   <block wx:if="{{!isExtractingKeywords}}">让AI分析客户需求</block>
@@ -146,7 +145,7 @@
         </view>
       </view>
 
-      <!-- 右侧内容面板 -->
+      <!-- WEB右侧内容面板 -->
       <view class="content-panel">
         <!-- 引导内容 -->
         <view class="reference-content" wx:if="{{!hasAttemptedExtraction}}">
@@ -192,14 +191,17 @@
         <!-- 分析结果内容 -->
         <view class="analysis-content" id="analysis-content" wx:if="{{hasAttemptedExtraction}}">
           <view class="panel-header">
-            <text class="panel-title">客户需求分析结果</text>
-            <view class="refresh-button-wrapper">
+             <view class="panel-title">
+              AI关键词提取结果
+              <text wx:if="{{extractionDuration}}" class="analysis-time">用时{{extractionDuration}}秒</text>
+            </view>
+            <view class="reanalyze-button-wrapper">
               <button 
-                class="refresh-button {{isExtractingKeywords ? 'loading' : ''}}"
+                class="reanalyze-button {{isExtractingKeywords ? 'loading' : ''}}"
                 bindtap="extractKeywords"
                 disabled="{{isExtractingKeywords}}"
               >
-                <block wx:if="{{!isExtractingKeywords}}">重新分析</block>
+                <block wx:if="{{!isExtractingKeywords}}">重新提取</block>
                 <block wx:else>
                   <view class="loading-container">
                     <view class="custom-loading"></view>
@@ -209,14 +211,12 @@
               </button>
             </view>
           </view>
-
-          <!-- 使用 Vant Card 组件优化关键词显示 -->
-          <van-card custom-class="keywords-card">
+          <view class="panel-content">
             <view slot="title" class="keywords-title">
               <view class="keywords-title-left">
                 <van-icon name="tag" size="32rpx" color="#1989fa" />
                 <text class="keywords-title-text">需求关键词</text>
-                <text wx:if="{{extractionDuration}}" class="analysis-time">AI分析用时{{extractionDuration}}秒</text>
+                <!-- <text wx:if="{{extractionDuration}}" class="analysis-time">AI分析用时{{extractionDuration}}秒</text> -->
               </view>
             </view>
             <view slot="desc" class="keywords-content">
@@ -233,9 +233,9 @@
                 </van-tag>
               </view>
               <view class="keywords-placeholder" wx:else>
-                                  <block wx:if="{{extractError}}">
-                  <van-icon name="warning" size="32rpx" color="#ee0a24" />
-                  <text class="error-text">{{extractError}}</text>
+                <block wx:if="{{extractError}}">
+                <van-icon name="warning" size="32rpx" color="#ee0a24" />
+                <text class="error-text">{{extractError}}</text>
                 </block>
                 <block wx:elif="{{isExtractingKeywords}}">
                   <!-- <view class="custom-loading"></view> -->
@@ -243,19 +243,19 @@
                 </block>
               </view>
             </view>
-          </van-card>
-
-          <view class="suggestion-title-text">
-            <text>分析结果建议</text>
-          </view>
-          <view class="suggestion-content">
-            <view class="suggestion-item">
-              <text>AI已成功提取融资需求关键词，点击"让AI生成融资建议报告"获取完整融资建议。</text>
+            
+            <view class="suggestion-title-text">
+              <text>分析结果建议</text>
             </view>
-            <view class="suggestion-item">
-              <text>若对关键词提取结果不满意，可"重新分析"或点击"新的需求"按钮来重新填写客户融资需求。</text>
+            <view class="suggestion-content">
+              <view class="suggestion-item">
+                <text>AI已成功提取融资需求关键词，点击"让AI生成融资建议报告"获取完整融资建议。</text>
+              </view>
+              <view class="suggestion-item">
+                <text>若对关键词提取结果不满意，可"重新分析"或点击"新的需求"按钮来重新填写客户融资需求。</text>
+              </view>
             </view>
-          </view>
+          </view>  
         </view>
       </view>
     </view>

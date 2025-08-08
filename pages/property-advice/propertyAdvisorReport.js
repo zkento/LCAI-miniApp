@@ -1,73 +1,46 @@
+// 购房建议报告页面
 Page({
   data: {
-    // 当前步骤状态（1表示表单填写, 2表示AI思考分析, 3表示生成报告）
+    // 当前步骤状态（1表示表单填写, 2表示AI思考, 3表示生成报告）
     activeStep: 1,
+    
+    // Tab相关
+    activeReportTab: 'report', // 'report'表示分析结果报告, 'thinking'表示分析思考过程
     
     // 表单数据
     formData: null,
     
-    // 工作状态
+    // 匹配状态
     workingStatus: 'idle', // idle, working, thinking, generating, complete
     
-    // 工作计时器
+    // 匹配计时器
     workingTimer: 1,
     
-    // AI思考过程
+    // AI匹配思考过程
     aiThinkingProcess: '',
     displayedThinkingProcess: '', // 用于逐字显示的思考过程
     isThinking: false, // AI是否正在思考
+    thinkingScrollTarget: '', // 滚动目标ID
+    lastScrollTime: 0, // 上次滚动时间，用于控制滚动频率
     
     // 报告内容
     reportContent: '',
-    reportGenerationDuration: 0,
-    
-    // 咨询相关
-    consultationMessages: [],
-    consultationInput: '',
-    consultationLoading: false,
-    consultationThinkingTimer: 0,
-    consultationResponseStatus: '',
-    consultationResponseTime: 0,
-    consultationThinkingProcesses: [], // 存储多个思考过程的数组
-    
-    // 分栏调整
-    verticalSplit: 50,
-    
-    // 初始工作思考内容
-    workThinkingContent: '',
-    
-    // 窗口信息
-    windowWidth: 0,
-    windowHeight: 0,
-    scrollViewHeight: 'auto'
+    reportContentHtml: '',
+    reportGenerationDuration: 0
   },
 
   onLoad(options) {
-    // 设置页面标题
-    wx.setNavigationBarTitle({
-      title: '购房建议报告'
-    });
-    
-    // 获取系统信息
-    wx.getSystemInfo({
-      success: (res) => {
-        this.setData({
-          windowWidth: res.windowWidth,
-          windowHeight: res.windowHeight
-        });
-      }
-    });
-    
+    // 页面加载时的初始化
     // 如果是从表单页面跳转过来的，会带有参数
     if (options && options.fromForm) {
-      // 设置为第2步（AI思考分析）
+      // 设置为第2步（AI思考）
+      this.setData({ activeStep: 2 });
+      
+      // 从全局数据中获取表单数据
       const app = getApp();
       if (app.globalData && app.globalData.propertyFormData) {
-        const formData = app.globalData.propertyFormData;
-        
         this.setData({
-          formData: formData,
-          activeStep: 2
+          formData: app.globalData.propertyFormData
         });
         
         // 启动分析流程
@@ -79,19 +52,6 @@ Page({
     }
   },
 
-  onReady() {
-    // 动态计算滚动区域高度
-    const query = wx.createSelectorQuery();
-    query.select('#nav-bar').boundingClientRect(navRect => {
-      if (navRect) {
-        const scrollViewHeight = this.data.windowHeight - navRect.height;
-        this.setData({
-          scrollViewHeight: `${scrollViewHeight}px`
-        });
-      }
-    }).exec();
-  },
-
   // 处理导航栏返回事件
   onBack() {
     wx.navigateBack({
@@ -101,28 +61,21 @@ Page({
 
   // 开始分析流程
   startAnalysis() {
-    // 直接进入AI思考分析（步骤2）
+    // 确保处于第2步（AI思考）
     this.setData({ activeStep: 2 });
-    this.startAiWorking();
-  },
 
-  // 开始AI工作
-  startAiWorking() {
-    this.setData({
-      workingStatus: 'working'
-    });
-    
+    // 开始匹配计时器并显示匹配蒙层
+    this.setData({ workingStatus: 'working' });
     this.startWorkingTimer();
     
-    // 模拟等待AI响应时间4秒，之后进入AI思考分析步骤
+    // 模拟等待AI服务器响应时间3秒，之后进入AI思考分析步骤
     setTimeout(() => {
-      this.nextStep();
-    }, 4000);
+      this.startAiWorking();
+    }, 3000);
   },
 
-  // 开始工作计时器
+  // 开始匹配计时器
   startWorkingTimer() {
-    this.setData({ workingTimer: 1 });
     this.workingTimerInterval = setInterval(() => {
       this.setData({
         workingTimer: this.data.workingTimer + 1
@@ -130,7 +83,7 @@ Page({
     }, 1000);
   },
 
-  // 停止工作计时器
+  // 停止匹配计时器
   stopWorkingTimer() {
     if (this.workingTimerInterval) {
       clearInterval(this.workingTimerInterval);
@@ -138,24 +91,47 @@ Page({
     }
   },
 
-  // 进入下一步
-  nextStep() {
-    const currentStep = this.data.activeStep;
-    
-    if (currentStep === 2) {
-      this.setData({ activeStep: 3 });
-      this.startThinkingProcess();
+  // 自动滚动到思考内容底部
+  scrollToThinkingBottom() {
+    const now = Date.now();
+    // 限制滚动频率，每150ms最多滚动一次
+    if (now - this.data.lastScrollTime < 150) {
+      return;
     }
+
+    // 使用nextTick确保DOM更新完成后再滚动
+    wx.nextTick(() => {
+      // 方法1: 使用scroll-into-view
+      this.setData({
+        thinkingScrollTarget: 'thinking-bottom',
+        lastScrollTime: now
+      });
+
+      // 方法2: 备用方案，使用pageScrollTo滚动到底部
+      setTimeout(() => {
+        const query = wx.createSelectorQuery();
+        query.select('#thinking-content').boundingClientRect((rect) => {
+          if (rect) {
+            // 滚动到内容底部
+            wx.pageScrollTo({
+              scrollTop: rect.bottom,
+              duration: 300
+            });
+          }
+        }).exec();
+
+        // 清除滚动目标
+    this.setData({
+          thinkingScrollTarget: ''
+        });
+      }, 100);
+    });
   },
 
-  // 开始思考过程
-  startThinkingProcess() {
-    this.setData({
-      workingStatus: 'thinking',
-      isThinking: true
-    });
-
-    // 模拟AI思考过程
+  // 开始购房分析
+  startAiWorking() {
+    try {
+      // 设置完整的AI思考过程数据
     const fullThinkingProcess = `正在分析客户购房需求...
 
 思考过程：
@@ -186,54 +162,158 @@ Page({
 - 交通：地铁直达市区（工作便利）
 - 商业：大型商场（生活便利）
 
-基于以上分析，我将推荐符合条件的优质房源...`;
+基于以上分析，我将推荐符合条件的优质房源，并提供详细的购房建议报告。`;
 
-    // 开始逐字显示思考过程
+      // 开始模拟AI思考过程逐字显示
     this.setData({
-      aiThinkingProcess: fullThinkingProcess,
-      displayedThinkingProcess: ''
-    });
+        aiThinkingProcess: fullThinkingProcess, // 保存完整内容以便后续使用
+        displayedThinkingProcess: '', // 清空已显示的内容
+        workingStatus: 'thinking',
+        isThinking: true
+      });
+      
+      // 计算文本总长度和每秒应该显示的字符数，以确保在30-50秒内完成
+      const totalLength = fullThinkingProcess.length;
+      // 每秒应该处理的字符数，按40秒计算（为了保证在30-50秒的区间内）
+      const charsPerSecond = totalLength / 40;
     
     let thinkingIndex = 0;
-    
-    const thinkingInterval = setInterval(() => {
+      const startTime = Date.now();
+      
+      // 启动逐字显示
+      this.thinkingInterval = setInterval(() => {
+        if (thinkingIndex < fullThinkingProcess.length) {
+          // 计算当前已经过的时间(秒)
+          const elapsedTime = (Date.now() - startTime) / 1000;
+          
+          // 计算按当前速度应该显示到的索引位置
+          const targetIndex = Math.floor(elapsedTime * charsPerSecond);
+          
+          // 计算本次应该显示多少字符
+          let chunkSize = 1;
+          
+          // 如果落后于目标进度，则加速
+          if (thinkingIndex < targetIndex - 20) {
+            chunkSize = 3; // 严重落后，快速追赶
+          } else if (thinkingIndex < targetIndex - 5) {
+            chunkSize = 2; // 略有落后，稍微加速
+          }
+          
+          // 保证不会越界
+          const remainingChars = fullThinkingProcess.length - thinkingIndex;
+          const actualChunkSize = Math.min(chunkSize, remainingChars);
+          
+          // 添加字符块到显示内容
+          const nextChunk = fullThinkingProcess.substring(thinkingIndex, thinkingIndex + actualChunkSize);
+          
+          this.setData({
+            displayedThinkingProcess: this.data.displayedThinkingProcess + nextChunk
+          });
+
+          // 自动滚动到底部
+          this.scrollToThinkingBottom();
+          
+          thinkingIndex += actualChunkSize;
+          
+          // 检查是否遇到特殊字符需要停顿
+          const lastChar = nextChunk[nextChunk.length - 1];
+          if (lastChar === '。' || lastChar === '\n' || lastChar === '：') {
+            // 句子结束后稍微暂停
+            clearInterval(this.thinkingInterval);
+            setTimeout(() => {
+              // 继续逐字显示
+              this.thinkingInterval = setInterval(() => {
       if (thinkingIndex < fullThinkingProcess.length) {
         const nextChar = fullThinkingProcess[thinkingIndex];
+                  
         this.setData({
           displayedThinkingProcess: this.data.displayedThinkingProcess + nextChar
         });
+
+                  // 自动滚动到底部
+                  this.scrollToThinkingBottom();
+                  
         thinkingIndex++;
       } else {
-        // 思考过程显示完成
-        clearInterval(thinkingInterval);
+                  // 处理完成
+                  this.finishThinking(startTime);
+                }
+              }, 40); // 句末后的显示速度
+            }, 300); // 句末停顿时间
+            return;
+          }
+        } else {
+          // 所有内容显示完毕
+          this.finishThinking(startTime);
+        }
+      }, 40);
+    } catch (error) {
+      console.error('购房分析时出错:', error);
+      this.setData({ workingStatus: 'error' });
+      this.stopWorkingTimer();
+    }
+  },
+  
+  // 定义结束显示的函数
+  finishThinking(startTime) {
+    // 计算已经过的时间
+    const elapsedMs = Date.now() - startTime;
+    const elapsedSec = elapsedMs / 1000;
+    
+    console.log(`思考过程显示完成用时${elapsedSec.toFixed(1)}秒`);
+    
+    // 清除原有的逐字显示计时器
+    if (this.thinkingInterval) {
+      clearInterval(this.thinkingInterval);
+      this.thinkingInterval = null;
+    }
+    
+    // 直接完成，不再等待最少30秒
         this.completeThinking();
-      }
-    }, 30);
   },
 
-  // 完成思考过程
+  /**
+   * 完成思考过程并准备生成报告
+   */
   completeThinking() {
+    // 清除计时器
+    if (this.thinkingInterval) {
+      clearInterval(this.thinkingInterval);
+      this.thinkingInterval = null;
+    }
+    
+    // 显示完整思考内容
     this.setData({
-      workThinkingContent: this.data.aiThinkingProcess,
+      displayedThinkingProcess: this.data.aiThinkingProcess,
       isThinking: false,
-      workingStatus: 'generating'
+      // 同时保存思考过程用于Tab显示
+      aiThinkingProcess: this.data.aiThinkingProcess
     });
     
-    // 延迟3秒后生成报告
+    // 滚动到底部显示完整内容
     setTimeout(() => {
+      this.scrollToThinkingBottom();
+    }, 100);
+    
+    // 延迟一会，让用户看到完整的思考过程
+    setTimeout(() => {
+      // 转换为生成报告状态，添加过渡效果
+      this.setData({ workingStatus: 'generating' });
+      
+      // 延迟约3秒后生成报告，提供良好的过渡体验
+      setTimeout(() => {
+        // 生成购房建议报告
       this.generateReport();
     }, 3000);
+    }, 1000);
   },
 
   // 生成报告
   generateReport() {
-    const currentDate = new Date().toLocaleString('zh-CN', {
+    const currentDate = new Date().toLocaleDateString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+      day: '2-digit'
     }).replace(/\//g, '-');
     
     const reportContent = `# 购房建议报告
@@ -242,7 +322,7 @@ Page({
 
 ## 一、客户需求概述
 
-**客户姓名**：${this.data.formData.customerName || '客户'}
+**客户姓名**：${this.data.formData?.customerName || '客户'}
 **预算范围**：800-1000万元
 **首付资金**：300万元
 **月供预算**：2-3万元/月
@@ -360,50 +440,119 @@ Page({
 
 如需进一步咨询或预约看房，请随时联系我们的专业团队。`;
     
+    // 将Markdown转换为HTML
+    const reportContentHtml = this.markdownToHtml(reportContent);
+    
+    // 更新状态为完成
     this.setData({
-      reportContent: reportContent,
       workingStatus: 'complete',
+      reportContent: reportContent,
+      reportContentHtml: reportContentHtml,
       reportGenerationDuration: this.data.workingTimer
     });
     
     this.stopWorkingTimer();
     
-    // 添加初始系统消息到咨询消息列表
+    // 进入下一步
+    this.nextStep();
+  },
+  
+  // 简单的Markdown转HTML函数
+  markdownToHtml(markdown) {
+    if (!markdown) return '';
+    
+    // 简单替换标题
+    let html = markdown
+      .replace(/^# (.*?)$/gm, '<h1>$1</h1>')
+      .replace(/^## (.*?)$/gm, '<h2>$1</h2>')
+      .replace(/^### (.*?)$/gm, '<h3>$1</h3>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n- /g, '<br>• ');
+    
+    // 包装在段落中
+    html = '<p>' + html + '</p>';
+    
+    return html;
+  },
+  
+  // 进入下一步
+  nextStep() {
+    if (this.data.activeStep < 3) {
     this.setData({
-      consultationMessages: [{
-        role: 'assistant',
-        content: '我是良策AI助手，本次客户的购房建议报告已生成。您可以继续向我咨询以获取更多建议。'
-      }]
+        activeStep: this.data.activeStep + 1
+      });
+    }
+  },
+
+  // 分享购房建议报告
+  shareReport() {
+    if (!this.data.reportContent) {
+      wx.showToast({
+        title: '暂无报告内容可分享',
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
+
+    // 显示分享选项
+    wx.showActionSheet({
+      itemList: ['复制文本分享', '生成PDF分享'],
+      success: (res) => {
+        switch (res.tapIndex) {
+          case 0:
+            this.shareText();
+            break;
+          case 1:
+            this.showPdfShareLimitation();
+            break;
+        }
+      }
     });
   },
 
-  // 下载报告
-  downloadReport() {
-    // 小程序中可以将内容保存到相册或分享
-    wx.showActionSheet({
-      itemList: ['保存到相册', '分享给好友'],
-      success: (res) => {
-        if (res.tapIndex === 0) {
-          // 保存到相册的逻辑
-          wx.showToast({
-            title: '保存功能开发中',
-            icon: 'none'
-          });
-        } else if (res.tapIndex === 1) {
-          // 分享给好友的逻辑
-          wx.showShareMenu({
-            withShareTicket: true
-          });
-        }
+  // 截图分享
+  showPdfShareLimitation() {
+    wx.showModal({
+      title: '功能提示',
+      content: '此功能在demo版本中暂不支持，将在正式开发项目时完整实现',
+      confirmText: '知道了',
+      showCancel: false
+    });
+  },
+
+  // 文本分享
+  shareText() {
+    // 将报告内容复制到剪贴板
+    wx.setClipboardData({
+      data: this.data.reportContent,
+      success: () => {
+        wx.showModal({
+          title: '复制成功',
+          content: '购房建议报告已复制到剪贴板，您可以粘贴到微信等应用中分享给好友',
+          confirmText: '知道了',
+          showCancel: false
+        });
+      },
+      fail: () => {
+        wx.showToast({
+          title: '复制失败，请重试',
+          icon: 'none',
+          duration: 2000
+        });
       }
     });
   },
 
   // 重新开始顾问流程
   restartAdvisor() {
+    // 提示用户确认重新开始
     wx.showModal({
       title: '操作提示',
       content: '确定要开始新的购房顾问流程吗？',
+      confirmText: '确定',
+      cancelText: '取消',
       success: (res) => {
         if (res.confirm) {
           // 重置所有状态
@@ -414,12 +563,16 @@ Page({
             workingStatus: 'idle',
             aiThinkingProcess: '',
             displayedThinkingProcess: '',
-            consultationMessages: [],
-            consultationInput: ''
+            thinkingScrollTarget: '',
+            lastScrollTime: 0
           });
           
           // 停止所有计时器
           this.stopWorkingTimer();
+          if (this.thinkingInterval) {
+            clearInterval(this.thinkingInterval);
+            this.thinkingInterval = null;
+          }
           
           // 跳转回表单页面
           wx.redirectTo({
@@ -430,90 +583,23 @@ Page({
     });
   },
 
-  // 发送咨询消息
-  sendConsultationMessage() {
-    if (!this.data.consultationInput.trim() || this.data.consultationLoading) return;
-    
-    const userMessage = {
-      role: 'user',
-      content: this.data.consultationInput.trim()
-    };
-    
+  /**
+   * Tab切换事件处理
+   */
+  onReportTabChange(event) {
+    const tabName = event.detail.name;
     this.setData({
-      consultationMessages: [...this.data.consultationMessages, userMessage],
-      consultationInput: '',
-      consultationLoading: true
+      activeReportTab: tabName
     });
-    
-    // 启动思考状态显示
-    this.startConsultationThinking();
-    
-    // 模拟AI回复
-    setTimeout(() => {
-      const aiReply = {
-        role: 'assistant',
-        content: '感谢您的咨询。基于您的问题，我建议您可以考虑以下几个方面：1. 实地考察推荐楼盘 2. 了解最新市场价格 3. 确认学位房政策。需要更详细的建议吗？'
-      };
-      
-      this.setData({
-        consultationMessages: [...this.data.consultationMessages, aiReply],
-        consultationLoading: false
-      });
-      
-      this.stopConsultationThinking('success');
-    }, 3000);
-  },
-
-  // 开始咨询思考状态计时
-  startConsultationThinking() {
-    this.setData({
-      consultationThinkingTimer: 0,
-      consultationResponseStatus: '',
-      consultationResponseTime: 0
-    });
-    
-    this.consultationThinkingInterval = setInterval(() => {
-      this.setData({
-        consultationThinkingTimer: this.data.consultationThinkingTimer + 1
-      });
-    }, 1000);
-  },
-
-  // 停止咨询思考状态计时
-  stopConsultationThinking(status = 'success', error = '') {
-    if (this.consultationThinkingInterval) {
-      clearInterval(this.consultationThinkingInterval);
-      this.consultationThinkingInterval = null;
-      
-      this.setData({
-        consultationResponseTime: this.data.consultationThinkingTimer,
-        consultationThinkingTimer: 0
-      });
-      
-      if (status === 'success') {
-        this.setData({
-          consultationResponseStatus: 'AI已回复'
-        });
-      } else {
-        this.setData({
-          consultationResponseStatus: error || '请求失败'
-        });
-      }
-    }
-  },
-
-  // 咨询输入处理
-  onConsultationInput(e) {
-    this.setData({
-      consultationInput: e.detail.value
-    });
+    console.log('切换到Tab:', tabName);
   },
 
   onUnload() {
-    // 清理计时器
+    // 页面卸载时清理资源
     this.stopWorkingTimer();
-    if (this.consultationThinkingInterval) {
-      clearInterval(this.consultationThinkingInterval);
+    if (this.thinkingInterval) {
+      clearInterval(this.thinkingInterval);
+      this.thinkingInterval = null;
     }
   }
 }); 

@@ -444,22 +444,28 @@ Page({
 
   // 提取关键词
   extractKeywords() {
+    // 检查是否正在提取关键词
+    if (this.data.isExtractingKeywords) {
+      return;
+    }
+
+    // 检查是否有输入内容
     if (!this.data.formData.requirements || this.data.formData.requirements.trim() === '') {
-      this.setData({
-        extractError: '请输入贷款需求描述再提取关键词'
+      wx.showToast({
+        title: '请输入客户融资需求',
+        icon: 'none',
+        duration: 2000
       });
       return;
     }
 
     const trimmedText = this.data.formData.requirements.trim();
     if (trimmedText.length < 10) {
-      this.setData({
-        extractError: '需求描述的文字不应该少于10个字'
+      wx.showToast({
+        title: '请输入10个字以上的客户融资需求',
+        icon: 'none',
+        duration: 2000
       });
-      return;
-    }
-
-    if (this.data.isExtractingKeywords) {
       return;
     }
 

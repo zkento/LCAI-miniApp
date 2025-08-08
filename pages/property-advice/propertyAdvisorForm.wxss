@@ -1,228 +1,332 @@
-/* 整体页面样式 */
+/* 页面容器样式 */
 .scroll-container {
+  width: 100%;
   background-color: #f5f7fa;
+  box-sizing: border-box;
 }
 
+/* ----------------- 基础布局 ----------------- */
 .property-advisor-form {
+  width: 100%;
   min-height: 100vh;
   padding: 20rpx;
+  background-color: #f5f7fa;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
 }
 
 .form-container {
-  display: flex;
-  gap: 20rpx;
-  max-width: 2400rpx;
-  margin: 0 auto;
-}
-
-/* 面板通用样式 */
-.input-panel,
-.content-panel {
+  width: 100%;
+  max-width: 1000rpx;
   background: white;
   border-radius: 16rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
-}
-
-.input-panel {
-  flex: 1;
-  min-width: 500rpx;
-}
-
-.content-panel {
-  flex: 1;
-  min-width: 500rpx;
-}
-
-.panel-header {
-  padding: 30rpx 30rpx 20rpx;
-  border-bottom: 1rpx solid #f0f2f5;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-.panel-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #1a1a1a;
+/* ----------------- 左侧输入面板 ----------------- */
+.input-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.panel-content {
-  padding: 30rpx;
-}
-
-/* 描述提示 */
 .description-hint {
-  color: #666;
+  color: #606266;
   font-size: 28rpx;
-  line-height: 1.5;
-  margin-bottom: 30rpx;
-  display: block;
+  margin-bottom: 24rpx;
+  line-height: 1.6;
 }
 
 /* 表单项样式 */
 .form-item {
-  margin-bottom: 30rpx;
+  margin-bottom: 24rpx;
 }
 
 .requirements-textarea {
   width: 100%;
-  border: 2rpx solid #e1e8ed;
-  border-radius: 12rpx;
-  padding: 20rpx;
+  min-height: 200rpx;
+  padding: 24rpx;
+  border: 2rpx solid #dcdfe6;
+  border-radius: 8rpx;
   font-size: 28rpx;
   line-height: 1.6;
-  color: #333;
-  background-color: #fff;
   box-sizing: border-box;
-}
-
-.requirements-textarea:focus {
-  border-color: #1890ff;
-  outline: none;
+  background-color: #fff;
 }
 
 .requirements-textarea[disabled] {
-  background-color: #f5f5f5;
-  color: #999;
-}
-
-.customer-name-input {
-  margin-top: 20rpx;
+  background-color: #f5f7fa;
+  color: #c0c4cc;
 }
 
 .name-input {
   width: 100%;
   height: 80rpx;
-  border: 2rpx solid #e1e8ed;
-  border-radius: 12rpx;
-  padding: 0 20rpx;
+  padding: 0 24rpx;
+  border: 2rpx solid #dcdfe6;
+  border-radius: 8rpx;
   font-size: 28rpx;
-  color: #333;
-  background-color: #fff;
   box-sizing: border-box;
-}
-
-.name-input:focus {
-  border-color: #1890ff;
+  background-color: #fff;
 }
 
 .name-input[disabled] {
-  background-color: #f5f5f5;
-  color: #999;
+  background-color: #f5f7fa;
+  color: #c0c4cc;
 }
 
-/* 表单按钮 */
-.form-actions {
-  margin-top: 40rpx;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.reset-button,
-.analyze-button,
-.submit-button,
-.reanalyze-button {
-  height: 80rpx;
-  border-radius: 12rpx;
-  font-size: 28rpx;
-  border: none;
-  padding: 0 32rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.reset-button {
-  background-color: #f5f5f5;
-  color: #666;
-}
-
-.reset-button:not([disabled]):active {
-  background-color: #e8e8e8;
-}
-
-.analyze-button,
-.submit-button {
-  background-color: #1890ff;
-  color: white;
-}
-
-.analyze-button:not([disabled]):active,
-.submit-button:not([disabled]):active {
-  background-color: #0066cc;
-}
-
-.reanalyze-button {
-  background-color: #52c41a;
-  color: white;
-  font-size: 24rpx;
-}
-
-.reanalyze-button:not([disabled]):active {
-  background-color: #389e0d;
-}
-
-.reset-button.is-disabled {
-  background-color: #f5f5f5;
-  color: #999;
-  opacity: 0.6;
-}
-
-.analyze-button.is-disabled, 
-.submit-button.is-disabled {
-  background-color: #1890ff;
-  opacity: 0.6;
-  color: #ffffff;
-}
-
-/* 覆盖微信原生按钮禁用样式 */
-button[disabled].analyze-button, button[disabled].submit-button {
-  background-color: #1890ff !important;
-  opacity: 0.6 !important;
-  color: #ffffff !important;
-}
-
-button[disabled].reset-button {
-  background-color: #f5f5f5 !important;
-  color: #999 !important;
-  opacity: 0.6 !important;
-}
-
-button[disabled] {
-  opacity: 0.6;
-}
-
-.loading {
-  opacity: 0.8;
-}
-
-/* 右侧内容区样式 */
-.reference-grid,
-.analysis-grid {
+/* 客户信息输入区域 */
+.client-info-section {
+  margin: 20rpx 0 30rpx 0;
   display: flex;
   flex-direction: column;
   gap: 30rpx;
 }
 
+/* 按钮区域 */
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12rpx;
+  margin-bottom: 32rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.reset-button, .analyze-button, .submit-button {
+  min-width: 200rpx;
+  height: 80rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.reset-button {
+  background-color: #fff;
+  color: #606266;
+  border: 2rpx solid #dcdfe6;
+}
+
+.reset-button.is-disabled {
+  background-color: #fff;
+  color: #c0c4cc;
+  border: 2rpx solid #e4e7ed;
+  opacity: 0.6;
+}
+
+/* 覆盖微信原生重置按钮禁用样式 */
+button[disabled].reset-button {
+  background-color: #fff !important;
+  color: #c0c4cc !important;
+  border: 2rpx solid #e4e7ed !important;
+  opacity: 0.6 !important;
+}
+
+.time-counter {
+  font-size: 28rpx;
+  font-weight: 400;
+}
+
+.analyze-button, .submit-button {
+  background-color: #1b68de;
+  color: #fff;
+  border: none;
+}
+
+.analyze-button.is-disabled, .submit-button.is-disabled {
+  background-color: #1b68de;
+  opacity: 0.6;
+  color: #ffffff;
+}
+
+/* 覆盖微信原生button禁用样式 */
+button[disabled].analyze-button, button[disabled].submit-button {
+  background-color: #1b68de !important;
+  opacity: 0.6 !important;
+  color: #ffffff !important;
+}
+
+.analyze-button.loading, .submit-button.loading {
+  opacity: 0.8;
+}
+
+/* ----------------- 面板通用样式 ----------------- */
+.panel-header {
+  padding: 0;
+  border-bottom: 2rpx solid #eee;
+  background-color: #f8f9fa;
+  height: 100rpx;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 40rpx;
+  padding-right: 40rpx;
+}
+
+.panel-title {
+  color: #000000;
+  font-size: 36rpx;
+  font-weight: 500;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  margin-right: 10rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 重新分析按钮样式 */
+.refresh-button {
+  height: 54rpx;
+  padding: 0 16rpx;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+  border: 2rpx solid #1b68de;
+  color: #1b68de;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: auto;
+  width: auto;
+  max-width: 180rpx;
+  transition: opacity 0.2s ease;
+}
+
+.refresh-button-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.refresh-button[disabled] {
+  opacity: 0.6 !important;
+}
+
+.refresh-button.loading {
+  opacity: 0.6 !important;
+}
+
+/* 覆盖微信原生button样式 */
+button[disabled].refresh-button {
+  color: #1b68de !important;
+  background-color: #ffffff !important;
+}
+
+/* 自定义加载动画容器 */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+}
+
+/* 自定义加载动画 */
+.custom-loading {
+  display: inline-block;
+  width: 32rpx;
+  height: 32rpx;
+  border: 3rpx solid #1b68de;
+  border-radius: 50% !important;
+  border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
+  margin-right: 10rpx;
+  box-sizing: border-box !important;
+  -webkit-border-radius: 50% !important;
+  overflow: hidden;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.panel-content {
+  padding: 20rpx 40rpx 30rpx 40rpx;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ----------------- 右侧内容面板 ----------------- */
+.content-panel {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.reference-content,
+.analysis-content {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+  gap: 0;
+}
+
+.reference-content.is-background {
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+/* 分析时间显示 */
+.analysis-time {
+  font-size: 30rpx;
+  color: #909399;
+  margin-left: 20rpx;
+  font-weight: normal;
+  white-space: nowrap;
+  /* display: inline; */
+}
+
+.advice-hint {
+  font-size: 28rpx;
+  color: #909399;
+  margin-left: 20rpx;
+  font-weight: normal;
+}
+
+/* ----------------- 需求参考部分 ----------------- */
+.reference-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 16rpx;
+  margin-bottom: 32rpx;
+}
+
 .reference-group {
-  border: 1rpx solid #f0f2f5;
-  border-radius: 12rpx;
-  padding: 20rpx;
-  background-color: #fafafa;
+  margin-bottom: 12rpx;
 }
 
 .group-title {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 20rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #909399;
+  margin: 16rpx 0;
   display: block;
 }
 
-.reference-items {
+.reference-items {  
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 16rpx;
@@ -231,38 +335,58 @@ button[disabled] {
 .reference-item {
   display: flex;
   align-items: flex-start;
-  gap: 8rpx;
-  padding: 12rpx;
-  border-radius: 8rpx;
-  transition: all 0.2s;
+  font-size: 28rpx;
+  padding: 8rpx;
+  border-radius: 4rpx;
 }
 
 .reference-item.item-found {
-  background-color: #e6f7e6;
-  border: 1rpx solid #52c41a;
+  background-color: #f0f9eb;
+  border: 1rpx solid #e1f3d8;
 }
 
-.reference-item.item-missing {
-  background-color: #fff2e8;
-  border: 1rpx solid #fa8c16;
-}
-
-.reference-item.item-na {
-  background-color: #f0f0f0;
-  border: 1rpx solid #d9d9d9;
+.reference-item.item-missing,
+.reference-item.item-not-found {
+  background-color: #fef0f0;
+  border: 1rpx solid #fde2e2;
 }
 
 .item-label {
-  font-size: 26rpx;
-  font-weight: 500;
-  color: #333;
+  color: #606266;
+  font-size: 28rpx;
+  line-height: 1.5;
   min-width: 120rpx;
+  font-weight: 500;
 }
 
 .item-example {
+  color: #a0a9b6;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+/* 示例部分 */
+.example-section {
+  margin-top: 32rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  color: #909399;
+  margin: 16rpx 0 24rpx 0;
+  display: block;
+  font-weight: 500;
+}
+
+.example-quote {
+  margin: 0;
+  padding: 24rpx 32rpx;
+  background-color: #f8f9fb;
+  border-radius: 8rpx;
+  color: #909399;
   font-size: 26rpx;
-  color: #666;
-  font-style: italic;
+  line-height: 1.6;
+  white-space: pre-line;
 }
 
 /* 可编辑字段样式 */
@@ -272,13 +396,11 @@ button[disabled] {
 }
 
 .field-text {
-  font-size: 26rpx;
-  color: #333;
+  font-size: 28rpx;
+  color: #303133;
   padding: 8rpx 12rpx;
-  border-radius: 6rpx;
-  background-color: #f8f9fa;
+  border-radius: 4rpx;
   border: 1rpx solid transparent;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -286,12 +408,12 @@ button[disabled] {
 }
 
 .field-text:hover {
-  border-color: #1890ff;
-  background-color: #e6f7ff;
+  border-color: #1b68de;
+  background-color: #ecf5ff;
 }
 
 .field-text.empty-value {
-  color: #999;
+  color: #b88230cc;
   font-style: italic;
 }
 
@@ -302,29 +424,29 @@ button[disabled] {
 
 .edit-icon {
   font-size: 20rpx;
-  color: #1890ff;
+  color: #1b68de;
   opacity: 0.7;
 }
 
 .field-input {
   width: 100%;
-  font-size: 26rpx;
-  color: #333;
+  font-size: 28rpx;
+  color: #303133;
   padding: 8rpx 12rpx;
-  border-radius: 6rpx;
-  border: 1rpx solid #1890ff;
+  border-radius: 4rpx;
+  border: 1rpx solid #1b68de;
   background-color: #fff;
   box-sizing: border-box;
 }
 
 .field-input.empty-value {
-  color: #999;
+  color: #c0c4cc;
 }
 
 /* 单选框样式 */
 .radio-options {
   display: flex;
-  gap: 20rpx;
+  gap: -20rpx;
   align-items: center;
 }
 
@@ -332,81 +454,70 @@ button[disabled] {
   display: flex;
   align-items: center;
   gap: 8rpx;
-  font-size: 26rpx;
-  color: #333;
+  font-size: 28rpx;
+  color: #303133;
 }
 
 .finance-option {
   align-items: center;
   flex-wrap: wrap;
-  font-size: 26rpx;
-  color: #333;
+  font-size: 28rpx;
+  color: #303133;
 }
 
 .finance-dash {
-  font-size: 26rpx;
-  color: #666;
-  font-weight: 500;
-}
-
-/* 示例区域样式 */
-.example-section {
-  margin-top: 40rpx;
-  padding-top: 30rpx;
-  border-top: 1rpx solid #f0f2f5;
-}
-
-.example-block {
-  background-color: #f8f9fa;
-  border-radius: 12rpx;
-  padding: 24rpx;
-}
-
-.section-title {
   font-size: 28rpx;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 16rpx;
-  display: block;
-}
-
-.example-quote {
-  background-color: white;
-  border: 1rpx solid #e1e8ed;
-  border-radius: 8rpx;
-  padding: 20rpx;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.example-quote:active {
-  background-color: #e6f7ff;
-  border-color: #1890ff;
-}
-
-.example-quote text {
-  font-size: 26rpx;
-  line-height: 1.6;
-  color: #333;
-  white-space: pre-line;
-}
-
-/* 分析时间显示 */
-.analysis-time {
-  font-size: 24rpx;
-  color: #52c41a;
+  color: #909399;
   font-weight: normal;
-  margin-left: 16rpx;
 }
 
-/* 响应式设计 */
-@media (max-width: 1200rpx) {
-  .form-container {
-    flex-direction: column;
-  }
-  
-  .input-panel,
-  .content-panel {
-    min-width: unset;
-  }
-} 
+/* 建议标题样式 */
+.suggestion-title-text {
+  padding: 24rpx 0;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #303133;
+}
+
+/* 建议内容样式 */
+.suggestion-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  padding: 32rpx;
+  margin-bottom: 32rpx;
+  background-color: #fbf8d2;
+  border-radius: 12rpx;
+  overflow: visible;
+  max-height: none;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  line-height: 1.6;
+  font-size: 28rpx;
+  color: #6b6204;
+}
+
+/* van-radio 自定义样式 */
+.van-radio__icon--checked {
+  color: #ffffff !important;
+  background-color: #1b68de !important;
+  border-color: #1b68de !important;
+}
+
+/* .van-radio__icon {
+  border-radius: 2px !important;
+} */
+
+/* 减小单选按钮内部的间距 */
+.van-radio {
+  margin-right: 26rpx !important;
+}
+
+/* 调整单选按钮和文本之间的距离 */
+.van-radio__label {
+  margin-left: -10rpx !important;
+}
