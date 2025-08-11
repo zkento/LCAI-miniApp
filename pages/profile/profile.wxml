@@ -1,2 +1,143 @@
 <!--pages/profile/profile.wxml-->
-<text>pages/profile/profile.wxml</text>
+<navigation-bar title="个人中心" back="{{false}}"></navigation-bar>
+
+<view class="profile-container">
+  <!-- 用户头像和信息区域 -->
+  <view class="user-info-section">
+    <view class="user-avatar-wrapper">
+      <image class="user-avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
+    </view>
+    <view class="user-info">
+      <view class="username">{{userInfo.username}}</view>
+    </view>
+  </view>
+
+  <!-- 功能列表 -->
+  <view class="function-list">
+    <van-cell-group>
+      <van-cell 
+        title="与AI聊天" 
+        is-link 
+        bind:click="toggleChatPanel"
+        border="{{ true }}"
+      />
+      <van-cell 
+        title="关于我们" 
+        is-link 
+        bind:click="navigateToAbout"
+        border="{{ false }}"
+      />
+    </van-cell-group>
+  </view>
+
+  <!-- 退出登录按钮 -->
+  <view>
+    <button class="logout-button" bindtap="handleLogout" style="width:100%; margin:0; box-sizing:border-box;">退出登录</button>
+  </view>
+
+  <!-- 聊天组件 -->
+  <van-popup 
+    show="{{ chatVisible }}" 
+    position="bottom"
+    custom-style="height: 90%; border-radius: 12px 12px 0 0; overflow: hidden;" 
+    bind:close="toggleChatPanel"
+    overlay-style="background-color: rgba(0, 0, 0, 0.6);"
+    round
+    lock-scroll="{{true}}"
+    catchtouchmove="true"
+    safe-area-inset-bottom="{{true}}"
+  >
+    <view class="chat-container">
+      <!-- 聊天头部 -->
+      <view class="chat-header">
+        <view class="chat-title">
+          <text>Chat with AI</text>
+        </view>
+        <view class="header-actions">
+          <view class="refresh-btn" bindtap="resetChat" hover-class="btn-hover">
+            <van-icon name="replay" size="20px" />
+          </view>
+          <view class="close-btn" bindtap="toggleChatPanel" hover-class="btn-hover">
+            <van-icon name="cross" size="20px" />
+          </view>
+        </view>
+      </view>
+      
+      <!-- 重置确认UI -->
+      <view class="reset-confirm" wx:if="{{confirmReset}}">
+        <view class="reset-confirm-message">重新开始对话将清空已有的对话内容，确认么？</view>
+        <view class="reset-confirm-buttons">
+          <button class="reset-btn cancel" bindtap="cancelReset">取消</button>
+          <button class="reset-btn confirm" bindtap="performReset">确认</button>
+        </view>
+      </view>
+      
+      <!-- 聊天内容区域 -->
+      <scroll-view 
+        scroll-y="true" 
+        class="chat-messages"
+        scroll-into-view="msg-{{messages.length-1}}"
+        enable-flex="true"
+        enhanced="true"
+        show-scrollbar="true"
+        scroll-anchoring="true"
+        bounces="{{false}}"
+      >
+        <view class="messages-wrapper">
+          <block wx:for="{{messages}}" wx:key="index">
+            <view 
+              id="msg-{{index}}" 
+              class="message {{item.role === 'assistant' ? 'assistant' : 'user'}} {{hasError && index === messages.length - 1 && item.role === 'assistant' ? 'error' : ''}}"
+            >
+              <view class="message-avatar" wx:if="{{item.role === 'assistant'}}">AI</view>
+              <view class="message-content">
+                <view class="message-text">{{item.content}}</view>
+              </view>
+            </view>
+          </block>
+          
+          <!-- AI回复思考中动画 -->
+          <view class="message assistant thinking" wx:if="{{thinking}}">
+            <view class="message-avatar">AI</view>
+            <view class="message-content">
+              <view class="thinking-indicator">
+                <view class="dot"></view>
+                <view class="dot"></view>
+                <view class="dot"></view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+      
+      <!-- 输入框区域 -->
+      <view class="chat-input-area">
+        <view class="input-container">
+          <textarea 
+            class="message-input"
+            value="{{messageInput}}"
+            placeholder="请输入你的对话内容..."
+            auto-height
+            cursor-spacing="20"
+            show-confirm-bar="{{false}}"
+            bindinput="onMessageInputChange"
+            adjust-position="{{true}}"
+            hold-keyboard="{{false}}"
+            disable-default-padding="{{true}}"
+            confirm-type="send"
+            bindconfirm="sendMessage"
+          ></textarea>
+          
+          <!-- 使用原生view作为发送按钮，使用canSend状态控制 -->
+          <view 
+            class="send-btn {{canSend ? 'active' : 'disabled'}}" 
+            bindtap="{{canSend ? 'sendMessage' : ''}}"
+            hover-class="{{canSend ? 'btn-hover' : ''}}"
+          >
+            <van-icon name="guide-o" />
+          </view>
+        </view>
+      </view>
+    </view>
+  </van-popup>
+</view>
