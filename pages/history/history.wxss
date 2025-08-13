@@ -15,7 +15,7 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
   /* box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1); */
 }
 
@@ -23,7 +23,7 @@
 .search-container {
   background-color: #ffffff;
   /* padding: 24rpx 32rpx; */
-  border-bottom: 1rpx solid #f0f0f0;
+  /* border-bottom: 1rpx solid #f0f0f0; */
 }
 
 /* 筛选按钮 */
@@ -35,6 +35,19 @@
   min-height: 44rpx;
   padding: 0 32rpx 0 16rpx;
   margin-right: 0;
+  position: relative; /* 添加相对定位，用于放置筛选指示点 */
+}
+
+/* 筛选指示点 - 蓝色圆点 */
+.filter-indicator {
+  position: absolute;
+  top: 0;
+  right: 20rpx;
+  width: 16rpx;
+  height: 16rpx;
+  background-color: #1b68de;
+  border-radius: 50%;
+  border: 2rpx solid #ffffff;
 }
 
 /* 筛选图标特殊处理 - 解决iOS真机显示问题 */
@@ -80,7 +93,7 @@
 .stats-number {
   font-size: 40rpx;
   font-weight: bold;
-  color: #303133;
+  color: #606266;
   line-height: 1;
 }
 
@@ -627,45 +640,4 @@
 .van-button--primary:active {
   background-color: #1454c7;
   border-color: #1454c7;
-}
-
-/* 深色模式适配 */
-@media (prefers-color-scheme: dark) {
-  .history-page {
-    background-color: #1a1a1a;
-  }
-
-  .page-header {
-    background-color: #2a2a2a;
-  }
-
-  .search-container,
-  .stats-container,
-  .task-card,
-  .filter-popup,
-  .detail-popup {
-    background-color: #2a2a2a;
-    border-color: #3a3a3a;
-  }
-
-  .type-text,
-  .detail-title,
-  .filter-title,
-  .detail-value,
-  .file-name {
-    color: #ffffff;
-  }
-
-  .info-text,
-  .time-value,
-  .expected-value,
-  .detail-description {
-    color: #cccccc;
-  }
-
-  .time-label,
-  .expected-label,
-  .detail-label {
-    color: #999999;
-  }
 }

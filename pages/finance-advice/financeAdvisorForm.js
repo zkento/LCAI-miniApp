@@ -7,7 +7,6 @@ Page({
       requirements: '',  // 需求描述
       name: '',          // 客户姓名
       businessArea: [],   // 业务地区
-      creditReport: ''   // 征信报告分析结果
     },
     
     // 关键词提取状态
@@ -26,6 +25,35 @@ Page({
     // 滚动位置
     scrollTop: 0,
     scrollIntoView: '',
+    
+    // 征信报告弹层相关
+    showCreditReportPopup: false,
+    selectedPersonalTask: null,
+    selectedEnterpriseTask: null,
+    
+    // 征信报告列表数据
+    creditReportList: [],
+    displayedCreditReportList: [], // 当前显示的数据
+    tableDataLoading: false,
+    refreshing: false,
+    searchForm: {
+      customerName: '',
+      taskResults: '已出结果'
+    },
+    
+    // 下拉菜单选项
+    dropdownOptions: [
+      { text: '全部状态', value: '' },
+      { text: '已出结果', value: '已出结果' },
+      { text: '进行中', value: '进行中' },
+      { text: '排队中', value: '排队中' },
+      { text: '任务失败', value: '任务失败' },
+      { text: '已取消', value: '已取消' }
+    ],
+    
+    // 无限滚动相关
+    loadSize: 20, // 每次加载20条
+    hasMore: true, // 是否还有更多数据
     
     // 省份选项
     provinceOptions: [
@@ -119,43 +147,15 @@ Page({
     selectedAreaText: '',
     cascaderValue: '',
     
-    // 征信报告弹层相关
-    showCreditReportPopup: false,
-    selectedPersonalTask: null,
-    selectedEnterpriseTask: null,
-
-    // 征信报告列表数据
-    creditReportList: [],
-    filteredCreditReportList: [],
-    paginatedCreditReportList: [],
-    searchForm: {
-      customerName: '',
-      taskResults: '已出结果'
-    },
-    taskResultOptions: [
-      { text: '已出结果', value: '已出结果' },
-      { text: '进行中...', value: '进行中...' },
-      { text: '排队中...', value: '排队中...' },
-      { text: '任务失败', value: '任务失败' },
-      { text: '已取消', value: '已取消' }
-    ],
-
-    // 下拉菜单选项
-    dropdownOptions: [
-      { text: '全部状态', value: '' },
-      { text: '已出结果', value: '已出结果' },
-      { text: '进行中', value: '进行中' },
-      { text: '排队中', value: '排队中' },
-      { text: '任务失败', value: '任务失败' },
-      { text: '已取消', value: '已取消' }
-    ],
-    tableDataLoading: false,
-    refreshing: false,
-
-    // 无限滚动相关
-    displayedCreditReportList: [], // 当前显示的数据
-    loadSize: 20, // 每次加载20条
-    hasMore: true, // 是否还有更多数据
+    // 征信报告相关功能
+    creditReportList: [], // 征信报告列表
+    filteredCreditReportList: [], // 筛选后的征信报告列表
+    showCreditReportSelector: false, // 是否显示征信报告选择器
+    creditReportSearchKeyword: '', // 征信报告搜索关键词
+    creditReportFilterStatus: '', // 征信报告筛选状态
+    selectedCreditReportId: '', // 选中的征信报告ID
+    selectedPersonalTask: null, // 选中的个人征信任务
+    selectedEnterpriseTask: null, // 选中的企业征信任务
     
     // 提取任务控制
     extractionTaskId: 0,
@@ -164,7 +164,20 @@ Page({
     // 窗口信息
     windowWidth: 0,
     windowHeight: 0,
-    scrollViewHeight: 'auto'
+    scrollViewHeight: 'auto',
+
+    // 状态选项
+    statusOptions: [
+      { text: '全部状态', value: '' },
+      { text: '已出结果', value: 'completed' },
+      { text: '进行中', value: 'processing' },
+      { text: '排队中', value: 'waiting' },
+      { text: '任务失败', value: 'failed' },
+      { text: '已取消', value: 'cancelled' }
+    ],
+
+    // 状态下拉菜单状态
+    showStatusDropdown: false
   },
 
   onLoad() {
@@ -180,17 +193,12 @@ Page({
         windowWidth: res.windowWidth,
         windowHeight: res.windowHeight
       });
-
-
     } catch (error) {
       console.error('获取系统信息失败:', error);
     }
     
     // 获取历史任务数据
     this.fetchHistoryList();
-
-    // 预加载征信报告数据（后台加载，不显示loading）
-    this.preloadCreditReportData();
   },
 
   onReady() {
@@ -226,38 +234,611 @@ Page({
       );
 
       this.setData({
-        creditReportList: creditReportTasks
+        creditReportList: creditReportTasks,
+        filteredCreditReportList: creditReportTasks
       });
     } catch (error) {
       console.error('获取历史任务数据失败:', error);
       // 如果获取失败，使用空数组
       this.setData({
-        creditReportList: []
+        creditReportList: [],
+        filteredCreditReportList: []
       });
     }
   },
 
-  // 预加载征信报告数据
-  async preloadCreditReportData() {
+  // 征信报告分析结果选择器
+  openCreditReportSelector() {
+    if (this.data.isExtractingKeywords) {
+      wx.showToast({
+        title: '正在提取关键词，请稍后',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    this.setData({
+      showCreditReportPopup: true
+    });
+    
+    // 禁止背景滚动
+    this.disableBackgroundScroll();
+    
+    // 初始化数据
+    this.initCreditReportData();
+  },
+  
+  // 关闭征信报告选择器
+  closeCreditReportPopup() {
+    this.setData({
+      showCreditReportPopup: false
+    });
+    
+    // 恢复背景滚动
+    this.enableBackgroundScroll();
+  },
+  
+  // 显示弹层信息
+  showPopupInfo() {
+    wx.showModal({
+      title: '提示',
+      content: '可选择征信报告分析结果与融资需求关键词一并交给AI以获得更精准的融资建议；最多只能同时选择一份个人和（或）一份企业征信报告分析结果。',
+      showCancel: false,
+      confirmText: '知道了'
+    });
+  },
+  
+  // 初始化征信报告数据
+  async initCreditReportData() {
+    this.setData({
+      tableDataLoading: true
+    });
+
     try {
+      // 使用历史服务获取数据
       await historyService.init();
       const historyData = await historyService.getHistoryList();
-
+      
       // 筛选征信报告相关的任务
       const creditReportTasks = historyData.filter(item =>
         item && item.type && (item.type.includes('个人征信') || item.type.includes('企业征信'))
       ).map(item => ({
         ...item,
-        isSelected: false
+        isSelected: false, // 添加选中状态
+        statusClass: this.getStatusClass(item.result) // 添加状态样式类
       }));
-
+      
       this.setData({
-        creditReportList: creditReportTasks
+        creditReportList: creditReportTasks,
+        tableDataLoading: false
       });
+      
+      this.filterAndPaginateData();
     } catch (error) {
-      console.error('预加载征信报告数据失败:', error);
-      // 静默失败，不影响用户体验
+      console.error('初始化征信报告数据失败:', error);
+      this.setData({
+        creditReportList: [],
+        tableDataLoading: false
+      });
     }
+  },
+  
+  // 筛选和分页数据
+  filterAndPaginateData() {
+    let filtered = this.data.creditReportList.filter(item => {
+      // 筛选客户姓名
+      if (this.data.searchForm.customerName &&
+          !item.customerName.includes(this.data.searchForm.customerName)) {
+        return false;
+      }
+      
+      // 筛选任务结果
+      if (this.data.searchForm.taskResults &&
+          item.result !== this.data.searchForm.taskResults) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    // 重置显示数据，加载前20条
+    const initialData = filtered.slice(0, this.data.loadSize);
+    
+    // 预处理数据，添加UI状态
+    const displayedWithSelection = initialData.map(item => {
+      let isSelected = false;
+      let isDisabled = this.isCheckboxDisabled(item);
+      
+      if (item.type.includes('个人征信') && this.data.selectedPersonalTask) {
+        isSelected = item.id === this.data.selectedPersonalTask.id;
+      } else if (item.type.includes('企业征信') && this.data.selectedEnterpriseTask) {
+        isSelected = item.id === this.data.selectedEnterpriseTask.id;
+      }
+      
+        return {
+          ...item,
+        isSelected,
+        isDisabled
+        };
+      });
+      
+      this.setData({
+      displayedCreditReportList: displayedWithSelection,
+      hasMore: filtered.length > this.data.loadSize
+    });
+  },
+  
+  // 加载更多数据
+  loadMoreData() {
+    const { creditReportList, displayedCreditReportList, loadSize, searchForm } = this.data;
+    
+    if (!this.data.hasMore) {
+      return;
+    }
+    
+    // 筛选数据
+    let filtered = creditReportList.filter(item => {
+      // 筛选客户姓名
+      if (searchForm.customerName &&
+          !item.customerName.includes(searchForm.customerName)) {
+        return false;
+      }
+      
+      // 筛选任务结果
+      if (searchForm.taskResults &&
+          item.result !== searchForm.taskResults) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    const currentLength = displayedCreditReportList.length;
+    const nextData = filtered.slice(currentLength, currentLength + loadSize);
+    
+    if (nextData.length === 0) {
+      this.setData({
+        hasMore: false
+      });
+      return;
+    }
+    
+    // 预处理新数据
+    const newDataWithSelection = nextData.map(item => {
+      let isSelected = false;
+      let isDisabled = this.isCheckboxDisabled(item);
+      
+      if (item.type.includes('个人征信') && this.data.selectedPersonalTask) {
+        isSelected = item.id === this.data.selectedPersonalTask.id;
+      } else if (item.type.includes('企业征信') && this.data.selectedEnterpriseTask) {
+        isSelected = item.id === this.data.selectedEnterpriseTask.id;
+      }
+      
+      return {
+        ...item,
+        isSelected,
+        isDisabled
+      };
+    });
+    
+    this.setData({
+      displayedCreditReportList: displayedCreditReportList.concat(newDataWithSelection),
+      hasMore: currentLength + nextData.length < filtered.length
+    });
+  },
+  
+  // 检查复选框是否应该禁用
+  isCheckboxDisabled(item) {
+    if (!item || item.result !== '已出结果') return true;
+    
+    // 如果是个人征信报告，且已经选择了另一个个人征信报告
+    if (item.type.includes('个人征信') &&
+        this.data.selectedPersonalTask &&
+        this.data.selectedPersonalTask.id !== item.id) {
+      return true;
+    }
+    
+    // 如果是企业征信报告，且已经选择了另一个企业征信报告
+    if (item.type.includes('企业征信') &&
+        this.data.selectedEnterpriseTask &&
+        this.data.selectedEnterpriseTask.id !== item.id) {
+      return true;
+    }
+    
+    return false;
+  },
+  
+  // 获取状态样式类名
+  getStatusClass(status) {
+    if (!status) return 'status-tag-default';
+    if (status.includes('已出结果')) return 'status-tag-completed';
+    if (status.includes('进行中')) return 'status-tag-processing';
+    if (status.includes('排队中')) return 'status-tag-waiting';
+    if (status.includes('失败')) return 'status-tag-failed';
+    if (status.includes('取消')) return 'status-tag-cancelled';
+    return 'status-tag-default';
+  },
+  
+  // 搜索相关方法
+  onCustomerNameChange(e) {
+    this.setData({
+      'searchForm.customerName': e.detail
+    }, () => {
+      // 实时搜索
+      this.filterAndPaginateData();
+    });
+  },
+  
+  onClearCustomerName() {
+    this.setData({
+      'searchForm.customerName': ''
+    }, () => {
+      // 清除搜索关键词后立即应用筛选
+      this.filterAndPaginateData();
+    });
+  },
+  
+  onSearch() {
+    // 由于已经在输入变化时进行了搜索，这里不需要额外操作
+    // 可以关闭键盘
+    wx.hideKeyboard();
+  },
+  
+  onTaskResultChange(event) {
+    this.setData({
+      'searchForm.taskResults': event.detail
+    });
+    this.filterAndPaginateData();
+  },
+  
+  // 刷新列表
+  async onRefresh() {
+    this.setData({
+      refreshing: true
+    });
+    
+    try {
+      // 强制刷新数据
+      await historyService.init();
+      const historyData = await historyService.getHistoryList(true);
+      
+      // 筛选征信报告相关的任务
+      const creditReportTasks = historyData.filter(item =>
+        item && item.type && (item.type.includes('个人征信') || item.type.includes('企业征信'))
+      ).map(item => ({
+        ...item,
+        isSelected: false,
+        statusClass: this.getStatusClass(item.result)
+      }));
+      
+      this.setData({
+        creditReportList: creditReportTasks,
+        refreshing: false
+      });
+      
+      this.filterAndPaginateData();
+    } catch (error) {
+      console.error('刷新数据失败:', error);
+      this.setData({
+        refreshing: false
+      });
+    }
+  },
+  
+  // 滚动到顶部加载更多
+  onScrollToUpper() {
+    this.loadMoreData();
+  },
+  
+  // 任务选择相关方法
+  onTaskSelect(e) {
+    const item = e.currentTarget.dataset.item;
+    const isSelected = e.detail;
+    
+    this.handleTaskSelection(item, isSelected);
+  },
+  
+  handleTaskSelection(item, isSelected) {
+    if (!item || !item.type) return;
+    
+    // 处理个人征信报告选择
+    if (item.type.includes('个人征信')) {
+      if (isSelected) {
+        this.setData({
+          selectedPersonalTask: { ...item }
+        });
+      } else if (this.data.selectedPersonalTask &&
+                 this.data.selectedPersonalTask.id === item.id) {
+        this.setData({
+          selectedPersonalTask: null
+        });
+      }
+    }
+    
+    // 处理企业征信报告选择
+    if (item.type.includes('企业征信')) {
+      if (isSelected) {
+        this.setData({
+          selectedEnterpriseTask: { ...item }
+        });
+      } else if (this.data.selectedEnterpriseTask &&
+                 this.data.selectedEnterpriseTask.id === item.id) {
+        this.setData({
+          selectedEnterpriseTask: null
+        });
+      }
+    }
+    
+    // 更新列表中的选中状态
+    this.updateListSelectionState();
+  },
+  
+  // 更新列表选中状态
+  updateListSelectionState() {
+    const updatedList = this.data.displayedCreditReportList.map(item => {
+      let isSelected = false;
+      let isDisabled = this.isCheckboxDisabled(item);
+      
+      if (item.type.includes('个人征信') && this.data.selectedPersonalTask) {
+        isSelected = item.id === this.data.selectedPersonalTask.id;
+      } else if (item.type.includes('企业征信') && this.data.selectedEnterpriseTask) {
+        isSelected = item.id === this.data.selectedEnterpriseTask.id;
+      }
+      
+      return { ...item, isSelected, isDisabled };
+    });
+    
+    this.setData({
+      displayedCreditReportList: updatedList
+    });
+  },
+  
+  // 处理卡片点击
+  onTaskCardTap(e) {
+    const item = e.currentTarget.dataset.item;
+    if (!item || item.isDisabled) return;
+    
+    // 切换选中状态
+    this.handleTaskSelection(item, !item.isSelected);
+  },
+  
+  // 查看任务结果
+  onViewResult(e) {
+    console.log('查看任务结果', e);
+    // 微信小程序中没有stopPropagation方法，应该在WXML中使用catchtap
+    
+    const item = e.currentTarget.dataset.item;
+    console.log('任务项数据:', item);
+    
+    if (!item || !item.id) {
+      console.error('任务信息不完整:', item);
+      wx.showToast({
+        title: '任务信息不完整',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 不再关闭征信报告选择器弹层，直接跳转
+    // this.closeCreditReportPopup();
+    
+    // 跳转到任务结果页面，并传递hideShareButton=true参数，表示从查看结果按钮进入
+    const url = `/pages/task-result/task-result?id=${item.id}&type=${encodeURIComponent(item.type)}&hideShareButton=true`;
+    
+    wx.navigateTo({
+      url: url,
+      success: () => {
+        console.log('跳转成功');
+      },
+      fail: (err) => {
+        console.error('跳转失败:', err);
+        wx.showToast({
+          title: '页面跳转失败',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  // 取消任务
+  onCancelTask(e) {
+    console.log('取消任务', e);
+    // 微信小程序中没有stopPropagation方法，应该在WXML中使用catchtap
+    // e.stopPropagation(); // 这行代码导致错误，移除
+    
+    const item = e.currentTarget.dataset.item;
+    console.log('要取消的任务:', item);
+    
+    if (!item || !item.id) {
+      wx.showToast({
+        title: '任务信息不完整',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 显示确认对话框
+    wx.showModal({
+      title: '确认取消',
+      content: '确定要取消此任务吗？',
+      success: (res) => {
+        if (res.confirm) {
+          // 模拟取消任务
+          wx.showLoading({
+            title: '取消中...',
+          });
+          
+          setTimeout(() => {
+            wx.hideLoading();
+            wx.showToast({
+              title: '任务已取消',
+              icon: 'success'
+            });
+            
+            // 刷新列表
+            this.initCreditReportData();
+          }, 1000);
+        }
+      }
+    });
+  },
+  
+  // 查看失败原因
+  onShowFailReason(e) {
+    const item = e.currentTarget.dataset.item;
+    wx.showModal({
+      title: '失败原因',
+      content: item.content || '未知原因',
+      showCancel: false
+    });
+  },
+
+  // 关闭征信报告选择器
+  onCloseCreditReportSelector() {
+    this.setData({
+      showCreditReportSelector: false,
+      showStatusDropdown: false
+    });
+  },
+
+  // 切换状态下拉菜单
+  toggleStatusDropdown() {
+    this.setData({
+      showStatusDropdown: !this.data.showStatusDropdown
+    });
+  },
+
+  // 选择状态筛选
+  selectStatusFilter(e) {
+    const status = e.currentTarget.dataset.status;
+    this.setData({
+      creditReportFilterStatus: status,
+      showStatusDropdown: false
+    });
+    this.filterCreditReportList();
+  },
+
+  // 阻止弹层内容滚动穿透
+  preventTouchMove() {
+    return false;
+  },
+
+  // 征信报告搜索
+  onCreditReportSearchChange(e) {
+    const keyword = e.detail;
+    this.setData({
+      creditReportSearchKeyword: keyword
+    });
+    this.filterCreditReportList();
+  },
+
+  // 清除征信报告搜索
+  onCreditReportSearchClear() {
+    this.setData({
+      creditReportSearchKeyword: ''
+    });
+    this.filterCreditReportList();
+  },
+
+  // 征信报告状态筛选 - 下拉菜单方式
+  onCreditReportFilterChange(e) {
+    this.setData({
+      creditReportFilterStatus: e.detail
+    });
+    this.filterCreditReportList();
+  },
+
+  // 查看征信报告结果
+  viewCreditReportResult(e) {
+    const id = e.currentTarget.dataset.id;
+    // 选中当前项
+    this.setData({
+      selectedCreditReportId: id
+    });
+    // 自动确认选择
+    this.onConfirmCreditReportSelect();
+  },
+
+  // 筛选征信报告列表
+  filterCreditReportList() {
+    const { creditReportList, creditReportSearchKeyword, creditReportFilterStatus } = this.data;
+    let filtered = [...creditReportList];
+    
+    // 按关键词筛选
+    if (creditReportSearchKeyword) {
+      const keyword = creditReportSearchKeyword.toLowerCase();
+      filtered = filtered.filter(item => 
+        item.customerName && item.customerName.toLowerCase().includes(keyword)
+      );
+    }
+    
+    // 按状态筛选
+    if (creditReportFilterStatus) {
+      // 状态映射
+      const statusMap = {
+        'completed': '已出结果',
+        'processing': '进行中',
+        'waiting': '排队中',
+        'failed': '任务失败',
+        'cancelled': '已取消'
+      };
+      
+      filtered = filtered.filter(item => item.result && item.result.includes(statusMap[creditReportFilterStatus]));
+    }
+    
+    // 添加状态类名
+    filtered = filtered.map(item => {
+      let statusClass = 'status-tag-default';
+      if (item.result) {
+        if (item.result.includes('已出结果')) {
+          statusClass = 'status-tag-completed';
+        } else if (item.result.includes('进行中')) {
+          statusClass = 'status-tag-processing';
+        } else if (item.result.includes('排队中')) {
+          statusClass = 'status-tag-waiting';
+        } else if (item.result.includes('任务失败')) {
+          statusClass = 'status-tag-failed';
+        } else if (item.result.includes('已取消')) {
+          statusClass = 'status-tag-cancelled';
+        }
+      }
+      return { ...item, statusClass };
+    });
+    
+    this.setData({
+      filteredCreditReportList: filtered
+    });
+  },
+
+  // 选择征信报告
+  onCreditReportSelect(e) {
+    this.setData({
+      selectedCreditReportId: e.detail.value
+    });
+  },
+
+  // 确认选择征信报告
+  onConfirmCreditReportSelect() {
+    const { selectedCreditReportId, creditReportList } = this.data;
+    if (!selectedCreditReportId) return;
+    
+    const selectedTask = creditReportList.find(item => item.id === selectedCreditReportId);
+    if (!selectedTask) return;
+    
+    // 根据类型设置不同的选中任务
+    if (selectedTask.type.includes('个人征信')) {
+      this.setData({
+        selectedPersonalTask: selectedTask,
+        selectedEnterpriseTask: null
+      });
+    } else if (selectedTask.type.includes('企业征信')) {
+      this.setData({
+        selectedPersonalTask: null,
+        selectedEnterpriseTask: selectedTask
+      });
+    }
+    
+    this.onCloseCreditReportSelector();
   },
 
   // 需求描述输入处理
@@ -583,14 +1164,17 @@ Page({
     // 构建提交的数据
     const submitData = {
       ...this.data.formData,
-      aiKeywords: this.data.aiKeywords,
-      // 添加征信报告详细信息
-      selectedCreditReports: {
-        personalTask: this.data.selectedPersonalTask,
-        enterpriseTask: this.data.selectedEnterpriseTask,
-        hasSelectedReports: this.data.selectedPersonalTask !== null || this.data.selectedEnterpriseTask !== null
-      }
+      aiKeywords: this.data.aiKeywords
     };
+    
+    // 添加征信报告数据（如果有）
+    if (this.data.selectedPersonalTask) {
+      submitData.personalCreditTask = this.data.selectedPersonalTask;
+    }
+    
+    if (this.data.selectedEnterpriseTask) {
+      submitData.enterpriseCreditTask = this.data.selectedEnterpriseTask;
+    }
     
     // 保存到全局数据
     const app = getApp();
@@ -669,15 +1253,14 @@ Page({
         requirements: '',
         name: '',
         businessArea: [],
-        businessAreaText: '',
-        creditReport: ''
+        businessAreaText: ''
       },
       selectedAreaText: '',
-      cascaderValue: ''
+      cascaderValue: '',
+      selectedPersonalTask: null,
+      selectedEnterpriseTask: null,
+      selectedCreditReportId: ''
     });
-    
-    // 清空选中的征信报告
-    this.clearSelectedCreditReport();
     
     // 重置关键词相关状态
     this.resetExtractionState();
@@ -689,561 +1272,6 @@ Page({
 
     wx.setClipboardData({
       data: exampleText
-    });
-  },
-
-  // 征信报告弹层相关方法
-  openCreditReportPopup() {
-    if (this.data.isExtractingKeywords) {
-      wx.showToast({
-        title: '正在提取关键词，请稍后',
-        icon: 'none'
-      });
-      return;
-    }
-
-    // 触觉反馈
-    wx.vibrateShort({
-      type: 'light'
-    }).catch(() => {
-      // 静默处理振动失败
-    });
-
-    this.setData({
-      showCreditReportPopup: true
-    });
-
-    // 禁止背景滚动
-    this.disableBackgroundScroll();
-
-    // 初始化数据
-    this.initCreditReportData();
-  },
-
-  closeCreditReportPopup() {
-    // 添加关闭动画延迟
-    setTimeout(() => {
-      this.setData({
-        showCreditReportPopup: false
-      });
-
-      // 恢复背景滚动
-      this.enableBackgroundScroll();
-
-      // 确保选择结果同步到主表单
-      this.updateCreditReportText();
-    }, 100);
-  },
-
-  showPopupInfo() {
-    wx.showModal({
-      title: '提示',
-      content: '可选择征信报告分析结果与融资需求关键词一并交给AI以获得更精准的融资建议；最多只能同时选择一份个人和（或）一份企业征信报告分析结果。',
-      showCancel: false,
-      confirmText: '知道了'
-    });
-  },
-
-  clearSelectedCreditReport() {
-    this.setData({
-      selectedPersonalTask: null,
-      selectedEnterpriseTask: null,
-      'formData.creditReport': ''
-    });
-  },
-
-  // 初始化征信报告数据
-  async initCreditReportData() {
-    this.setData({
-      tableDataLoading: true
-    });
-
-    try {
-      // 使用历史服务获取数据
-      await historyService.init();
-      const historyData = await historyService.getHistoryList();
-
-      // 筛选征信报告相关的任务
-      const creditReportTasks = historyData.filter(item =>
-        item && item.type && (item.type.includes('个人征信') || item.type.includes('企业征信'))
-      ).map(item => ({
-        ...item,
-        isSelected: false // 添加选中状态
-      }));
-
-      this.setData({
-        creditReportList: creditReportTasks,
-        tableDataLoading: false
-      });
-
-
-      this.filterAndPaginateData();
-    } catch (error) {
-      console.error('初始化征信报告数据失败:', error);
-      this.setData({
-        creditReportList: [],
-        tableDataLoading: false
-      });
-
-      // 显示错误提示并提供重试选项
-      wx.showModal({
-        title: '加载失败',
-        content: '获取征信报告数据失败，是否重试？',
-        confirmText: '重试',
-        cancelText: '取消',
-        success: (res) => {
-          if (res.confirm) {
-            this.initCreditReportData();
-          }
-        }
-      });
-    }
-  },
-
-  // 筛选和无限滚动数据
-  filterAndPaginateData() {
-    let filtered = this.data.creditReportList.filter(item => {
-      // 筛选客户姓名
-      if (this.data.searchForm.customerName &&
-          !item.customerName.includes(this.data.searchForm.customerName)) {
-        return false;
-      }
-
-      // 筛选任务结果
-      if (this.data.searchForm.taskResults &&
-          item.result !== this.data.searchForm.taskResults) {
-        return false;
-      }
-
-      return true;
-    });
-
-    // 重置显示数据，加载前20条
-    const initialData = filtered.slice(0, this.data.loadSize);
-
-    // 预处理数据，添加UI状态
-    const displayedWithSelection = initialData.map(item => {
-      let isSelected = false;
-      let isDisabled = this.isCheckboxDisabled(item);
-      let statusClass = this.getStatusClass(item.result);
-
-      if (item.type.includes('个人征信') && this.data.selectedPersonalTask) {
-        isSelected = item.id === this.data.selectedPersonalTask.id;
-      } else if (item.type.includes('企业征信') && this.data.selectedEnterpriseTask) {
-        isSelected = item.id === this.data.selectedEnterpriseTask.id;
-      }
-
-      return {
-        ...item,
-        isSelected,
-        isDisabled,
-        statusClass
-      };
-    });
-
-    this.setData({
-      filteredCreditReportList: filtered,
-      displayedCreditReportList: displayedWithSelection,
-      hasMore: filtered.length > this.data.loadSize
-    });
-  },
-
-  // 加载更多数据
-  loadMoreData() {
-    const { filteredCreditReportList, displayedCreditReportList, loadSize } = this.data;
-
-    if (!this.data.hasMore) {
-      return;
-    }
-
-    const currentLength = displayedCreditReportList.length;
-    const nextData = filteredCreditReportList.slice(currentLength, currentLength + loadSize);
-
-    if (nextData.length === 0) {
-      this.setData({
-        hasMore: false
-      });
-      return;
-    }
-
-    // 预处理新数据
-    const newDataWithSelection = nextData.map(item => {
-      let isSelected = false;
-      let isDisabled = this.isCheckboxDisabled(item);
-      let statusClass = this.getStatusClass(item.result);
-
-      if (item.type.includes('个人征信') && this.data.selectedPersonalTask) {
-        isSelected = item.id === this.data.selectedPersonalTask.id;
-      } else if (item.type.includes('企业征信') && this.data.selectedEnterpriseTask) {
-        isSelected = item.id === this.data.selectedEnterpriseTask.id;
-      }
-
-      return {
-        ...item,
-        isSelected,
-        isDisabled,
-        statusClass
-      };
-    });
-
-    this.setData({
-      displayedCreditReportList: displayedCreditReportList.concat(newDataWithSelection),
-      hasMore: currentLength + nextData.length < filteredCreditReportList.length
-    });
-  },
-
-  // 滚动到顶部加载更多
-  onScrollToUpper() {
-    if (!this.data.isLoading) {
-      this.loadMoreData();
-    }
-  },
-
-  // 搜索相关方法
-  onCustomerNameChange(e) {
-    this.setData({
-      'searchForm.customerName': e.detail
-    }, () => {
-      // 实时搜索
-      this.filterAndPaginateData();
-    });
-  },
-
-  onClearCustomerName() {
-    this.setData({
-      'searchForm.customerName': ''
-    }, () => {
-      // 清除搜索关键词后立即应用筛选
-      this.filterAndPaginateData();
-    });
-  },
-
-  onSearch() {
-    // 由于已经在输入变化时进行了搜索，这里不需要额外操作
-    // 可以关闭键盘
-    wx.hideKeyboard();
-  },
-
-  onTaskResultChange(event) {
-    this.setData({
-      'searchForm.taskResults': event.detail
-    });
-    this.filterAndPaginateData();
-
-    // 筛选变化后重新计算定位（延迟执行，确保DOM更新完成）
-    setTimeout(() => {
-      this.calculateDropdownPosition();
-    }, 100);
-  },
-
-  // 计算下拉菜单定位
-  calculateDropdownPosition() {
-    try {
-      const query = wx.createSelectorQuery().in(this);
-
-      // 获取搜索容器的位置和尺寸
-      query.select('.search-container').boundingClientRect();
-
-      query.exec((res) => {
-        if (res[0]) {
-          const searchContainer = res[0];
-          const systemInfo = wx.getSystemInfoSync();
-
-          // 计算下拉面板应该显示的位置
-          // 下拉面板的 top 值 = 搜索容器的 bottom 位置
-          const dropdownTop = searchContainer.bottom;
-
-          // 转换为 rpx 单位（微信小程序的设计稿宽度为750rpx）
-          const dropdownTopRpx = Math.round(dropdownTop * 750 / systemInfo.windowWidth);
-
-          // 设置下拉面板的定位样式，确保无缝连接
-          // 减去1rpx确保完全无缝连接
-          const adjustedTopRpx = dropdownTopRpx - 1;
-          const popupStyle = `position: fixed; top: ${adjustedTopRpx}rpx; left: 0; right: 0; width: 100%; z-index: 1000; margin: 0; padding: 0;`;
-
-          this.setData({
-            dropdownPopupStyle: popupStyle
-          });
-
-          console.log('下拉菜单定位计算:', {
-            searchContainer: {
-              top: searchContainer.top,
-              bottom: searchContainer.bottom,
-              height: searchContainer.height
-            },
-            dropdownTop,
-            dropdownTopRpx,
-            adjustedTopRpx,
-            popupStyle,
-            windowWidth: systemInfo.windowWidth,
-            windowHeight: systemInfo.windowHeight
-          });
-        }
-      });
-    } catch (error) {
-      console.error('计算下拉菜单定位失败:', error);
-      // 使用默认定位
-      this.setData({
-        dropdownPopupStyle: 'position: fixed; top: 200rpx; left: 0; right: 0; width: 100%; z-index: 1000;'
-      });
-    }
-  },
-
-  onResetSearch() {
-    this.setData({
-      'searchForm.customerName': '',
-      'searchForm.taskResults': ''
-    });
-    this.filterAndPaginateData();
-  },
-
-  async onRefresh() {
-    this.setData({
-      refreshing: true
-    });
-
-    try {
-      // 强制刷新数据
-      const historyData = await historyService.getHistoryList(true);
-
-      // 筛选征信报告相关的任务
-      const creditReportTasks = historyData.filter(item =>
-        item && item.type && (item.type.includes('个人征信') || item.type.includes('企业征信'))
-      ).map(item => ({
-        ...item,
-        isSelected: false
-      }));
-
-      this.setData({
-        creditReportList: creditReportTasks,
-        refreshing: false
-      });
-
-      this.filterAndPaginateData();
-    } catch (error) {
-      console.error('刷新数据失败:', error);
-      this.setData({
-        refreshing: false
-      });
-
-      // 根据错误类型显示不同的提示
-      const errorMessage = error.message || '刷新失败';
-      if (errorMessage.includes('网络')) {
-        wx.showModal({
-          title: '网络错误',
-          content: '网络连接异常，请检查网络后重试',
-          showCancel: false,
-          confirmText: '知道了'
-        });
-      } else {
-        wx.showToast({
-          title: '刷新失败，请重试',
-          icon: 'none'
-        });
-      }
-    }
-  },
-
-
-
-  // 任务选择相关方法
-  onTaskSelect(e) {
-    const item = e.currentTarget.dataset.item;
-    const isSelected = e.detail;
-
-    this.handleTaskSelection(item, isSelected);
-  },
-
-  handleTaskSelection(item, isSelected) {
-    if (!item || !item.type) return;
-
-    // 触觉反馈
-    wx.vibrateShort({
-      type: 'light'
-    });
-
-    // 处理个人征信报告选择
-    if (item.type.includes('个人征信')) {
-      if (isSelected) {
-        this.setData({
-          selectedPersonalTask: { ...item }
-        });
-      } else if (this.data.selectedPersonalTask &&
-                 this.data.selectedPersonalTask.id === item.id) {
-        this.setData({
-          selectedPersonalTask: null
-        });
-      }
-    }
-
-    // 处理企业征信报告选择
-    if (item.type.includes('企业征信')) {
-      if (isSelected) {
-        this.setData({
-          selectedEnterpriseTask: { ...item }
-        });
-      } else if (this.data.selectedEnterpriseTask &&
-                 this.data.selectedEnterpriseTask.id === item.id) {
-        this.setData({
-          selectedEnterpriseTask: null
-        });
-      }
-    }
-
-    // 更新表单数据
-    this.updateCreditReportText();
-
-    // 更新列表中的选中状态
-    this.updateListSelectionState();
-
-    // 显示选择反馈
-    if (isSelected) {
-      wx.showToast({
-        title: '已选择',
-        icon: 'success',
-        duration: 1000
-      });
-    }
-  },
-
-  updateCreditReportText() {
-    let text = '';
-    if (this.data.selectedPersonalTask && this.data.selectedEnterpriseTask) {
-      text = '已选择个人和企业的征信报告分析结果';
-    } else if (this.data.selectedPersonalTask) {
-      text = `已选择"${this.data.selectedPersonalTask.customerName}"的"个人征信报告分析结果"`;
-    } else if (this.data.selectedEnterpriseTask) {
-      text = `已选择"${this.data.selectedEnterpriseTask.customerName}"的"企业征信报告分析结果"`;
-    }
-
-    this.setData({
-      'formData.creditReport': text
-    });
-  },
-
-  updateListSelectionState() {
-    // 更新完整列表的选中状态
-    const updatedCreditReportList = this.data.creditReportList.map(item => {
-      let isSelected = false;
-
-      if (item.type.includes('个人征信') && this.data.selectedPersonalTask) {
-        isSelected = item.id === this.data.selectedPersonalTask.id;
-      } else if (item.type.includes('企业征信') && this.data.selectedEnterpriseTask) {
-        isSelected = item.id === this.data.selectedEnterpriseTask.id;
-      }
-
-      return { ...item, isSelected };
-    });
-
-    this.setData({
-      creditReportList: updatedCreditReportList
-    });
-
-    // 重新筛选和分页
-    this.filterAndPaginateData();
-  },
-
-  isCheckboxDisabled(item) {
-    if (!item || item.result !== '已出结果') return true;
-
-    // 如果是个人征信报告，且已经选择了另一个个人征信报告
-    if (item.type.includes('个人征信') &&
-        this.data.selectedPersonalTask &&
-        this.data.selectedPersonalTask.id !== item.id) {
-      return true;
-    }
-
-    // 如果是企业征信报告，且已经选择了另一个企业征信报告
-    if (item.type.includes('企业征信') &&
-        this.data.selectedEnterpriseTask &&
-        this.data.selectedEnterpriseTask.id !== item.id) {
-      return true;
-    }
-
-    return false;
-  },
-
-  // 获取状态样式类名
-  getStatusClass(status) {
-    if (!status) return 'status-tag-default';
-    if (status.includes('已出结果')) return 'status-tag-completed';
-    if (status.includes('进行中')) return 'status-tag-processing';
-    if (status.includes('排队中')) return 'status-tag-waiting';
-    if (status.includes('失败') || status.includes('取消')) return 'status-tag-failed';
-    return 'status-tag-default';
-  },
-
-
-
-  // 处理卡片点击（用于展开详情或其他交互）
-  onTaskCardTap() {
-    // 可以在这里添加卡片点击的逻辑，比如展开详情
-    // 目前暂时不做处理，避免与复选框冲突
-  },
-
-
-
-  getStatusTagType(status) {
-    if (!status) return 'default';
-    if (status.includes('已出结果')) return 'success';
-    if (status.includes('进行中')) return 'primary';
-    if (status.includes('排队中')) return 'warning';
-    if (status.includes('失败') || status.includes('取消')) return 'danger';
-    return 'default';
-  },
-
-  // 操作方法
-  onViewResult(e) {
-    const item = e.currentTarget.dataset.item;
-    // TODO: 实现查看征信报告结果功能
-    console.log('查看征信报告结果:', item);
-    wx.showToast({
-      title: '查看结果功能待实现',
-      icon: 'none'
-    });
-  },
-
-  onCancelTask(e) {
-    const item = e.currentTarget.dataset.item;
-    wx.showModal({
-      title: '取消任务',
-      content: '取消后若再次发起可能要重新排队，是否确认？',
-      success: async (res) => {
-        if (res.confirm) {
-          try {
-            wx.showLoading({
-              title: '取消中...'
-            });
-
-            // 调用历史服务取消任务
-            await historyService.cancelTask(item.id);
-
-            wx.hideLoading();
-            wx.showToast({
-              title: '任务已取消',
-              icon: 'success'
-            });
-
-            // 刷新数据
-            this.initCreditReportData();
-          } catch (error) {
-            wx.hideLoading();
-            wx.showToast({
-              title: '取消失败，请重试',
-              icon: 'none'
-            });
-          }
-        }
-      }
-    });
-  },
-
-  onShowFailReason(e) {
-    const item = e.currentTarget.dataset.item;
-    wx.showModal({
-      title: '失败原因',
-      content: item.content || '未知原因',
-      showCancel: false
     });
   },
 
@@ -1268,6 +1296,11 @@ Page({
   enableBackgroundScroll() {
     // 恢复页面滚动（小程序中通常不需要特殊处理）
     // 这里主要是为了保持代码的完整性
+  },
+  
+  // 阻止弹层内容滚动穿透
+  preventTouchMove() {
+    return false;
   },
 
   onUnload() {
@@ -1305,5 +1338,15 @@ Page({
         }
       });
     }, 500); // 延迟500毫秒执行
+  },
+
+  // 查看任务失败原因
+  onShowFailReason(e) {
+    const item = e.currentTarget.dataset.item;
+    wx.showModal({
+      title: '失败原因',
+      content: item.content || '未知原因',
+      showCancel: false
+    });
   }
 });

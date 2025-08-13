@@ -438,8 +438,165 @@ button[disabled].extract-button, button[disabled].submit-button {
   opacity: 0.6;
 }
 
+/* 征信报告分析结果样式已移除 */
+
+/* 征信报告分析结果选择器相关样式已移除 */
+
+/* 箭头图标样式 */
+.van-cell__right-icon {
+  font-size: 28rpx !important;
+  color: #a8abb2 !important;
+  transition: transform 0.3s ease;
+}
+
+.van-cell__right-icon.is-reverse {
+  transform: rotate(90deg);
+}
+
+/* 清除图标样式 */
+.clear-icon {
+  font-size: 28rpx !important;
+  color: #a8abb2 !important;
+}
+
+/* 保留原有arrow-icon样式以防兼容性问题 */
+.arrow-icon {
+  transition: transform 0.3s ease;
+}
+
+.arrow-icon.is-reverse {
+  transform: rotate(90deg);
+}
+
+/* ================= 征信报告弹层样式已移除 ================= */
+
+/* 征信报告弹层相关组件样式已移除 */
+
+/* 加载更多提示 */
+.load-more-tip {
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 28rpx;
+  color: #909399;
+}
+
+.no-more-tip {
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 28rpx;
+  color: #909399;
+}
+
+/* 查看结果链接 */
+.view-result-link {
+  color: #1b68de;
+  font-size: 28rpx;
+  padding: 8rpx 16rpx;
+  cursor: pointer;
+}
+
+.view-result-link:active {
+  opacity: 0.8;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 自定义加载动画 */
+.custom-loading {
+  display: inline-block;
+  width: 32rpx;
+  height: 32rpx;
+  border: 4rpx solid rgba(27, 104, 222, 0.3);
+  border-radius: 50%;
+  border-top-color: #1b68de;
+  animation: spin 1s linear infinite;
+  margin-right: 12rpx;
+  vertical-align: middle;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 下拉菜单样式覆盖 */
+.dropdown-title {
+  font-size: 28rpx !important;
+  color: #303133 !important;
+}
+
+.dropdown-popup {
+  max-height: 60vh !important;
+}
+
+/* Cascader 组件自定义样式 - 使用 CSS 变量设置主题色，保持原生布局 */
+page {
+  --tabs-bottom-bar-color: #000000;
+  --tab-active-text-color: #1b68de;
+}
+
+.van-cascader__title {
+  color: #303133 !important;
+}
+
+.van-cascader__option--selected {
+  color: #1b68de !important;
+}
+
+.van-cascader__option--selected .van-cascader__selected-icon {
+  color: #1b68de !important;
+}
+
+/* 建议标题样式 */
+.suggestion-title-text {
+  padding: 24rpx 0;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #303133;
+}
+
+/* 建议内容样式 */
+.suggestion-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  padding: 32rpx;
+  margin-bottom: 32rpx;
+  background-color: #fbf8d2;
+  border-radius: 12rpx;
+  overflow: visible;
+  max-height: none;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  line-height: 1.6;
+  font-size: 28rpx;
+  color: #6b6204;
+}
+
+/* 添加征信报告选择器的样式 */
 /* 征信报告分析结果样式 */
-.credit-report-trigger {
+.credit-report-selector {
   position: relative;
   border: 2rpx solid #dcdfe6;
   border-radius: 8rpx;
@@ -453,18 +610,18 @@ button[disabled].extract-button, button[disabled].submit-button {
   align-items: center;
 }
 
-.credit-report-trigger.is-disabled {
+.credit-report-selector.is-disabled {
   background-color: #f5f7fa;
   border-color: #e4e7ed;
 }
 
-/* .credit-report-trigger.has-value {
+/* .credit-report-selector.has-value {
   border-color: #1b68de;
   background-color: #f0f7ff;
   position: relative;
 }
 
-.credit-report-trigger.has-value::after {
+.credit-report-selector.has-value::after {
   content: '';
   position: absolute;
   top: 8rpx;
@@ -491,7 +648,7 @@ button[disabled].extract-button, button[disabled].submit-button {
   }
 }
 
-.credit-report-trigger.is-expanded {
+.credit-report-selector.is-expanded {
   border-color: #1b68de;
 }
 
@@ -529,6 +686,22 @@ button[disabled].extract-button, button[disabled].submit-button {
   font-size: 24rpx;
 }
 
+.credit-report-selector .placeholder-text {
+  color: #c0c4cc;
+}
+
+.credit-report-selector .selected-text {
+  color: #303133;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.credit-report-selector .selector-icon {
+  margin-left: 10rpx;
+}
+
 /* 箭头图标样式 */
 .van-cell__right-icon {
   font-size: 28rpx !important;
@@ -553,6 +726,62 @@ button[disabled].extract-button, button[disabled].submit-button {
 
 .arrow-icon.is-reverse {
   transform: rotate(90deg);
+}
+
+/* ================= 征信报告弹层样式 ================= */
+.credit-report-popup {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #f5f7fa;
+}
+
+/* 征信报告选择器弹层 - 原生实现 */
+.credit-report-selector-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.credit-report-selector-modal.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.credit-report-selector-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+}
+
+.credit-report-selector-modal .credit-report-popup {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 85vh;
+  background-color: #f5f7fa;
+  z-index: 1001;
+  border-radius: 32rpx 32rpx 0 0;
+  overflow: hidden;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.credit-report-selector-modal.show .credit-report-popup {
+  transform: translateY(0);
 }
 
 /* 征信报告历史列表样式 */
@@ -620,6 +849,11 @@ button[disabled].extract-button, button[disabled].submit-button {
   margin-left: 16rpx;
   font-size: 32rpx;
   color: #909399;
+}
+
+.close-icon {
+  padding: 8rpx;
+  opacity: 0.6;
 }
 
 .no-padding {
@@ -718,6 +952,7 @@ page {
   position: sticky;
   top: 0;
   z-index: 1000;
+  height: 100rpx;
 }
 
 .header-left {
@@ -746,6 +981,8 @@ page {
   background-color: #ffffff;
   padding: 24rpx 32rpx;
   border-bottom: 1rpx solid #f0f0f0;
+  position: relative; /* 添加相对定位，作为下拉菜单的参考点 */
+  z-index: 10; /* 确保搜索容器在下拉菜单之上 */
 }
 
 /* 搜索筛选行布局 */
@@ -753,6 +990,7 @@ page {
   display: flex;
   align-items: center;
   gap: 16rpx;
+  position: relative; /* 添加相对定位 */
 }
 
 /* 搜索框容器 */
@@ -769,6 +1007,7 @@ page {
 .filter-dropdown-wrapper {
   flex: 0 0 auto;
   min-width: 160rpx;
+  position: static; /* 改为static，让下拉菜单可以相对于search-container定位 */
 }
 
 /* 列表滚动区域 */
@@ -951,7 +1190,7 @@ page {
 }
 
 /* 空状态 */
-.empty-state {
+.empty-list {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -969,14 +1208,7 @@ page {
   display: block;
   font-size: 28rpx;
   color: #909399;
-  margin-bottom: 32rpx;
   line-height: 1.5;
-}
-
-.reset-search-btn {
-  min-width: 200rpx !important;
-  height: 72rpx !important;
-  font-size: 28rpx !important;
 }
 
 /* 加载状态 */
@@ -1017,6 +1249,7 @@ page {
   --dropdown-menu-title-text-color: #606266;
   --dropdown-menu-title-active-text-color: #1b68de;
   --dropdown-menu-option-active-color: #1b68de;
+  position: static; /* 改为static */
 }
 
 .filter-dropdown-wrapper .van-dropdown-menu__bar {
@@ -1036,6 +1269,12 @@ page {
 /* 针对 DropdownMenu 的弹出层移除全局 van-popup 圆角样式 */
 .filter-dropdown-wrapper .van-dropdown-item .van-popup {
   border-radius: 0 !important;
+  /* 关键修复：确保下拉菜单紧贴搜索容器底部 */
+  top: 100% !important; /* 改为100%，紧贴父元素底部 */
+  position: absolute !important;
+  margin-top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
 }
 
 /* 确保 DropdownMenu 的所有弹出相关元素都没有圆角 */
@@ -1046,6 +1285,10 @@ page {
 /* 针对 DropdownMenu 内部的 van-popup 组件，覆盖全局圆角样式 */
 .filter-dropdown-wrapper .van-dropdown-item .van-popup.van-popup--top {
   border-radius: 0 !important;
+  /* 关键修复：确保下拉菜单紧贴搜索容器底部 */
+  top: 0 !important;
+  position: absolute !important;
+  margin-top: 0 !important;
 }
 
 .filter-dropdown-wrapper .van-dropdown-item .van-popup.van-popup--bottom {
@@ -1198,163 +1441,6 @@ page {
 .van-empty__description {
   font-size: 28rpx !important;
   color: #909399 !important;
-}
-
-/* 响应式适配 */
-
-/* 小屏幕设备 (iPhone SE, 小屏安卓) */
-@media (max-width: 375px) {
-  .popup-header {
-    padding: 20rpx 20rpx 16rpx;
-    padding-top: calc(20rpx + env(safe-area-inset-top));
-  }
-
-  .popup-title {
-    font-size: 30rpx;
-  }
-
-  .search-section {
-    padding: 16rpx 20rpx;
-  }
-
-  .list-scroll-view {
-    padding: 0 20rpx;
-  }
-
-  .item-content {
-    padding: 20rpx 16rpx;
-    gap: 12rpx;
-  }
-
-  .customer-name {
-    font-size: 28rpx;
-  }
-
-  .main-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8rpx;
-  }
-
-  .action-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8rpx;
-  }
-}
-
-/* 中等屏幕设备 (标准手机) */
-@media (max-width: 750rpx) {
-  .filter-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16rpx;
-  }
-
-  .action-buttons {
-    margin-left: 0;
-    justify-content: center;
-  }
-
-  .item-content {
-    padding: 24rpx 16rpx;
-    gap: 16rpx;
-  }
-
-  .main-row {
-    gap: 12rpx;
-  }
-
-  .customer-name {
-    font-size: 30rpx;
-  }
-
-  .action-row {
-    gap: 12rpx;
-  }
-
-
-
-  .popup-header {
-    padding: 24rpx 24rpx 20rpx;
-    padding-top: calc(24rpx + env(safe-area-inset-top));
-  }
-
-  .popup-title {
-    font-size: 32rpx;
-  }
-
-  .search-section {
-    padding: 20rpx 24rpx;
-  }
-
-  .list-scroll-view {
-    padding: 0 24rpx;
-  }
-}
-
-/* 大屏幕设备 (Plus系列, 大屏安卓) */
-@media (min-width: 414px) {
-  .popup-header {
-    padding: 36rpx 36rpx 28rpx;
-    padding-top: calc(36rpx + env(safe-area-inset-top));
-  }
-
-  .popup-title {
-    font-size: 38rpx;
-  }
-
-  .search-section {
-    padding: 28rpx 36rpx;
-  }
-
-  .list-scroll-view {
-    padding: 0 36rpx;
-  }
-
-  .item-content {
-    padding: 36rpx 28rpx;
-    gap: 28rpx;
-  }
-
-  .customer-name {
-    font-size: 34rpx;
-  }
-}
-
-/* 横屏适配 */
-@media (orientation: landscape) {
-  .credit-report-popup {
-    height: 95vh !important;
-  }
-
-  .popup-header {
-    padding-top: calc(20rpx + env(safe-area-inset-top));
-  }
-
-  .search-section {
-    padding: 16rpx 24rpx;
-  }
-
-  .item-content {
-    padding: 20rpx 24rpx;
-  }
-}
-
-/* 触摸优化 */
-.van-checkbox, .van-button, .close-icon, .info-icon {
-  min-height: 88rpx;
-  min-width: 88rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* 确保按钮有足够的触摸区域 */
-.van-button--mini {
-  min-height: 64rpx !important;
-  min-width: 120rpx !important;
-  padding: 0 24rpx !important;
 }
 
 /* ----------------- 分析结果样式 ----------------- */

@@ -42,7 +42,8 @@ Page({
 
     // 系统状态
     systemInfo: null,
-    forceUpdate: 0 // 用于强制更新页面
+    forceUpdate: 0, // 用于强制更新页面
+    hideShareButton: false // 控制分享按钮的显示
   },
 
   /**
@@ -68,7 +69,7 @@ Page({
     });
     
     // 获取URL参数
-    const { id, type } = options;
+    const { id, type, hideShareButton } = options;
     
     if (!id || !type) {
       this.setData({
@@ -80,7 +81,9 @@ Page({
     
     this.setData({
       taskId: id,
-      taskType: decodeURIComponent(type)
+      taskType: decodeURIComponent(type),
+      // 根据hideShareButton参数决定是否显示分享按钮
+      hideShareButton: hideShareButton === 'true'
     });
     
     // 加载任务结果
@@ -902,24 +905,14 @@ Page({
    * 返回上一页
    */
   goBack() {
-    // 获取页面栈
-    const pages = getCurrentPages();
-    if (pages.length > 1) {
-      const prevPage = pages[pages.length - 2];
-      // 如果上一页是历史记录页面，设置不自动刷新
-      if (prevPage.route === 'pages/history/history') {
-        prevPage.setData({
-          shouldAutoRefresh: false
-        });
-      }
-    }
-
+    console.log('返回上一页');
+    // 直接调用navigateBack，不做额外处理，这样会保留上一页的状态
     wx.navigateBack({
       delta: 1,
       fail: () => {
-        // 如果无法返回，则跳转到历史记录页面
-        wx.redirectTo({
-          url: '/pages/history/history'
+        // 如果返回失败（例如没有上一页），则跳转到首页
+        wx.switchTab({
+          url: '/pages/index/index'
         });
       }
     });

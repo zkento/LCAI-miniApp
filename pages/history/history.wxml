@@ -22,6 +22,8 @@
       >
         <view slot="action" class="filter-action" bind:tap="onShowFilter">
           <van-icon name="filter-o" size="22px" class="filter-icon" />
+          <!-- 添加筛选指示点，当有筛选条件时显示 -->
+          <view class="filter-indicator" wx:if="{{filterForm.taskTypes.length > 0 || filterForm.taskResults.length > 0 || filterForm.timeRange !== ''}}"></view>
         </view>
       </van-search>
     </view>

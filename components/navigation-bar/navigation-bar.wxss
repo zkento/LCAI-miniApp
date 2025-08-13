@@ -1,7 +1,7 @@
 .weui-navigation-bar {
   --weui-FG-0:rgba(0,0,0,.9);
   --height: 44px;
-  --left: 16px;
+  --left: 8px;
 }
 .weui-navigation-bar .android {
   --height: 48px;
@@ -32,14 +32,14 @@
   padding-left: var(--left);
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   height: 100%;
   box-sizing: border-box;
 }
 
 .weui-navigation-bar__btn_goback_wrapper {
-  padding: 11px 18px 11px 16px;
-  margin: -11px -18px -11px -16px;
+  padding: 11px 18px 11px 12px;
+  margin: -11px -18px -11px -12px;
 }
 
 .weui-navigation-bar__btn_goback_wrapper.weui-active {
@@ -60,14 +60,23 @@
 .weui-navigation-bar__center {
   font-size: 17px;
   text-align: center;
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  flex: 1;
   height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.title-text {
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 .weui-navigation-bar__loading {

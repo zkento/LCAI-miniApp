@@ -124,7 +124,7 @@
             </view>
             
             <!-- 单个分享报告按钮 -->
-            <view wx:if="{{reportContent}}" class="unified-floating-button">
+            <view wx:if="{{reportContent && !hideShareButton}}" class="unified-floating-button">
               <view class="button-section full-section" bindtap="showShareDialog">
                 <text>分享报告结果</text>
               </view>

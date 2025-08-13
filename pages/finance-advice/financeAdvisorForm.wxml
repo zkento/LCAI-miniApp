@@ -1,4 +1,5 @@
-<navigation-bar id="nav-bar" title="融资顾问" background="#f8f9fa" bind:back="onBack"></navigation-bar>
+<navigation-bar id="nav-bar" title="融资顾问" background="#f8f9fa" bindback="onBack"></navigation-bar>
+
 <scroll-view
   scroll-y="true"
   class="scroll-container"
@@ -15,7 +16,7 @@
           <text class="panel-title">填写客户融资需求</text>
         </view> -->
         <view class="panel-content">
-          <text class="description-hint">请参照下方的“融资需求描述建议”输入客户的融资需求，信息覆盖得越全面越好。</text>
+          <text class="description-hint">请参照下方的"融资需求描述建议"输入客户的融资需求，信息覆盖得越全面越好。</text>
           
           <!-- 需求描述文本框 -->
           <view class="form-item">
@@ -65,15 +66,15 @@
                 round
                 position="bottom"
                 custom-style="height: 60vh;"
-                bind:close="onCloseCascader"
+                bindclose="onCloseCascader"
                 z-index="999"
               >
                 <van-cascader
                   value="{{cascaderValue}}"
                   title="请选择业务城市"
                   options="{{provinceOptions}}"
-                  bind:close="onCloseCascader"
-                  bind:finish="onFinishCascader"
+                  bindclose="onCloseCascader"
+                  bindfinish="onFinishCascader"
                   active-color="#1b68de"
                   field-names="{{ { text: 'label', value: 'value', children: 'children' } }}"
                 />
@@ -82,19 +83,17 @@
 
             <!-- 征信报告分析结果选择器 -->
             <view class="form-item">
-              <view
-                class="credit-report-trigger {{isExtractingKeywords ? 'is-disabled' : ''}} {{selectedPersonalTask || selectedEnterpriseTask ? 'has-value' : ''}}"
-                bindtap="openCreditReportPopup"
+              <view 
+                class="credit-report-selector {{isExtractingKeywords ? 'is-disabled' : ''}} {{selectedPersonalTask || selectedEnterpriseTask ? 'has-value' : ''}}" 
+                bindtap="openCreditReportSelector"
               >
-                <text class="trigger-text {{selectedPersonalTask || selectedEnterpriseTask ? 'has-selected' : ''}}">
-                  <block wx:if="{{selectedPersonalTask && selectedEnterpriseTask}}">已选择个人和企业的征信报告分析结果</block>
-                  <block wx:elif="{{selectedPersonalTask}}">已选择"{{selectedPersonalTask.customerName}}"的"个人征信报告分析结果"</block>
-                  <block wx:elif="{{selectedEnterpriseTask}}">已选择"{{selectedEnterpriseTask.customerName}}"的"企业征信报告分析结果"</block>
-                  <block wx:else>请选择征信报告分析结果</block>
-                </text>
+                <view class="trigger-text {{selectedPersonalTask || selectedEnterpriseTask ? 'has-selected' : ''}}">
+                  <block wx:if="{{selectedPersonalTask}}">{{selectedPersonalTask.customerName}} - 个人征信报告</block>
+                  <block wx:elif="{{selectedEnterpriseTask}}">{{selectedEnterpriseTask.customerName}} - 企业征信报告</block>
+                  <block wx:else>请选择征信报告分析结果（可选）</block>
+                </view>
                 <view class="trigger-suffix">
-                  <van-icon wx:if="{{selectedPersonalTask || selectedEnterpriseTask}}" name="clear" size="16px" color="#a8abb2" catchtap="clearSelectedCreditReport" />
-                  <van-icon wx:else name="arrow" size="16px" color="#c0c4cc" class="van-cell__right-icon" />
+                  <van-icon name="arrow" size="16px" color="#a8abb2" class="van-cell__right-icon" />
                 </view>
               </view>
             </view>
@@ -264,16 +263,8 @@
 </scroll-view>
 
 <!-- 征信报告分析结果弹层 -->
-<van-popup
-  show="{{showCreditReportPopup}}"
-  position="bottom"
-  round
-  custom-style="height: 85vh; background-color: #f5f7fa;"
-  bind:close="closeCreditReportPopup"
-  close-on-click-overlay="{{true}}"
-  safe-area-inset-bottom="{{true}}"
-  z-index="999"
->
+<view class="credit-report-selector-modal {{showCreditReportPopup ? 'show' : ''}}" catchtouchmove="preventTouchMove">
+  <view class="credit-report-selector-mask" bindtap="closeCreditReportPopup"></view>
   <view class="credit-report-popup">
     <!-- 弹层头部 -->
     <view class="popup-header">
@@ -284,7 +275,7 @@
           size="18px"
           color="#303133"
           class="info-icon"
-          bind:click="showPopupInfo"
+          bindtap="showPopupInfo"
         />
       </view>
       <van-icon
@@ -292,7 +283,7 @@
         size="20px"
         color="#303133"
         class="close-icon"
-        bind:click="closeCreditReportPopup"
+        bindtap="closeCreditReportPopup"
       />
     </view>
 
@@ -304,9 +295,9 @@
           <van-search
             value="{{searchForm.customerName}}"
             placeholder="请输入客户姓名"
-            bind:change="onCustomerNameChange"
-            bind:search="onSearch"
-            bind:clear="onClearCustomerName"
+            bindchange="onCustomerNameChange"
+            bindsearch="onSearch"
+            bindclear="onClearCustomerName"
             shape="round"
             background="#ffffff"
             custom-class="search-input"
@@ -319,7 +310,7 @@
             <van-dropdown-item
               value="{{searchForm.taskResults}}"
               options="{{dropdownOptions}}"
-              bind:change="onTaskResultChange"
+              bindchange="onTaskResultChange"
               title-class="dropdown-title"
               popup-class="dropdown-popup"
             />
@@ -334,8 +325,8 @@
       class="list-scroll-view"
       refresher-enabled="{{true}}"
       refresher-triggered="{{refreshing}}"
-      bind:refresherrefresh="onRefresh"
-      bind:scrolltoupper="onScrollToUpper"
+      bindrefresherrefresh="onRefresh"
+      bindscrolltoupper="onScrollToUpper"
       upper-threshold="50"
     >
       <view class="task-list">
@@ -360,7 +351,7 @@
               <van-checkbox
                 value="{{item.isSelected}}"
                 disabled="{{item.isDisabled}}"
-                bind:change="onTaskSelect"
+                bindchange="onTaskSelect"
                 data-item="{{item}}"
                 checked-color="#1b68de"
                 icon-size="20px"
@@ -374,7 +365,7 @@
                 <van-tag
                   type="{{item.type.includes('个人征信') ? 'primary' : 'warning'}}"
                   size="small"
-                  class="type-tag"
+                  custom-class="type-tag"
                 >
                   {{item.type.includes('个人征信') ? '个人征信' : '企业征信'}}
                 </van-tag>
@@ -401,9 +392,8 @@
               <text
                 wx:if="{{item.result === '已出结果'}}"
                 class="view-result-link"
-                bind:tap="onViewResult"
+                catchtap="onViewResult"
                 data-item="{{item}}"
-                catchtap="true"
               >
                 查看结果
               </text>
@@ -411,10 +401,9 @@
                 wx:elif="{{item.result && item.result.includes('排队中')}}"
                 type="warning"
                 size="small"
-                bind:click="onCancelTask"
+                catchtap="onCancelTask"
                 data-item="{{item}}"
                 custom-class="action-btn"
-                catchtap="true"
               >
                 取消任务
               </van-button>
@@ -428,10 +417,9 @@
                 wx:elif="{{item.result && item.result.includes('任务失败')}}"
                 type="danger"
                 size="small"
-                bind:click="onShowFailReason"
+                catchtap="onShowFailReason"
                 data-item="{{item}}"
                 custom-class="action-btn"
-                catchtap="true"
               >
                 查看原因
               </van-button>
@@ -447,17 +435,8 @@
           >
             <view class="empty-actions">
               <text class="empty-tip">
-                {{searchForm.customerName || searchForm.taskResults !== '已出结果' ? '尝试调整搜索条件' : '可前去发起征信分析，获得结果后再回来选择'}}
+                {{searchForm.customerName || searchForm.taskResults !== '已出结果' ? '' : '可前去发起征信分析，获得结果后再回来选择'}}
               </text>
-              <van-button
-                wx:if="{{searchForm.customerName || searchForm.taskResults !== '已出结果'}}"
-                type="primary"
-                size="small"
-                bind:click="onResetSearch"
-                custom-class="reset-search-btn"
-              >
-                重置搜索条件
-              </van-button>
             </view>
           </van-empty>
         </view>
@@ -481,5 +460,5 @@
       </view>
     </scroll-view>
   </view>
-</van-popup>
+</view>
 
