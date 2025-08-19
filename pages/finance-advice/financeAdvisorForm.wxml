@@ -88,8 +88,15 @@
                 bindtap="openCreditReportSelector"
               >
                 <view class="trigger-text {{selectedPersonalTask || selectedEnterpriseTask ? 'has-selected' : ''}}">
-                  <block wx:if="{{selectedPersonalTask}}">{{selectedPersonalTask.customerName}} - 个人征信报告</block>
-                  <block wx:elif="{{selectedEnterpriseTask}}">{{selectedEnterpriseTask.customerName}} - 企业征信报告</block>
+                  <block wx:if="{{selectedPersonalTask && selectedEnterpriseTask}}">
+                    已选择个人和企业的征信报告分析结果
+                  </block>
+                  <block wx:elif="{{selectedPersonalTask}}">
+                    已选择"{{selectedPersonalTask.customerName}}"的"个人征信报告分析结果"
+                  </block>
+                  <block wx:elif="{{selectedEnterpriseTask}}">
+                    已选择"{{selectedEnterpriseTask.customerName}}"的"企业征信报告分析结果"
+                  </block>
                   <block wx:else>请选择征信报告分析结果（可选）</block>
                 </view>
                 <view class="trigger-suffix">
